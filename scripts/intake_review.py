@@ -32,9 +32,11 @@ def parse_target(body):
         raise SystemExit("找不到 GitHub 仓库地址 / No GitHub repository URL found in the issue body")
     owner, repo = m.group(1), m.group(2).replace(".git", "")
     path = None
-    pm = re.search(r"(?:^|\n)\s*`?(skills?/[A-Za-z0-9_./-]+)`?\s*(?:\n|$)", body or "")
+    pm = re.search(r"Path:\s*([A-Za-z0-9_./-]+)", body or "")
     if pm:
-        path = pm.group(1).strip()
+        value = pm.group(1).strip().strip("/")
+        if value and value.lower() not in ("auto", "none", "empty"):
+            path = value
     return owner, repo, path
 
 
@@ -67,9 +69,13 @@ def extract(blob, dest):
 
 def find_skill_dir(root, hint=None):
     if hint:
-        candidate = os.path.join(root, hint)
-        if os.path.isfile(os.path.join(candidate, "SKILL.md")):
-            return candidate
+        normalized = hint.strip("/")
+        for dirpath, _dirs, files in os.walk(root):
+            if "SKILL.md" not in files:
+                continue
+            rel = os.path.relpath(dirpath, root).replace(os.sep, "/")
+            if rel == normalized or rel.endswith("/" + normalized):
+                return dirpath
         raise SystemExit("指定目录里没有 SKILL.md / no SKILL.md at %s" % hint)
     best = None
     for dirpath, _dirs, files in os.walk(root):
@@ -99,6 +105,21 @@ def render(data, owner, repo, skill_rel):
     lines.append("| Skill directory | `%s` |" % skill_rel)
     lines.append("| Mode | static only, no code executed / 仅静态，不执行代码 |")
     lines.append("")
+    score = d.get("structure_score", d.get("total", 0))
+    try:
+        low = float(score) < 60
+    except (TypeError, ValueError):
+        low = False
+    if low:
+        lines.append("> 口径提醒 / What this score means：本引擎量的是**可验证性**（测试、声明与实现一致、可复跑、机器可读索引、许可），"
+                     "**不是流行度或内容好坏**。一个装量很高的技能也可能因为缺 tests/ 与许可文件而得低分——"
+                     "这说明它目前无法被第三方独立验证，不代表它不可用。")
+        lines.append("")
+        lines.append("> This engine measures **verifiability** — tests, declared-vs-implemented consistency, reproducibility, "
+                     "a machine-readable index and licensing — **not popularity or usefulness**. A widely installed skill "
+                     "can score low here simply because it ships no tests or license, which means others cannot verify it independently. "
+                     "It does not mean the skill is unusable.")
+        lines.append("")
     if blocking:
         lines.append("**Blocking / 阻断项**")
         for b in blocking[:12]:
