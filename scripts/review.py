@@ -144,7 +144,10 @@ def d_structure(root, fm, files):
     else:
         got += 4
     depth_bad = [os.path.relpath(p, root) for p in files
-                 if len(os.path.relpath(p, root).split(os.sep)) > 3]
+                 if len(os.path.relpath(p, root).split(os.sep)) > 3
+                 # .github/.vscode 这类是仓库托管目录，不算包内容层级；
+                 # 否则同一个包在 Linux 检出（.github 被保留）会比在本地少 4 分。
+                 and not os.path.relpath(p, root).split(os.sep)[0].startswith(".")]
     if depth_bad:
         notes.append("层级 >3 段：%s" % depth_bad[0])
     else:
@@ -1133,6 +1136,12 @@ def main():
     print()
     for k, v in d["dimensions"].items():
         print("  %-13s %2d/%-2d (%5.1f%%)" % (k, v["score"], v["max"], v["pct"]))
+    # 扣分必须留下痕迹：没有说明的扣分等于悄悄改分，别人复现时无从判断。
+    _notes = d.get("notes") or []
+    if _notes:
+        print("\n扣分依据（逐条可核）：")
+        for n in _notes:
+            print("  · " + n)
     if d["blocking"]:
         print("\n阻断项：")
         for b in d["blocking"]:
