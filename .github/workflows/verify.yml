@@ -44,6 +44,12 @@ jobs:
           res = rv.review('.', do_run=False)
           print("DIMS:",
                 {k: (v["score"], v["max"]) for k, v in res["data"]["dimensions"].items()})
+          files = rv.walk(rv.os.path.abspath('.'))
+          print("GOT_NOTES:", rv.d_structure(rv.os.path.abspath('.'), fm, files))
+          deep = [f for f in files
+                  if len(rv.os.path.relpath(f, rv.os.path.abspath('.')).split(rv.os.sep)) > 3]
+          print("DEEP:", deep[:6])
+          print("STRAY:", [f for f in files if f.endswith(('.pyc', '.zip')) or '__pycache__' in f][:6])
           for a in res["data"]["actions"][:8]:
               print("ACT:", a.get("id"), a.get("issue"))
           PY
