@@ -18,9 +18,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: zhaoxinghua09-cell/skill-redteam-suite
-          # 必须检出到被测目录之外。放进仓库内部，探针包会被算进"本包文件"，
-          # 层级与杂物检查随即扣分——自评从 100 掉到 92 就是这么来的。
-          path: ../suite
+          # 必须检在工作区内（否则 checkout 直接报错），随后再移出去。
+          path: suite
+
+      - name: Move suite out of the reviewed tree
+        # 放进仓库内部，探针包会被算进"本包文件"，层级与杂物检查随即扣分——
+        # 自评从 100 掉到 92 就是这么来的。所以审自己之前必须把它挪走。
+        run: mv "$GITHUB_WORKSPACE/suite" "$GITHUB_WORKSPACE/../suite"
 
       - name: Python version
         run: python3 --version
