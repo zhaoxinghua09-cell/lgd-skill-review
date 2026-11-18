@@ -26,17 +26,33 @@ REVIEW = os.path.join(HERE, "review.py")
 URL_RE = re.compile(r"https?://github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)")
 
 
+def _section_value(body, keyword):
+    """Read a value from a GitHub issue-form body: '### <heading with keyword>' then the next non-empty line."""
+    lines = (body or "").splitlines()
+    for i, line in enumerate(lines):
+        if line.strip().startswith("###") and keyword.lower() in line.lower():
+            for follow in lines[i + 1:]:
+                v = follow.strip()
+                if v and not v.startswith("###"):
+                    return v
+            return None
+    return None
+
+
 def parse_target(body):
     m = URL_RE.search(body or "")
     if not m:
         raise SystemExit("找不到 GitHub 仓库地址 / No GitHub repository URL found in the issue body")
     owner, repo = m.group(1), m.group(2).replace(".git", "")
     path = None
+    # 1) 手写格式：Path: skills/x
     pm = re.search(r"Path:\s*([A-Za-z0-9_./-]+)", body or "")
-    if pm:
-        value = pm.group(1).strip().strip("/")
-        if value and value.lower() not in ("auto", "none", "empty"):
-            path = value
+    value = pm.group(1).strip().strip("/") if pm else None
+    # 2) issue 表单格式：### Skill directory (optional) → 下一行
+    if not value:
+        value = (_section_value(body, "Skill directory") or "").strip().strip("/")
+    if value and value.lower() not in ("auto", "none", "empty", "_no response_", "no response"):
+        path = value
     return owner, repo, path
 
 

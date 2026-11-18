@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   review:
-    if: contains(github.event.issue.labels.*.name, 'review-request')
+    # 模板会自动打 review-request 标签；但手动开的 issue 只要正文里有仓库地址也照评，
+    # 否则第三方"直接留言"会被静默跳过——那等于把入口关掉。
+    if: contains(github.event.issue.labels.*.name, 'review-request') || contains(github.event.issue.body, 'github.com/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
