@@ -548,6 +548,25 @@ def locate_action(issue, root):
     return "属判断项（无文件可指）"
 
 
+def _safe_path(root, rel):
+    """把申诉者给的路径钉死在包根目录内。
+
+    申诉件是外部输入。`../../.ssh/id_rsa` 或一个绝对路径，足以让申诉者探测
+    包外文件是否存在；再配合 contains:/regex: 就能一位一位试探内容，等于
+    一个布尔预言机。所以这里既拒绝绝对路径，也拒绝任何解析后越出 root 的路径。
+    """
+    p = (rel or "").replace("\\", "/").strip()
+    if not p:
+        return None, "证据路径为空"
+    if p.startswith("/") or re.match(r"^[A-Za-z]:", p):
+        return None, "不接受绝对路径，证据必须位于包内"
+    base = os.path.realpath(root)
+    target = os.path.realpath(os.path.join(base, p))
+    if target != base and not target.startswith(base + os.sep):
+        return None, "证据路径越出包根目录，不予受理"
+    return target, None
+
+
 def appeal_check(root, data, appeal_path):
     """处理申诉：只裁决「原判定依据是否成立」，不修改已给出的分数。
 
@@ -587,7 +606,10 @@ def appeal_check(root, data, appeal_path):
         if not path:
             out.append((rid, claim, "UPHELD", "未提供可核验路径，无法推翻原判定"))
             continue
-        fp = path if os.path.isabs(path) else os.path.join(root, path)
+        fp, bad = _safe_path(root, path)
+        if bad:
+            out.append((rid, claim, "REJECTED", bad))
+            continue
         if not os.path.exists(fp):
             out.append((rid, claim, "UPHELD", "所述路径不存在：%s" % path))
             continue
@@ -1039,7 +1061,7 @@ def main():
         else:
             cnt_ov = 0
             for rid, claim, verdict, why in ar["items"]:
-                mark = "推翻" if verdict == "OVERTURNED" else ("无效ID" if verdict == "UNKNOWN_ID" else "维持")
+                mark = "推翻" if verdict == "OVERTURNED" else ("无效ID" if verdict == "UNKNOWN_ID" else ("拒收" if verdict == "REJECTED" else "维持"))
                 if verdict == "OVERTURNED":
                     cnt_ov += 1
                 print("  %-5s %-5s %s" % (rid, mark, why))
