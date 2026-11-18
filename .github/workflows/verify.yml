@@ -1,0 +1,35 @@
+name: verify
+
+# 这个工作流的存在理由：所有"已验证"的数字此前都只在作者本机跑过。
+# 交给 GitHub 的机器跑，日志公开、任何人可重放，才算有第二个执行主体。
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewer
+        uses: actions/checkout@v4
+
+      - name: Checkout redteam suite
+        uses: actions/checkout@v4
+        with:
+          repository: zhaoxinghua09-cell/skill-redteam-suite
+          path: suite
+
+      - name: Python version
+        run: python3 --version
+
+      - name: Golden self-tests (expect 5/5)
+        run: python3 tests/run_golden.py
+
+      - name: Redteam probes must all be blocked
+        run: python3 suite/run_suite.py --reviewer "$GITHUB_WORKSPACE/scripts/review.py"
+
+      - name: Self review must reach 100/100
+        run: |
+          python3 scripts/review.py . --run --eight | tee /tmp/self.txt
+          grep -q "总分：100/100" /tmp/self.txt
