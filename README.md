@@ -1,5 +1,12 @@
 # lgd-skill-review · 技能审计官
 
+<!-- LGD-DIFF -->
+**Scores are reproducible and appealable — same package, same score, every deduction pinned to a file.**
+
+评分可复算：同一包重复评测得同一总分；每条扣分定位到具体文件，并支持基于证据的申诉。
+复现：`python demo/run_demo.py`（含坏包/好包对照与申诉流程）。
+<!-- /LGD-DIFF -->
+
 **skills.sh 页面**: https://skills.sh/zhaoxinghua09-cell/lgd-skill-review ｜ `npx skills add zhaoxinghua09-cell/lgd-skill-review`
 
 
