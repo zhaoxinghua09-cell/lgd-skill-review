@@ -485,6 +485,31 @@ def grade_reading(s_pct, y_pct):
     return "两制都在中段：能用，但结构有缺口、内容密度也一般"
 
 
+def locate_action(issue, root):
+    """给每条整改项标出证据位置。
+
+    能指到具体行的，给 `文件:行号`；说的是「缺某物」的，显式写「包内不存在」。
+    留空是最差的做法——被评的人不知道该信还是该查。
+    """
+    m = re.search(r"([A-Za-z0-9_\-./]+\.(?:md|py|json|txt|toml|yaml)):(\d+)", issue)
+    if m:
+        return "%s:%s" % (m.group(1), m.group(2))
+    keys = ("tests/", "demo/", "ai-index.json", "llms.txt", "LICENSE", "README", "SKILL.md",
+            "chain.json", "icon.png")
+    for k in keys:
+        if k in issue:
+            hits = []
+            for dp, _, fns in os.walk(root):
+                for fn in fns:
+                    p = os.path.relpath(os.path.join(dp, fn), root).replace("\\", "/")
+                    if k.rstrip("/") in p:
+                        hits.append(p)
+            return hits[0] if hits else "包内不存在（%s）" % k
+    if re.search(r"缺|无|未|没有", issue):
+        return "包内不存在"
+    return "属判断项（无文件可指）"
+
+
 def appeal_check(root, data, appeal_path):
     """处理申诉：只裁决「原判定依据是否成立」，不修改已给出的分数。
 
@@ -803,18 +828,34 @@ def review(root, do_run=False, skill_type=None):
 
     actions = []
     for b in blocking:
-        actions.append({"priority": "P0", "issue": b.split(":")[0],
-                        "fix": BLOCKING.get(b.split(":")[0], "修复该阻断项")})
+        code, _, arg = b.partition(":")
+        # 阻断项必须锚到具体位置：优先复用带行号的明细，而不是只丢一个代码名
+        detail_note = next((n for n in notes_all if arg and arg in n), "")
+        actions.append({"priority": "P0", "issue": (detail_note or b)[:100],
+                        "fix": BLOCKING.get(code, "修复该阻断项")})
+    # 阻断项已锚定的明细，不要在 P1 里再列一遍：同一条发现说两遍是噪音
+    blocking_notes = set()
+    for b in blocking:
+        code, _, arg = b.partition(":")
+        n = next((x for x in notes_all if arg and arg in x), "")
+        if n:
+            blocking_notes.add(n)
+
     for n in notes_all:
+        if n in blocking_notes:
+            continue
         if re.search(r"缺|未|无|失败|建议", n):
             actions.append({"priority": "P1", "issue": n[:100],
                             "fix": "按该项补齐后复测"})
 
     # 每条整改项给一个稳定 ID，供申诉引用（R01、R02…，按本次报告顺序）
+    # 同时补齐证据位置：能指到行给行号，不存在就明说，不许留空
     for i, a in enumerate(actions[:12]):
         a["id"] = "R%02d" % (i + 1)
+        a["where"] = locate_action(a.get("issue", ""), root)
     for i, a in enumerate(type_actions):
         a["id"] = "T%02d" % (i + 1)
+        a["where"] = locate_action(a.get("issue", ""), root)
 
     return {
         "ok": True,
@@ -883,9 +924,10 @@ def main():
         for b in d["blocking"]:
             print("  ✗ " + b)
     if d["actions"]:
-        print("\n整改清单：")
+        print("\n整改清单（每条都带证据位置）：")
         for x in d["actions"]:
-            print("  [%s] %s  %s" % (x["priority"], x.get("id", "  "), x["issue"]))
+            print("  [%s] %s  %-26s %s" % (x["priority"], x.get("id", "  "),
+                                              x.get("where", ""), x["issue"]))
     print("\n复测：%s" % d["rerun"])
 
     root_abs = os.path.abspath(a.path)
