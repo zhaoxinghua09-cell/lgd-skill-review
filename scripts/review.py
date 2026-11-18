@@ -79,6 +79,33 @@ def frontmatter(skill_md):
     for k, v in list(fm.items()):
         if len(v) >= 2 and v[0] == v[-1] and v[0] in ("'", '"'):
             fm[k] = v[1:-1].strip()
+    # 官方最小规格只允许 name/description/license/allowed-tools/metadata 五个顶层键，
+    # 所以 tags/version/description_zh 这类字段常被放进 metadata 里。
+    # 两条布局都要认，否则合规的包反而被扣分——这是改包引起的第二次"尺子读不到"。
+    # 注意：外层循环已 strip 掉缩进，所以嵌套必须回到原始 body 按缩进解析。
+    nested, in_meta, nkey, nbuf = {}, False, None, []
+    for line in body.splitlines():
+        if re.match(r"metadata:\s*$", line):
+            in_meta, nkey, nbuf = True, None, []
+            continue
+        if not in_meta:
+            continue
+        if not line.strip():
+            continue
+        if not line.startswith((" ", "\t")):
+            in_meta = False
+            continue
+        m2 = re.match(r"\s+([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$", line)
+        if m2:
+            if nkey:
+                nested[nkey] = "\n".join(nbuf).strip()
+            nkey, nbuf = m2.group(1), [(m2.group(2) or "").strip()]
+        elif line.strip().startswith("-") and nkey:
+            nbuf.append(line.strip())
+    if nkey:
+        nested[nkey] = "\n".join(nbuf).strip()
+    for k, v in nested.items():
+        fm.setdefault(k, v)
     return fm
 
 
@@ -106,7 +133,10 @@ def d_structure(root, fm, files):
     req = ["name", "description", "version"]
     miss = [k for k in req if not fm.get(k)]
     if miss:
-        notes.append("frontmatter 缺 %s" % "、".join(miss))
+        # version 是我方口径要求，官方最小规格并不要求它。措辞必须区分二者，
+        # 否则合规包会被读成违反规格。
+        notes.append("未达我方口径：frontmatter 缺 %s（其中 version 为本地口径，官方规格不要求）"
+                     % "、".join(miss))
     else:
         got += 6
     if not re.match(r"^\d+\.\d+\.\d+$", str(fm.get("version", ""))):
@@ -205,16 +235,64 @@ def d_reproducible(root, files, do_run):
         for p in files
     )
     has_demo = any(re.search(r"demo[/\\]", p) for p in files)
+    # 抗作弊：只看"有没有文件"会被空壳骗过。
+    # 红队探针实测——零断言的 runner + 只打印一句的 demo，曾拿到 87 分 PASS。
+    runner_src, demo_src = "", ""
+    for p in files:
+        if re.search(r"(?:^|[/\\])tests[/\\](?:run_.*\.py|test_.*\.py|.*_test\.py)", p):
+            fp = p if os.path.isabs(p) else os.path.join(root, p)
+            try:
+                runner_src += read(fp)
+            except Exception:  # noqa: BLE001
+                pass
+        if re.search(r"demo[/\\].*\.py$", p):
+            fp = p if os.path.isabs(p) else os.path.join(root, p)
+            try:
+                demo_src += read(fp)
+            except Exception:  # noqa: BLE001
+                pass
+    runner_asserts = bool(re.search(r"\bassert\b|assertEqual|assertTrue|==|!=|\bexpect\b", runner_src))
     if has_golden:
         got += 6
     else:
         notes.append("无测试用例文件（tests/*.json）")
+    # 抗作弊补充：golden 用例只有 id、没有输入与期望，等于没有用例。
+    # 语义探针实测——{"id": "T1"} 三条空壳用例，结构分照样拿满。
+    thin_cases = 0
+    thin_total = 0
+    for p in files:
+        if re.search(r"tests[/\\].*\.json", p):
+            fp = p if os.path.isabs(p) else os.path.join(root, p)
+            try:
+                data = json.loads(read(fp))
+            except Exception:  # noqa: BLE001
+                continue
+            cases = data.get("cases") if isinstance(data, dict) else data
+            if isinstance(cases, list):
+                for c in cases:
+                    thin_total += 1
+                    if isinstance(c, dict) and len([k for k in c if k != "id"]) >= 1:
+                        continue
+                    thin_cases += 1
+    if thin_total and thin_cases == thin_total:
+        got -= 4
+        notes.append("测试用例只有 id、没有输入与期望（%d 条），等于没有用例" % thin_total)
     if has_runner:
-        got += 6
+        if runner_asserts:
+            got += 6
+        else:
+            notes.append("测试执行器里找不到任何断言或比较（形同未测：跑通了但什么都没验）")
     else:
         notes.append("无测试执行器（tests/run_*.py），别人无法复跑")
     if has_demo:
-        got += 4
+        # demo 必须真的碰到包内脚本（调用/导入都算）；只打印一句话的 demo 是装饰
+        stems = [os.path.basename(p)[:-3] for p in files
+                 if re.search(r"(?:^|[/\\])scripts[/\\].*\.py$", p)]
+        if not stems or any(s and s in demo_src for s in stems):
+            got += 4
+        else:
+            got += 1
+            notes.append("demo 未调用或导入包内脚本（只输出固定文本），不能算可验证示例")
     else:
         notes.append("无 demo，首次使用者无从验证")
     if has_runner and do_run:
@@ -685,9 +763,10 @@ def eight_report(root, fm, files):
 
     rows = []
 
-    # D1 知识增量：说明性占比越低，真正为 AI 补充的专家知识越多
+    # D1 知识增量：说明性占比越低，真正为 AI 补充的专家知识越多。
+    # 再补一条下限：正文太短时，低说明性只是"没写东西"，不等于"写了干货"。
     if nar <= 40:
-        d1 = 20
+        d1 = 20 if n >= 60 else 14
     elif nar <= 55:
         d1 = 15
     elif nar <= 70:
@@ -716,6 +795,8 @@ def eight_report(root, fm, files):
                  "决策树%d 有序步骤%d" % (tree, max(steps, ordered))))
 
     # D3 反模式：按「规则行」计数——此前只认 NEVER/MUST NOT，「MUST / 必须」这种规范写法被漏掉。
+    # 试过再收紧"规则必须指向具体对象"，结果把"不得写原文没有的内容"这类正确写法判成 0，
+    # 属于把尺子写窄，已撤回；空话治理交给 D1 的正文长度下限。
     rule_lines = [l for l in body.splitlines()
                   if re.search(r'(?:NEVER|MUST|禁止|不得|切勿|不要|必须)', l)]
     nevers = len(rule_lines)
@@ -970,6 +1051,46 @@ def review(root, do_run=False, skill_type=None):
     }
 
 
+def spec_notes(root, fm):
+    """规格自检（不进六维总分，只报事实）。
+
+    存在理由：门禁里有官方校验器，但单独跑 review.py 的人得不到这条信息，
+    于是"我方尺子说合格"会盖住"官方规格不合格"。skill-improver 的描述里有未加引号的
+    冒号、YAML 根本解析不了，就是被这样放过去的。这里只提示，不动分——
+    改分会让同一份包在不同版本尺子下得分漂移，那是另一种不可比。
+    """
+    notes = []
+    SKILL_KEYS = {"name", "description", "license", "allowed-tools", "metadata"}
+    raw = read(os.path.join(root, "SKILL.md")) or ""
+    m = re.match(r"^---\n(.*?)\n---", raw, re.S)
+    # 只认列首的键才算顶层：fm 里已把 metadata 子键合并进来，直接用它会把嵌套键误判成越界。
+    top = []
+    if m:
+        for line in m.group(1).splitlines():
+            mm = re.match(r"^([A-Za-z_][A-Za-z0-9_\-]*):\s*", line)
+            if mm:
+                top.append(mm.group(1))
+    extra = [k for k in top if k not in SKILL_KEYS]
+    if extra:
+        notes.append("顶层键超出官方白名单：%s（应移入 metadata）" % ", ".join(sorted(extra)))
+    desc = fm.get("description") or ""
+    if len(desc) > 1024:
+        notes.append("描述 %d 字，超过官方上限 1024 字" % len(desc))
+    if "<" in desc or ">" in desc:
+        notes.append("描述含尖括号，官方规格不允许")
+    if m:
+        for line in m.group(1).splitlines():
+            mm = re.match(r"^([A-Za-z_][A-Za-z0-9_\-]*):\s*(\S.*)$", line)
+            if not mm:
+                continue
+            k, v = mm.group(1), mm.group(2)
+            if k in ("metadata",) or v[:1] in ("\"", "'", "[", "{"):
+                continue
+            if ": " in v:
+                notes.append("字段 %s 的值里有未加引号的冒号，YAML 会解析失败" % k)
+    return notes
+
+
 def main():
     ap = argparse.ArgumentParser(description="LGD 技能评测引擎（6 维，零依赖）")
     ap.add_argument("path", help="技能目录")
@@ -1021,11 +1142,29 @@ def main():
         for x in d["actions"]:
             print("  [%s] %s·%s" % (x["priority"], x.get("id", "  "), x.get("key", "")))
             print("        %-28s %s" % (x.get("where", ""), x["issue"]))
+    if d["dimensions"].get("reproducible", {}).get("pct", 100) < 100:
+        _fs = walk(os.path.abspath(a.path))
+        _has_runner = any(os.path.basename(x).startswith("run_") and x.endswith(".py") for x in _fs)
+        if _has_runner:
+            # 有执行器却没跑，是"还没验证"，不是"没法验证"——两者不能混为一谈。
+            print("\n判据适用性：本包提供了执行器，但本次未实际运行测试；加 --run 才会执行并计分。")
+        else:
+            print("\n判据适用性：本尺子把“别人能否复跑”计入 reproducible 分。该包只提供文本、"
+                  "不提供测试与执行器，低分反映的是复现条件缺失，不代表内容无用。")
     print("\n复测：%s" % d["rerun"])
 
     root_abs = os.path.abspath(a.path)
     files = walk(root_abs)
     fm = frontmatter(read(os.path.join(root_abs, "SKILL.md")) or "")
+
+    sn = spec_notes(root_abs, fm)
+    if sn:
+        print("\n规格自检（不计分，官方 quick_validate.py 会因此判不合格）：")
+        for x in sn:
+            print("  ! " + x)
+    else:
+        print("\n规格自检：顶层键与描述长度符合官方最小规格")
+
 
     # ---- 双制汇总：结构分（六维 100）与语义分（八维 120）是两类正交判断，不混算 ----
     # 结构分问：能不能交付、能不能复现、有没有互链与许可。
