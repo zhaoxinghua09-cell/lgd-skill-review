@@ -32,6 +32,22 @@ jobs:
       - name: Self review (full dimensions, informational)
         run: python3 scripts/review.py . --eight || true
 
+      - name: Diagnose structure
+        run: |
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import review as rv
+          fm = rv.frontmatter(open('SKILL.md', encoding='utf-8').read())
+          print("FM KEYS:", sorted(fm.keys()))
+          print("VERSION:", repr(fm.get("version")))
+          res = rv.review('.', do_run=False)
+          print("DIMS:",
+                {k: (v["score"], v["max"]) for k, v in res["data"]["dimensions"].items()})
+          for a in res["data"]["actions"][:8]:
+              print("ACT:", a.get("id"), a.get("issue"))
+          PY
+
       - name: Assert the three published numbers
         run: |
           python3 tests/run_golden.py | tail -1
