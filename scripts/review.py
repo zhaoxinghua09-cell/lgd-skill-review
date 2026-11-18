@@ -255,6 +255,11 @@ def d_hygiene(root, files):
                     if CONTACT_CTX.search(ctx):
                         contact.append((os.path.relpath(p, root), m.group(0)))
                         continue
+                    # GitHub 的 bot / noreply 地址是平台生成的匿名身份，不含个人信息。
+                    # 判它泄露会让所有合规的自动化工作流被误封，属于测量偏见。
+                    if re.search(r"noreply\.github\.com$|github-actions\[bot\]@", m.group(0), re.I):
+                        contact.append((os.path.relpath(p, root), m.group(0)))
+                        continue
                 hits.append((os.path.relpath(p, root), label, m.group(0)[:24]))
     if hits:
         for h in hits[:5]:

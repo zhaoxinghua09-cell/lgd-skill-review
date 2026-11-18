@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-18T21:16:49Z",
+  "generated_at_utc": "2026-11-18T21:15:23Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -8,10 +8,10 @@
   },
   "summary": {
     "third_party_entries": 10,
-    "lgd_entries": 0,
+    "lgd_entries": 4,
     "third_party_top": 36,
-    "lgd_top": 0,
-    "gap": -36
+    "lgd_top": 96,
+    "gap": 60
   },
   "rows": [
     {
@@ -83,8 +83,38 @@
       "score": 10,
       "verdict": "BLOCK",
       "blocking": [
-        "secret_leak:assets/photos/photos.json",
-        "secret_leak:assets/photos/photos.json"
+        "secret_leak:assets\\photos\\photos.json",
+        "secret_leak:assets\\photos\\photos.json"
+      ]
+    },
+    {
+      "target": "summarize-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "debug-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "wechat-viral-topic",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "lgd-skill-review",
+      "bucket": "lgd",
+      "score": 88,
+      "verdict": "BLOCK",
+      "blocking": [
+        "secret_leak:.github\\workflows\\bench-nightly.yml"
       ]
     }
   ],
