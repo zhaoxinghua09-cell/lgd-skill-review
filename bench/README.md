@@ -20,13 +20,13 @@ python bench/bench.py
 
 | Target | Score / 100 | Verdict | Skill dir scored |
 |---|---|---|---|
-| vercel-labs/agent-skills | 24 | FAIL | `skills/composition-patterns` |
-| mattpocock/skills | 18 | FAIL | `skills/engineering/ask-matt` |
-| microsoft/azure-skills | 20 | FAIL | `skills/airunway-aks-setup` |
-| prisma/skills | 20 | FAIL | `prisma-cli` |
-| leonxlnx/taste-skill | 10 | **BLOCK** | `skills/taste-skill`（`secret_leak: assets/photos/photos.json`） |
-| juliusbrussee/caveman | 18 | FAIL | `skills/cavecrew` |
-| google/agents-cli | 22 | FAIL | `skills/google-agents-cli-adk-code` |
+| vercel-labs/agent-skills @ `skills/react-best-practices` | 24 | FAIL | `skills/react-best-practices` |
+| mattpocock/skills @ `skills/engineering/code-review` | 18 | FAIL | `skills/engineering/code-review` |
+| microsoft/azure-skills @ `skills/azure-deploy` | 20 | FAIL | `.github/plugins/azure-skills/skills/azure-deploy` |
+| prisma/skills @ `prisma-cli` | 20 | FAIL | `prisma-cli` |
+| leonxlnx/taste-skill @ `skills/taste-skill` | 10 | **BLOCK** | `skills/taste-skill`（`secret_leak: assets/photos/photos.json`） |
+| juliusbrussee/caveman @ `skills/caveman` | 18 | FAIL | `plugins/caveman/skills/caveman` |
+| google/agents-cli @ `skills/google-agents-cli-adk-code` | 22 | FAIL | `skills/google-agents-cli-adk-code` |
 | anthropics/skills @ `skills/pdf` | 21 | FAIL | `skills/pdf` |
 | anthropics/skills @ `skills/pptx` | 36 | FAIL | `skills/pptx` |
 | anthropics/skills @ `skills/docx` | 36 | FAIL | `skills/docx` |
@@ -34,6 +34,8 @@ python bench/bench.py
 | **LGD debug-pro** | **96** | PASS | — |
 | **LGD wechat-viral-topic** | **96** | PASS | — |
 | **LGD lgd-skill-review** | **96** | PASS | — |
+
+全部目标已改为**显式指定旗舰技能路径**（不再依赖启发式自动选取）。对照上一版自动选取的结果：第三方区间仍是 10–24，分数几乎不变——说明结论对「选哪个目录」不敏感。
 
 我方四包在 `--run` 模式下为 100/100；静态入口封顶 96（满分要求真跑测试，而入口不执行他人代码）。
 
@@ -50,7 +52,7 @@ python bench/bench.py
 
 ## Limitations / 局限（必须一起读）
 
-1. **目录选取是启发式的**：自动取仓库内最浅一层的 `SKILL.md`，未必是作者的旗舰技能。因此本表实际度量的是「**该仓库中某一技能目录**」，不是「该仓库全部技能」。带 `@path` 的行是显式指定路径的。
+1. **目录选取已改为显式指定**：表中每个目标都标注了被评的 `@path`（旗舰技能目录），不再依赖启发式自动选取。仍可能漏掉作者心里真正的「主技能」——欢迎指出，指出即改。
 2. **静态模式**：不跑测试，`可复跑` 维度按「是否存在可离线复跑的证据」静态判定，满分需 `--run`。
 3. **单时点**：2026-11-19 一次快照，仓库改动后分数会变；重跑即更新。
 4. **口径不可跨表比较**：本表是 100 分制静态口径；语义分（120 分制）未在此列出，不得与本表混排。

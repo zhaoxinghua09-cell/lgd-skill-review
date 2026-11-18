@@ -11,8 +11,8 @@
       "discoverable": 4,
       "licensing": 2
     },
-    "dir": "agent-skills-HEAD/skills/composition-patterns",
-    "target": "vercel-labs/agent-skills",
+    "dir": "agent-skills-HEAD/skills/react-best-practices",
+    "target": "vercel-labs/agent-skills@skills/react-best-practices",
     "bucket": "third-party"
   },
   {
@@ -27,8 +27,8 @@
       "discoverable": 0,
       "licensing": 0
     },
-    "dir": "skills-HEAD/skills/engineering/ask-matt",
-    "target": "mattpocock/skills",
+    "dir": "skills-HEAD/skills/engineering/code-review",
+    "target": "mattpocock/skills@skills/engineering/code-review",
     "bucket": "third-party"
   },
   {
@@ -36,15 +36,15 @@
     "verdict": "FAIL",
     "blocking": [],
     "dims": {
-      "structure": 10,
+      "structure": 6,
       "consistency": 0,
       "reproducible": 0,
       "hygiene": 8,
-      "discoverable": 0,
+      "discoverable": 4,
       "licensing": 2
     },
-    "dir": "azure-skills-HEAD/skills/airunway-aks-setup",
-    "target": "microsoft/azure-skills",
+    "dir": "azure-skills-HEAD/.github/plugins/azure-skills/skills/azure-deploy",
+    "target": "microsoft/azure-skills@skills/azure-deploy",
     "bucket": "third-party"
   },
   {
@@ -60,7 +60,7 @@
       "licensing": 2
     },
     "dir": "skills-HEAD/prisma-cli",
-    "target": "prisma/skills",
+    "target": "prisma/skills@prisma-cli",
     "bucket": "third-party"
   },
   {
@@ -79,7 +79,7 @@
       "licensing": 0
     },
     "dir": "taste-skill-HEAD/skills/taste-skill",
-    "target": "leonxlnx/taste-skill",
+    "target": "leonxlnx/taste-skill@skills/taste-skill",
     "bucket": "third-party"
   },
   {
@@ -94,8 +94,8 @@
       "discoverable": 0,
       "licensing": 0
     },
-    "dir": "caveman-HEAD/skills/cavecrew",
-    "target": "juliusbrussee/caveman",
+    "dir": "caveman-HEAD/plugins/caveman/skills/caveman",
+    "target": "juliusbrussee/caveman@skills/caveman",
     "bucket": "third-party"
   },
   {
@@ -111,7 +111,7 @@
       "licensing": 0
     },
     "dir": "agents-cli-HEAD/skills/google-agents-cli-adk-code",
-    "target": "google/agents-cli",
+    "target": "google/agents-cli@skills/google-agents-cli-adk-code",
     "bucket": "third-party"
   },
   {

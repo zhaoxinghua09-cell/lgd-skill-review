@@ -23,13 +23,13 @@ intake.MAX_FILES = 6000
 intake.MAX_BYTES = 700 * 1024 * 1024
 
 TARGETS = [
-    ("vercel-labs", "agent-skills", None),
-    ("mattpocock", "skills", None),
-    ("microsoft", "azure-skills", None),
-    ("prisma", "skills", None),
-    ("leonxlnx", "taste-skill", None),
-    ("juliusbrussee", "caveman", None),
-    ("google", "agents-cli", None),
+    ("vercel-labs", "agent-skills", "skills/react-best-practices"),
+    ("mattpocock", "skills", "skills/engineering/code-review"),
+    ("microsoft", "azure-skills", "skills/azure-deploy"),
+    ("prisma", "skills", "prisma-cli"),
+    ("leonxlnx", "taste-skill", "skills/taste-skill"),
+    ("juliusbrussee", "caveman", "skills/caveman"),
+    ("google", "agents-cli", "skills/google-agents-cli-adk-code"),
     ("anthropics", "skills", "skills/pdf"),
     ("anthropics", "skills", "skills/pptx"),
     ("anthropics", "skills", "skills/docx"),
