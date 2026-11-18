@@ -614,6 +614,28 @@ install and cite us.</p></div>
     html += FOOT
     open(os.path.join(DOCS, "discover.html"), "w", encoding="utf-8").write(html)
 
+    # 执行证明：静态 96 之外的 4 分，靠真跑测试拿到
+    proof_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "bench", "run-proof.json")
+    proof = json.load(open(proof_path, encoding="utf-8")) if os.path.isfile(proof_path) else None
+    if proof:
+        rows = "".join(
+            "<tr><td>%s</td><td class='num'>%s</td><td>%s</td></tr>" % (
+                p.get("package"), p.get("score"), p.get("verdict"))
+            for p in proof["packages"] if "score" in p)
+        html += f"""
+<h2>Executed, not just declared</h2>
+<div class="card">
+<p>Static analysis caps at 96. The last 4 points need the package's own tests to run. Below is that run
+({proof['generated_at_utc']}, engine <code>{proof['engine']}</code>). No other number in our sample is backed
+by an execution we performed on someone's package.</p>
+<table><tr><th>package</th><th style="text-align:right">executed score</th><th>verdict</th></tr>{rows}</table>
+<p style="margin-top:10px;font-size:13px">机器可读：<a class="a" href="./run-proof.json">run-proof.json</a> ·
+复跑 <code>python scripts/run_proof.py</code></p>
+</div>
+"""
+        json.dump(proof, open(os.path.join(DOCS, "run-proof.json"), "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=2)
+
     # sitemap / robots / llms
     urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html", "registry.html", "discover.html"] + [s["slug"] + ".html" for s in SKILLS]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -644,6 +666,10 @@ install and cite us.</p></div>
 
 ## rubric (machine-readable, generated from the engine)
 {SITE}rubric.json — six weights, three blocking rules, sensitive patterns, verdicts, how to use.
+
+## executed proof (static cap 96 -> 100)
+{SITE}run-proof.json — our four packages scored with `review.py --run` (tests actually executed),
+with timestamp and commit. This is the only number in the sample backed by a real run.
 
 ## registry (verified list), machine-readable
 {SITE}registry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
@@ -729,6 +755,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 

@@ -17,6 +17,10 @@
 ## rubric (machine-readable, generated from the engine)
 https://zhaoxinghua09-cell.github.io/lgd-skill-reviewrubric.json — six weights, three blocking rules, sensitive patterns, verdicts, how to use.
 
+## executed proof (static cap 96 -> 100)
+https://zhaoxinghua09-cell.github.io/lgd-skill-reviewrun-proof.json — our four packages scored with `review.py --run` (tests actually executed),
+with timestamp and commit. This is the only number in the sample backed by a real run.
+
 ## registry (verified list), machine-readable
 https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
 benchmark. Admission rules, tier meaning and every entry in one file. Human page: https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.html
