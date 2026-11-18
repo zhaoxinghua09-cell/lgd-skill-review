@@ -1,5 +1,7 @@
 # lgd-skill-review · 技能审计官
 
+[![verifiability](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzhaoxinghua09-cell%2Flgd-skill-review%2Fmain%2Fbench%2Fbadge.json)](https://github.com/zhaoxinghua09-cell/lgd-skill-review/tree/main/bench)
+
 <!-- LGD-DIFF -->
 **Scores are reproducible and appealable — same package, same score, every deduction pinned to a file.**
 

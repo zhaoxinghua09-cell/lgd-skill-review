@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -98,6 +99,62 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
     print("written: %s (%d rows)" % (out, len(rows)))
+
+    emit_machine_readable(rows)
+
+
+def emit_machine_readable(rows):
+    """给 AI 与徽章用的两份派生物：leaderboard.json（榜单）与 badge.json（shields 端点格式）。
+
+    这两个文件不参与评分，只做「可被机器持续消费」的出口：榜单变了，徽章跟着变。
+    """
+    third = sorted([r for r in rows if r.get("bucket") == "third-party"], key=lambda r: -(r.get("score") or 0))
+    own = sorted([r for r in rows if r.get("bucket") == "lgd"], key=lambda r: -(r.get("score") or 0))
+    top_third = third[0]["score"] if third else 0
+    best_own = own[0]["score"] if own else 0
+
+    board = {
+        "schema": "lgd-skillbench/leaderboard/1",
+        "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
+        "scale": {"max": 100, "static_cap_note": "100 requires --run with the target's own tests"},
+        "summary": {
+            "third_party_entries": len(third),
+            "lgd_entries": len(own),
+            "third_party_top": top_third,
+            "lgd_top": best_own,
+            "gap": best_own - top_third,
+        },
+        "rows": [
+            {
+                "target": r.get("target"),
+                "bucket": r.get("bucket"),
+                "score": r.get("score"),
+                "verdict": r.get("verdict"),
+                "blocking": r.get("blocking", []),
+            }
+            for r in third + own
+        ],
+        "limits": [
+            "measures verifiability, not usefulness or popularity",
+            "low score means evidence is missing, not that the skill is bad",
+            "single point-in-time snapshot; sample is not random",
+        ],
+    }
+    lb = os.path.join(HERE, "leaderboard.json")
+    with open(lb, "w", encoding="utf-8") as f:
+        json.dump(board, f, ensure_ascii=False, indent=2)
+
+    badge = {
+        "schemaVersion": 1,
+        "label": "verifiability",
+        "message": "peers %d / LGD %d" % (top_third, best_own),
+        "color": "brightgreen" if best_own - top_third >= 50 else "orange",
+    }
+    bb = os.path.join(HERE, "badge.json")
+    with open(bb, "w", encoding="utf-8") as f:
+        json.dump(badge, f, ensure_ascii=False)
+    print("written: %s, %s" % (lb, bb))
 
 
 if __name__ == "__main__":
