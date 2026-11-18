@@ -176,3 +176,12 @@ MIT。
 - 自检 5/5 PASS（python tests/run_golden.py）
 - 结构制 100/100 PASS（python scripts/review.py <包>）
 
+
+## 取代关系
+
+本包取代此前分散的三个闸门包（skill-quality-gate / skill-admission-gate / skill-release-gate）。
+四关判据（分数 / 数字 / 反作弊 / 规格）现在只在这里维护一处；
+那三个包已标注退役，仅作为已安装用户的入口保留。
+
+一条命令看它做什么：python demo/run_demo.py（造坏包 → 17 项整改 → 复测通过）。
+
