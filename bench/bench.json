@@ -1,0 +1,225 @@
+[
+  {
+    "score": 24,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 2
+    },
+    "dir": "agent-skills-HEAD/skills/composition-patterns",
+    "target": "vercel-labs/agent-skills",
+    "bucket": "third-party"
+  },
+  {
+    "score": 18,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "skills-HEAD/skills/engineering/ask-matt",
+    "target": "mattpocock/skills",
+    "bucket": "third-party"
+  },
+  {
+    "score": 20,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 2
+    },
+    "dir": "azure-skills-HEAD/skills/airunway-aks-setup",
+    "target": "microsoft/azure-skills",
+    "bucket": "third-party"
+  },
+  {
+    "score": 20,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 2
+    },
+    "dir": "skills-HEAD/prisma-cli",
+    "target": "prisma/skills",
+    "bucket": "third-party"
+  },
+  {
+    "score": 10,
+    "verdict": "BLOCK",
+    "blocking": [
+      "secret_leak:assets\\photos\\photos.json",
+      "secret_leak:assets\\photos\\photos.json"
+    ],
+    "dims": {
+      "structure": 6,
+      "consistency": 0,
+      "reproducible": 4,
+      "hygiene": 0,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "taste-skill-HEAD/skills/taste-skill",
+    "target": "leonxlnx/taste-skill",
+    "bucket": "third-party"
+  },
+  {
+    "score": 18,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "caveman-HEAD/skills/cavecrew",
+    "target": "juliusbrussee/caveman",
+    "bucket": "third-party"
+  },
+  {
+    "score": 22,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 0
+    },
+    "dir": "agents-cli-HEAD/skills/google-agents-cli-adk-code",
+    "target": "google/agents-cli",
+    "bucket": "third-party"
+  },
+  {
+    "score": 21,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 3
+    },
+    "dir": "skills-HEAD/skills/pdf",
+    "target": "anthropics/skills@skills/pdf",
+    "bucket": "third-party"
+  },
+  {
+    "score": 36,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 6,
+      "consistency": 15,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 3
+    },
+    "dir": "skills-HEAD/skills/pptx",
+    "target": "anthropics/skills@skills/pptx",
+    "bucket": "third-party"
+  },
+  {
+    "score": 36,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 6,
+      "consistency": 15,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 3
+    },
+    "dir": "skills-HEAD/skills/docx",
+    "target": "anthropics/skills@skills/docx",
+    "bucket": "third-party"
+  },
+  {
+    "score": 96,
+    "verdict": "PASS",
+    "blocking": [],
+    "dims": {
+      "structure": 20,
+      "consistency": 25,
+      "reproducible": 16,
+      "hygiene": 15,
+      "discoverable": 15,
+      "licensing": 5
+    },
+    "target": "summarize-pro",
+    "bucket": "lgd"
+  },
+  {
+    "score": 96,
+    "verdict": "PASS",
+    "blocking": [],
+    "dims": {
+      "structure": 20,
+      "consistency": 25,
+      "reproducible": 16,
+      "hygiene": 15,
+      "discoverable": 15,
+      "licensing": 5
+    },
+    "target": "debug-pro",
+    "bucket": "lgd"
+  },
+  {
+    "score": 96,
+    "verdict": "PASS",
+    "blocking": [],
+    "dims": {
+      "structure": 20,
+      "consistency": 25,
+      "reproducible": 16,
+      "hygiene": 15,
+      "discoverable": 15,
+      "licensing": 5
+    },
+    "target": "wechat-viral-topic",
+    "bucket": "lgd"
+  },
+  {
+    "score": 96,
+    "verdict": "PASS",
+    "blocking": [],
+    "dims": {
+      "structure": 20,
+      "consistency": 25,
+      "reproducible": 16,
+      "hygiene": 15,
+      "discoverable": 15,
+      "licensing": 5
+    },
+    "target": "lgd-skill-review",
+    "bucket": "lgd"
+  }
+]
