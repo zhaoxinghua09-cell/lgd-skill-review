@@ -21,3 +21,6 @@ jobs:
         run: python tests/run_golden.py
       - name: Scores must be reproducible
         run: python demo/prove_score.py
+
+      - name: Self-audit with the LGD engine (static 96 + executed 100)
+        run: python scripts/review.py . --json --run
