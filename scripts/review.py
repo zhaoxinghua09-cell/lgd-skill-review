@@ -136,7 +136,13 @@ def d_consistency(root, fm, files):
     desc = " ".join(str(fm.get(k, "")) for k in ("description", "description_en", "description_zh"))
     skill_md = read(os.path.join(root, "SKILL.md"))
     # 只在「真正给出的命令行」里取参数声明；正文里举例讲别人的缺陷（如 --draft）不算我们的承诺
-    cmd_lines = [l for l in skill_md.splitlines() if re.search(r"python[3]?\s+\S+\.py", l)]
+    line_of_flag = {}
+    cmd_lines = []
+    for i, l in enumerate(skill_md.splitlines(), 1):
+        if re.search(r"python[3]?\s+\S+\.py", l):
+            cmd_lines.append(l)
+            for f in re.findall(r"--[a-z][a-z0-9\-]{1,20}", l):
+                line_of_flag.setdefault(f, []).append(i)
     declared_flags = set()
     for l in cmd_lines:
         declared_flags |= set(re.findall(r"--[a-z][a-z0-9\-]{1,20}", l))
@@ -159,7 +165,9 @@ def d_consistency(root, fm, files):
         missing = unknown - have_flags
         if missing:
             for f in sorted(missing)[:5]:
-                notes.append("声明了未实现的参数 %s" % f)
+                # 结论必须能回到原文某一行：没有行号的结论只是意见
+                ln = (line_of_flag.get(f) or ["?"])[0]
+                notes.append("SKILL.md:%s 声明了未实现的参数 %s" % (ln, f))
                 blocking.append("declared_command_missing:%s" % f)
         else:
             got += 5
