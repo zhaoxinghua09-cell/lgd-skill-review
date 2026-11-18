@@ -1,0 +1,45 @@
+name: Re-review
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  rereview:
+    # 提交者在同一 issue 里留言 `/re-review` 即重评，并在回帖里给出分数变化
+    if: |
+      github.event.issue.pull_request == null &&
+      contains(github.event.comment.body, '/re-review')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Re-run static dual-ruler review
+        id: review
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python scripts/intake_review.py "$ISSUE_BODY" > verdict.md
+          python scripts/rereview.py "${{ github.event.issue.number }}" "${{ github.repository }}" verdict.md > verdict2.md
+          cat verdict2.md
+
+      - name: Post verdict
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          if [ -s verdict2.md ]; then
+            gh issue comment "$ISSUE" --body-file verdict2.md
+          elif [ -s verdict.md ]; then
+            gh issue comment "$ISSUE" --body-file verdict.md
+          else
+            gh issue comment "$ISSUE" --body "复评未完成：无法下载仓库或找不到 SKILL.md。/ Re-review could not run."
+          fi
