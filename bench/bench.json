@@ -208,16 +208,14 @@
     "bucket": "lgd"
   },
   {
-    "score": 88,
-    "verdict": "BLOCK",
-    "blocking": [
-      "secret_leak:.github\\workflows\\bench-nightly.yml"
-    ],
+    "score": 96,
+    "verdict": "PASS",
+    "blocking": [],
     "dims": {
       "structure": 20,
       "consistency": 25,
       "reproducible": 16,
-      "hygiene": 7,
+      "hygiene": 15,
       "discoverable": 15,
       "licensing": 5
     },

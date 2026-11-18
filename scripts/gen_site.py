@@ -170,6 +170,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./benchmark.html">Benchmark</a>
 <a href="./badge.html">Badge</a>
 <a href="./audits.html">Audits</a>
+<a href="./registry.html">Registry</a>
 <a href="{REPO}">GitHub</a>
 </nav>
 """
@@ -455,8 +456,76 @@ the package's evidence, not of its usefulness.</p></div>
         json.dumps(audits_doc, ensure_ascii=False, indent=2)
     )
 
+    # registry — 认证清单：按分数分档，数据由榜单生成，人可读、机可读
+    tiers = [("verified", 90, "LGD Verified · 认证", "≥90：陌生人十分钟内可核实全部主张"),
+             ("watch", 60, "LGD Watch · 观察", "60–89：有一部分能核实，关键项缺失"),
+             ("blocked", 0, "LGD Blocked · 未通过", "<60：核心证据缺失，无法核实")]
+    by_tier = {t[0]: [] for t in tiers}
+    for r in data["rows"]:
+        for key, lo, label, desc in tiers:
+            if r["score"] >= lo:
+                by_tier[key].append(r)
+                break
+    html = head("Registry — the verified list",
+                "A tiered registry of agent skills by verifiability score. Machine-readable at registry.json; "
+                "entries are generated from the public benchmark, not curated by hand.",
+                "registry.html")
+    html += """
+<div class="kick">registry</div>
+<h1>The verified list, built from numbers rather than opinions.</h1>
+<p class="lead">Three tiers. Nobody is promoted by application, nobody pays, and no entry is edited by
+hand — every row is a score produced by the same runner. To appear here, submit the package; to change
+your tier, change the package.</p>
+"""
+    for key, lo, label, desc in tiers:
+        rows = by_tier[key]
+        body = "".join(
+            '<tr><td>%s</td><td class="num%s">%s</td></tr>' % (
+                r["target"], " bad" if r["score"] < 60 else "", r["score"]) for r in rows
+        ) or '<tr><td colspan="2" style="color:#8a8378">（本档暂无条目）</td></tr>'
+        html += f"""
+<div class="card">
+<h3>{label}</h3>
+<p style="font-size:13px;color:#6b6459">{desc} · 本档 {len(rows)} 条</p>
+<table><tr><th>package</th><th style="text-align:right">score</th></tr>{body}</table>
+</div>
+"""
+    html += f"""
+<h2>How to get on this list</h2>
+<div class="card"><ul>
+<li>Submit a public repository: <a class="a" href="{REPO}/issues/new?template=review-request.yml">review request</a>（机器人取包、静态分析、回帖给分与整改顺序）</li>
+<li>No payment, no negotiation, no editorial discretion. The runner decides.</li>
+<li>Rejected? The reply lists what is missing and in what order to fix it. Resubmit after fixing.</li>
+</ul>
+<p style="margin-top:10px;font-size:13px">机器可读版：<a class="a" href="./registry.json">registry.json</a>（含每档阈值与全部条目）。</p></div>
+
+<h2>What a tier is not</h2>
+<div class="card"><p>It is not a quality endorsement, not a security audit, not a warranty. It says one thing:
+<b>how much of this package's claims a stranger can verify in ten minutes</b>. A verified package can still
+be useless; a blocked package can still be excellent — it just cannot be checked.</p></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "registry.html"), "w", encoding="utf-8").write(html)
+
+    reg = {
+        "schema_version": "1.0",
+        "generated_at_utc": data["generated_at_utc"],
+        "source": SITE + "benchmark.html",
+        "tiers": [{"key": k, "min_score": lo, "label": lb, "meaning": d, "count": len(by_tier[k]),
+                   "entries": [{"target": r["target"], "score": r["score"], "verdict": r["verdict"]}
+                               for r in by_tier[k]]} for k, lo, lb, d in tiers],
+        "rules": {
+            "admission": "public repository + reproducible static audit; no payment, no editorial discretion",
+            "remeasure": "tier follows the score; fixing the package moves the tier",
+            "not_a": ["quality endorsement", "security audit", "warranty"],
+        },
+    }
+    open(os.path.join(DOCS, "registry.json"), "w", encoding="utf-8").write(
+        json.dumps(reg, ensure_ascii=False, indent=2)
+    )
+
     # sitemap / robots / llms
-    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html"] + [s["slug"] + ".html" for s in SKILLS]
+    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html", "registry.html"] + [s["slug"] + ".html" for s in SKILLS]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
@@ -482,6 +551,10 @@ the package's evidence, not of its usefulness.</p></div>
 - one-click mechanical fixes: {REPO}/blob/main/scripts/quickfix.py
 - benchmark data: {REPO}/blob/main/bench/leaderboard.json
 - refreshed daily; every number rerunnable with `python bench.py`
+
+## registry (verified list), machine-readable
+{SITE}registry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
+benchmark. Admission rules, tier meaning and every entry in one file. Human page: {SITE}registry.html
 
 ## third-party audits, machine-readable
 - {SITE}audits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
@@ -547,10 +620,13 @@ replies with score + blockers + fix order.
 ## 8. badge (live endpoint)
 {REPO}/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
 
-## 9. third-party audits (machine-readable)
+## 9. registry (verified list)
+{SITE}registry.json — tiers: verified ≥90 · watch 60-89 · blocked <60; rules and entries.
+
+## 10. third-party audits (machine-readable)
 {SITE}audits.json — two large public repos, full findings + fix order + reproduce command.
 
-## 10. site
+## 11. site
 {SITE}/ — {', '.join(u.replace('.html','') for u in urls)}
 """
     open(os.path.join(DOCS, "llms-full.txt"), "w", encoding="utf-8").write(full)
@@ -560,6 +636,8 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
+
 
 
 

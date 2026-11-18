@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-18T21:15:23Z",
+  "generated_at_utc": "2026-11-18T23:03:16Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -111,11 +111,9 @@
     {
       "target": "lgd-skill-review",
       "bucket": "lgd",
-      "score": 88,
-      "verdict": "BLOCK",
-      "blocking": [
-        "secret_leak:.github\\workflows\\bench-nightly.yml"
-      ]
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
     }
   ],
   "limits": [

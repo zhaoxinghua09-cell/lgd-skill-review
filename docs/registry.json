@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-11-18T23:03:16Z",
+  "source": "https://zhaoxinghua09-cell.github.io/lgd-skill-reviewbenchmark.html",
+  "tiers": [
+    {
+      "key": "verified",
+      "min_score": 90,
+      "label": "LGD Verified · 认证",
+      "meaning": "≥90：陌生人十分钟内可核实全部主张",
+      "count": 4,
+      "entries": [
+        {
+          "target": "summarize-pro",
+          "score": 96,
+          "verdict": "PASS"
+        },
+        {
+          "target": "debug-pro",
+          "score": 96,
+          "verdict": "PASS"
+        },
+        {
+          "target": "wechat-viral-topic",
+          "score": 96,
+          "verdict": "PASS"
+        },
+        {
+          "target": "lgd-skill-review",
+          "score": 96,
+          "verdict": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "watch",
+      "min_score": 60,
+      "label": "LGD Watch · 观察",
+      "meaning": "60–89：有一部分能核实，关键项缺失",
+      "count": 0,
+      "entries": []
+    },
+    {
+      "key": "blocked",
+      "min_score": 0,
+      "label": "LGD Blocked · 未通过",
+      "meaning": "<60：核心证据缺失，无法核实",
+      "count": 10,
+      "entries": [
+        {
+          "target": "anthropics/skills@skills/pptx",
+          "score": 36,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "anthropics/skills@skills/docx",
+          "score": 36,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "vercel-labs/agent-skills@skills/react-best-practices",
+          "score": 24,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "google/agents-cli@skills/google-agents-cli-adk-code",
+          "score": 22,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "anthropics/skills@skills/pdf",
+          "score": 21,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "microsoft/azure-skills@skills/azure-deploy",
+          "score": 20,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "prisma/skills@prisma-cli",
+          "score": 20,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "mattpocock/skills@skills/engineering/code-review",
+          "score": 18,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "juliusbrussee/caveman@skills/caveman",
+          "score": 18,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "leonxlnx/taste-skill@skills/taste-skill",
+          "score": 10,
+          "verdict": "BLOCK"
+        }
+      ]
+    }
+  ],
+  "rules": {
+    "admission": "public repository + reproducible static audit; no payment, no editorial discretion",
+    "remeasure": "tier follows the score; fixing the package moves the tier",
+    "not_a": [
+      "quality endorsement",
+      "security audit",
+      "warranty"
+    ]
+  }
+}

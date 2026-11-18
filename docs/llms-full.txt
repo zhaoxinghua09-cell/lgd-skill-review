@@ -1,6 +1,6 @@
 # lgd-skill-review — full corpus
 
-> One fetch, everything an agent needs. Numbers below are generated at 2026-11-18T21:15:23Z
+> One fetch, everything an agent needs. Numbers below are generated at 2026-11-18T23:03:16Z
 > from bench/leaderboard.json; they change when the benchmark changes.
 
 ## 1. what this is
@@ -39,7 +39,7 @@ Static mode caps at 96; the remaining 4 points require the target's own tests to
 | lgd | summarize-pro | 96 | PASS |
 | lgd | debug-pro | 96 | PASS |
 | lgd | wechat-viral-topic | 96 | PASS |
-| lgd | lgd-skill-review | 88 | BLOCK |
+| lgd | lgd-skill-review | 96 | PASS |
 
 ## 5. what the score cannot tell you
 usefulness, correctness, popularity, maintainer responsiveness, or anything about packages not measured.
@@ -54,8 +54,11 @@ replies with score + blockers + fix order.
 ## 8. badge (live endpoint)
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
 
-## 9. third-party audits (machine-readable)
+## 9. registry (verified list)
+https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json — tiers: verified ≥90 · watch 60-89 · blocked <60; rules and entries.
+
+## 10. third-party audits (machine-readable)
 https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json — two large public repos, full findings + fix order + reproduce command.
 
-## 10. site
-https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, badge, audits, skill-review, quickfix, benchmark
+## 11. site
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, badge, audits, registry, skill-review, quickfix, benchmark
