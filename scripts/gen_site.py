@@ -117,6 +117,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./skill-review.html">Audit</a>
 <a href="./quickfix.html">QuickFix</a>
 <a href="./benchmark.html">Benchmark</a>
+<a href="./badge.html">Badge</a>
 <a href="{REPO}">GitHub</a>
 </nav>
 """
@@ -286,8 +287,51 @@ were scored zero. Both are documented in the repository history.</p></div>
         html += FOOT
         open(os.path.join(DOCS, sk["slug"] + ".html"), "w", encoding="utf-8").write(html)
 
+    # badge page — 让别人把我们的徽章嵌进自己 README，外链自己长出来
+    badge_url = ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com"
+                 "%2Fzhaoxinghua09-cell%2Flgd-skill-review%2Fmain%2Fbench%2Fbadge.json")
+    html = head("Badge — embed the verifiability score",
+                "Copy-paste snippets to show a skill's verifiability score in your README. "
+                "The badge reads live data, so it changes when the score changes.",
+                "badge.html",
+                extra_jsonld=f'<script type="application/ld+json">{{"@context":"https://schema.org","@type":"HowTo","name":"Embed the LGD verifiability badge","step":[{{"@type":"HowToStep","text":"Copy the Markdown snippet"}},{{"@type":"HowToStep","text":"Paste it into your README"}}]}}</script>')
+    html += f"""
+<div class="kick">badge</div>
+<h1>A badge that reads live data.</h1>
+<p class="lead">Most badges are a picture someone typed once. This one is an endpoint:
+it renders whatever the latest benchmark says, so it cannot go stale and cannot be cherry-picked.</p>
+
+<div class="card">
+<h3>What it currently says</h3>
+<p><img src="{badge_url}" alt="verifiability badge" style="height:22px"></p>
+<p style="margin-top:12px;font-size:13px">Label: verifiability · Message: peers &lt;third-party top&gt; / LGD &lt;our top&gt; ·
+Colour flips to orange if the gap drops below 50 points.</p>
+</div>
+
+<h2>Markdown</h2>
+<div class="card"><pre><code>[![verifiability]({badge_url})]({SITE}/benchmark.html)</code></pre>
+<p style="margin-top:10px;font-size:13px">Works on GitHub, GitLab, most README renderers.</p></div>
+
+<h2>HTML</h2>
+<div class="card"><pre><code>&lt;a href="{SITE}/benchmark.html"&gt;&lt;img src="{badge_url}" alt="verifiability score" height="22"&gt;&lt;/a&gt;</code></pre></div>
+
+<h2>Raw JSON, if you want to build your own</h2>
+<div class="card"><pre><code>{REPO}/blob/main/bench/badge.json</code></pre>
+<p style="margin-top:10px">Shields endpoint schema: <code>{{"schemaVersion":1,"label":...,"message":...,"color":...}}</code>.
+The leaderboard behind it: <a class="a" href="{REPO}/blob/main/bench/leaderboard.json">leaderboard.json</a>.</p></div>
+
+<h2>What the badge does and does not mean</h2>
+<div class="card"><ul>
+<li><b>Does</b> mean: this package's claims are checkable by a third party — license present, commands match the source, index machine-readable, no leaked paths.</li>
+<li><b>Does not</b> mean: the skill is useful, correct, popular, or endorsed by anyone.</li>
+<li>It is not a certification body. It is a public ruler with a public runner.</li>
+</ul></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "badge.html"), "w", encoding="utf-8").write(html)
+
     # sitemap / robots / llms
-    urls = ["index.html", "rubric.html", "benchmark.html"] + [s["slug"] + ".html" for s in SKILLS]
+    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html"] + [s["slug"] + ".html" for s in SKILLS]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
@@ -326,6 +370,58 @@ were scored zero. Both are documented in the repository history.</p></div>
 third-party top: {s['third_party_top']} | lgd top: {s['lgd_top']} | gap: {s['gap']}
 """
     open(os.path.join(DOCS, "llms.txt"), "w", encoding="utf-8").write(llms)
+
+    # llms-full.txt — 一次抓取拿全量语料，供 RAG / 训练式检索直接消费
+    lines = []
+    for r in data["rows"]:
+        lines.append("| %s | %s | %s | %s |" % (r["bucket"], r["target"], r["score"], r["verdict"]))
+    full = f"""# lgd-skill-review — full corpus
+
+> One fetch, everything an agent needs. Numbers below are generated at {data['generated_at_utc']}
+> from bench/leaderboard.json; they change when the benchmark changes.
+
+## 1. what this is
+A six-dimension verifiability auditor for agent skills. Static analysis only — the target's code is
+never executed. Output: total score, per-dimension breakdown, blocking findings, remediation order,
+and a projected ceiling that separates mechanical fixes from work the author still has to do.
+
+## 2. scoring rubric (100 points)
+- consistency 25 — documented flags and subcommands exist in the source
+- structure 20 — entry file, version, name, description are machine-findable
+- reproducibility 20 — a golden set exists and a runner actually executes it
+- hygiene 15 — no absolute paths, secrets or leaked contact details
+- discoverability 15 — triggers, ecosystem links, AI-INDEX.json or llms.txt
+- licensing 5 — a real license file plus a declared field
+Static mode caps at 96; the remaining 4 points require the target's own tests to run.
+
+## 3. known measurement biases, found and fixed
+- index detection used to be case-sensitive: a correct AI-INDEX.json in upper case scored zero
+- position-argument CLIs used to score zero in consistency; now they earn 5 of 25, with a note that
+  unnamed arguments are only partly checkable
+- GitHub bot / noreply addresses used to be flagged as leaked contact details; now exempt
+
+## 4. leaderboard (bucket | target | score | verdict)
+| bucket | target | score | verdict |
+|---|---|---|---|
+{chr(10).join(lines)}
+
+## 5. what the score cannot tell you
+usefulness, correctness, popularity, maintainer responsiveness, or anything about packages not measured.
+
+## 6. how to reproduce
+{REPO}/tree/main/bench — `python bench.py`
+
+## 7. how to get reviewed
+{REPO}/issues/new?template=review-request.yml — bot fetches the public tarball, runs static analysis,
+replies with score + blockers + fix order.
+
+## 8. badge (live endpoint)
+{REPO}/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
+
+## 9. site
+{SITE}/ — {', '.join(u.replace('.html','') for u in urls)}
+"""
+    open(os.path.join(DOCS, "llms-full.txt"), "w", encoding="utf-8").write(full)
 
     print("pages:", len(urls), "| docs dir:", DOCS)
 
