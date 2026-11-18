@@ -1,0 +1,39 @@
+name: Review Request
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  review:
+    if: contains(github.event.issue.labels.*.name, 'review-request')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run static dual-ruler review
+        id: review
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python scripts/intake_review.py "$ISSUE_BODY" > verdict.md
+          cat verdict.md
+
+      - name: Post verdict as comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          if [ -s verdict.md ]; then
+            gh issue comment "$ISSUE" --body-file verdict.md
+          else
+            gh issue comment "$ISSUE" --body "评审未完成：无法下载仓库或找不到 SKILL.md。请确认仓库为公开仓库并包含 SKILL.md。/ Review could not run: please confirm the repository is public and contains SKILL.md."
+          fi

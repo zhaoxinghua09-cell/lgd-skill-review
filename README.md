@@ -14,6 +14,22 @@ Agent 技能六维审计器：每一处扣分都必须给出证据，输出分�
 
 A six-dimension auditor for agent skills: every deduction must cite evidence, and every package gets a score, a blocker list and a remediation order — so an author (or an agent) can fix, re-run and raise the score.
 
+## 自助评测 / Get reviewed without talking to us
+
+Open one issue — a GitHub Action reviews your repo and posts the verdict as a comment. Static analysis only: nothing from your repository is executed.
+
+开一个 Issue 即可：GitHub Action 抓取你的公开仓库、跑六维评审，把结论直接评论在 Issue 里。只做静态分析，不执行你仓库里的任何代码。
+
+- 提交入口 / Submit: [Review request form](https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml)
+- 你会拿到 / You get: 结构分 `0-100` + 语义分 `0-120` + 每条扣分定位到文件 + 编号整改清单
+- 整改后再评 / Re-review: 在同一个 Issue 里重开或补一条评论，分数变化即因果证据
+- 申诉 / Appeal: 带证据申诉（给出路径与检验方法），我们复核后裁定 `OVERTURNED` / `UPHELD`，不改分不静默
+
+```bash
+# 你也可以在本地先自评，再决定要不要提交
+python scripts/review.py <你的技能目录> --json
+```
+
 ## 一步安装 / Install in one line
 
 ```bash
