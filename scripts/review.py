@@ -499,6 +499,10 @@ SEMANTIC_RULES = [
     (r"缺互链段", "discoverable:no-links"),
     (r"未提供 ai-index", "discoverable:no-ai-index"),
     (r"无独立许可文件", "licensing:no-license"),
+    (r"缺 license 字段", "licensing:no-license-field"),
+    (r"缺 author", "licensing:no-author"),
+    (r"建议补：自检", "reviewer:suggest-selfcheck"),
+    (r"建议补：闭环", "reviewer:suggest-demo"),
     (r"缺少 SKILL.md", "structure:no-skill-md"),
 ]
 
