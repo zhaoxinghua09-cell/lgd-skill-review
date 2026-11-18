@@ -187,6 +187,30 @@ def render(data, owner, repo, skill_rel):
                          "aligned commands, path hygiene). It **does not include writing tests** — the reproducibility dimension "
                          "only fills when real offline tests exist.")
             lines.append("")
+    # 机器可读块：让 agent 直接反序列化，不用解析上面的散文
+    machine = {
+        "schema_version": "1.0",
+        "engine": "review.py (static)",
+        "repo": "%s/%s" % (owner, repo),
+        "skill_path": skill_rel,
+        "score": d.get("structure_score", d.get("total")),
+        "semantics": d.get("semantics_score"),
+        "verdict": d.get("verdict"),
+        "blocking": blocking,
+        "dimensions": {k: (v.get("score") if isinstance(v, dict) else v)
+                       for k, v in (dims.items() if isinstance(dims, dict) else [])},
+        "rubric": "https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.json",
+        "registry": "https://zhaoxinghua09-cell.github.io/lgd-skill-review/registry.json",
+        "reproduce": "python scripts/review.py <local-clone-of-this-repo> --json",
+    }
+    lines.append("")
+    lines.append("<details><summary>机器可读结果 / machine-readable result（供 agent 直接消费）</summary>")
+    lines.append("")
+    lines.append("```json")
+    lines.append(json.dumps(machine, ensure_ascii=False, indent=2))
+    lines.append("```")
+    lines.append("</details>")
+    lines.append("")
     lines.append("---")
     lines.append("*Static analysis only; nothing in your repository was executed. "
                  "Appeals take evidence: name a path and a check, and we open it and rule OVERTURNED / UPHELD.*")
