@@ -51,6 +51,16 @@ Zero dependency. Standard library only. Offline.
 
 Read the full rules: [`references/appeal.md`](references/appeal.md).
 
+### How an appeal gets handled
+
+```bash
+python scripts/handle_appeal.py path/to/skill appeal.json
+```
+
+It prints a ready-to-paste ruling — a table of every claim with its verdict and reason, plus what to do next. Same engine, same rules as `--appeal`, just formatted for replying in an issue thread. The ruling is appended to `appeal_log.json`; identical re-runs do not create duplicate log entries.
+
+接受申诉的一方用这一条命令即可回帖，不需要手工整理。
+
 ## Measured, not claimed
 
 Same ruler, eleven packages, all scored by this code (competitors installed from ClawHub, not from their landing pages):
