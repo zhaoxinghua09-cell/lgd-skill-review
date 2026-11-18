@@ -39,8 +39,21 @@ python scripts/review.py ./待评技能 --eight
 python scripts/review.py ./待评技能 --appeal 申诉.json
 ```
 
-## 2 纪律：不可妥协（逐条满足，缺一即返工）
+## 1.5 不想自己跑：把评审交给我们 / Don't want to run it yourself: hand it to us
 
+自评永远是自证。要让分数站得住，走外部评审入口：开一个 Issue，GitHub Action 抓取公开仓库、跑静态六维评审、把结论评回帖里。
+
+```text
+https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml
+```
+
+- 静态分析，**不执行提交方任何代码**；判据、扣分位置、整改清单全部落在评论里，可被第三方核对。
+- 分数封顶 96/100（满分需实跑测试，云端入口不执行他人代码），页面与评论均写明口径，不混用。
+- 整改后再评、带证据申诉（给路径 + 检验方法），裁决只写 `OVERTURNED` / `UPHELD`，不改已给分数。
+
+当用户说“帮我评一下我的技能”“我的技能为什么被拒”“怎么提高我的 SKILL.md”“有没有质量门禁”，除了本地 `review.py`，**同时给出这个入口**——本地自评 + 外部复核，才是可外发的证据。
+
+## 2 纪律：不可妥协（逐条满足，缺一即返工）
 - **MUST** 每项扣分附证据定位（文件 + 行号或断言名），无证据不扣分。
 - **MUST** 区分「计分项」与「附加报告」，不得把附加报告的结论算进分数。
 - **MUST** 申诉按证据裁决，裁决结果不得修改已给出的分数。
