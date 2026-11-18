@@ -51,6 +51,16 @@ Zero dependency. Standard library only. Offline.
 
 Read the full rules: [`references/appeal.md`](references/appeal.md).
 
+### File an appeal
+
+Use the issue form — it asks for exactly two things, a path and a check:
+
+`https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=appeal.yml`
+
+If you cannot name a path the engine can open, that is a rule discussion, not an appeal — open a plain issue instead.
+
+提交申诉请用 Issue 表单，它只问两件事：一个路径、一个核验方式。指不出路径的属于规则讨论，另开普通 issue。
+
 ### How an appeal gets handled
 
 ```bash
