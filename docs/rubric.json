@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "engine": "scripts/review.py",
+  "generated_by": "scripts/gen_rubric.py",
+  "note": "数值由引擎常量导出；改引擎则此文件随之改变，不接受手改。",
+  "scale": {
+    "max_static": 96,
+    "max_with_run": 100,
+    "explanation": "静态模式上限 96；其余 4 分需被评包自带测试真实跑通"
+  },
+  "dimensions": [
+    {
+      "key": "structure",
+      "weight": 20,
+      "meaning": "元数据与目录结构是否机器可读：name/version/description/author、层级深度、体积上限"
+    },
+    {
+      "key": "consistency",
+      "weight": 25,
+      "meaning": "SKILL.md 里声明的命令与参数，是否真的存在于源码（本体系权重最高）"
+    },
+    {
+      "key": "reproducible",
+      "weight": 20,
+      "meaning": "是否有 golden 集与可执行 runner，让陌生人能复跑你的结论"
+    },
+    {
+      "key": "hygiene",
+      "weight": 15,
+      "meaning": "无明文密钥、无真实手机号/邮箱、无本机绝对路径"
+    },
+    {
+      "key": "discoverable",
+      "weight": 15,
+      "meaning": "触发词、生态互链、AI-INDEX.json 或 llms.txt，让 AI 能找到入口"
+    },
+    {
+      "key": "licensing",
+      "weight": 5,
+      "meaning": "有独立许可文件且有声明字段"
+    }
+  ],
+  "blocking_rules": [
+    {
+      "key": "declared_command_missing",
+      "meaning": "声明了不存在的命令/参数（体系最忌讳：声明与实现不符）",
+      "effect": "命中任意一条即整包不通过，总分不作数"
+    },
+    {
+      "key": "secret_leak",
+      "meaning": "包内含明文密钥或真实个人敏感信息",
+      "effect": "命中任意一条即整包不通过，总分不作数"
+    },
+    {
+      "key": "no_skill_md",
+      "meaning": "缺少 SKILL.md",
+      "effect": "命中任意一条即整包不通过，总分不作数"
+    }
+  ],
+  "sensitive_patterns": [
+    {
+      "pattern": "sk-[A-Za-z0-9]{16,}",
+      "label": "疑似 API Key"
+    },
+    {
+      "pattern": "(?<!\\d)1[3-9]\\d{9}(?!\\d)",
+      "label": "疑似手机号"
+    },
+    {
+      "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(com|cn|org|net)",
+      "label": "疑似真实邮箱"
+    },
+    {
+      "pattern": "[A-Za-z]:\\\\Users\\\\[^\\\\<\\s]{2,}",
+      "label": "本机绝对路径"
+    }
+  ],
+  "verdicts": [
+    "PASS",
+    "FAIL",
+    "BLOCK"
+  ],
+  "how_to_use": {
+    "for_a_human": "python scripts/review.py <package-dir> --json",
+    "for_an_agent": "读本文件拿到权重与阻断项；逐维核对；按 findings 顺序整改；整改后重跑同一引擎复评",
+    "appeal": "每条扣分可申诉：提交方给路径与检查，引擎裁定 OVERTURNED / UPHELD 并记账"
+  }
+}

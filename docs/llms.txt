@@ -14,6 +14,9 @@
 - benchmark data: https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/leaderboard.json
 - refreshed daily; every number rerunnable with `python bench.py`
 
+## rubric (machine-readable, generated from the engine)
+https://zhaoxinghua09-cell.github.io/lgd-skill-reviewrubric.json — six weights, three blocking rules, sensitive patterns, verdicts, how to use.
+
 ## registry (verified list), machine-readable
 https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
 benchmark. Admission rules, tier meaning and every entry in one file. Human page: https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.html

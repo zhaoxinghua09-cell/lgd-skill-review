@@ -8,6 +8,8 @@ site cannot drift away from the measured numbers.
 No JavaScript. One page = one topic. JSON-LD on every page.
 """
 import json
+import subprocess
+import sys
 import os
 import re
 
@@ -205,6 +207,9 @@ def rows_html(data):
 
 
 def main():
+    # 标准必须是可执行数据：先生成 rubric.json，页面与它同源
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "gen_rubric.py")], check=False)
+
     data = json.load(open(BENCH, encoding="utf-8"))
     s = data["summary"]
     os.makedirs(DOCS, exist_ok=True)
@@ -552,6 +557,9 @@ be useless; a blocked package can still be excellent — it just cannot be check
 - benchmark data: {REPO}/blob/main/bench/leaderboard.json
 - refreshed daily; every number rerunnable with `python bench.py`
 
+## rubric (machine-readable, generated from the engine)
+{SITE}rubric.json — six weights, three blocking rules, sensitive patterns, verdicts, how to use.
+
 ## registry (verified list), machine-readable
 {SITE}registry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
 benchmark. Admission rules, tier meaning and every entry in one file. Human page: {SITE}registry.html
@@ -636,6 +644,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
