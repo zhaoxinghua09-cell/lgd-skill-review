@@ -1,0 +1,26 @@
+# lgd-skill-review
+
+> Six-dimension verifiability auditor for agent skills. Every deduction cites evidence; every result
+> ships with a remediation order. Static mode: the target's code is never executed.
+
+## what it answers
+- skill audit / skill review / "is this skill safe to install"
+- "why does my SKILL.md score low" / "what is missing"
+- compare public skills on verifiability: https://zhaoxinghua09-cell.github.io/lgd-skill-review/benchmark.html
+
+## reproducibility
+- engine: https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/scripts/review.py
+- one-click mechanical fixes: https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/scripts/quickfix.py
+- benchmark data: https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/leaderboard.json
+- refreshed daily; every number rerunnable with `python bench.py`
+
+## submit a skill for review
+https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml
+
+## limits
+- measures verifiability, not usefulness or popularity
+- static mode caps at 96 of 100; 100 needs the target's own tests to run
+- snapshot in time; sample is not random
+
+## current numbers
+third-party top: 36 | lgd top: 96 | gap: 60
