@@ -105,6 +105,17 @@ AUDITS = [
     },
 ]
 
+REACH = {
+    "target": "microsoft/azure-skills · skills/azure-deploy（第三方包，我们未作者）",
+    "stages": [
+        ("原样 / as shipped", 20, "structure 6 · consistency 0 · reproducible 0 · hygiene 8 · discoverable 4 · licensing 2"),
+        ("仅机械整改 / mechanical only", 24, "补 LICENSE + AI-INDEX.json；licensing 2→3，discoverable 4→7"),
+        ("机械 + 补测试与 demo / + tests & demo", 57, "加 tests/golden.json、可跑 runner、llms.txt、tags、version；reproducible 0→16"),
+        ("再补作者工作 / + authored CLI", 86, "写 scripts/check_prereqs.py（argparse）、在 SKILL.md 声明其命令、补安全边界与生态段；consistency 0→15，hygiene 8→15"),
+    ],
+    "left": "剩 14 分：references/recipes/azcli 层级超过 3 段（structure −4）、以及只实现了一条声明命令（consistency −10）",
+}
+
 CSS = """
 :root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -418,6 +429,22 @@ one-command mechanical fix gets you. Every number below is reproducible with the
 </div>
 """
     html += """
+<h2>Fairness test: can a package we did not write reach 90?</h2>
+<div class="card">
+<p>Same rubric, same engine, applied to microsoft's <code>azure-deploy</code> in a copy. Each stage is
+real work, scored after each step. Nothing was padded to inflate the number.</p>
+<table><tr><th>stage</th><th style="text-align:right">score</th><th>what changed</th></tr>
+""" + "".join(
+        f"<tr><td>{name}</td><td class='num'>{val}</td><td style='font-size:13px'>{note}</td></tr>"
+        for name, val, note in REACH["stages"]) + f"""
+</table>
+<p style="margin-top:12px;font-size:13px">{REACH['left']}</p>
+<p style="margin-top:8px">Why this matters: our four packages score 96 partly because they were
+written to this rubric. That is a weakness, not a strength. This test removes it: a package by another
+author reaches 86 with work any maintainer can do, and the remaining 14 points are specific, named,
+and fixable. If the ruler only ever fit the ruler's authors, this table could not exist.</p>
+</div>
+
 <h2>How to reproduce</h2>
 <div class="card"><pre><code>git clone --depth 1 https://github.com/microsoft/azure-skills.git
 python scripts/review.py azure-skills/skills/azure-deploy --json</code></pre>
@@ -442,6 +469,12 @@ the package's evidence, not of its usefulness.</p></div>
         "generator": "lgd-skill-review/scripts/gen_site.py",
         "rubric": "https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.html",
         "note": "静态审计结果，不执行被审代码；分数衡量可验证性，不衡量有用性。",
+        "remediation_experiment": {
+            "target": REACH["target"],
+            "purpose": "检验同一把尺子能否被非作者的包满足，回应「标准为作者量身定做」的质疑",
+            "stages": [{"stage": n, "score": v, "change": c} for n, v, c in REACH["stages"]],
+            "remaining": REACH["left"],
+        },
         "audits": [
             {
                 "target": a["name"],

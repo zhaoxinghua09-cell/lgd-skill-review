@@ -97,6 +97,20 @@ one-command mechanical fix gets you. Every number below is reproducible with the
 <h3 style="margin-top:16px">Fix order if you are the maintainer</h3><ul><li>P0 · 5 分钟：加 LICENSE 文件、给 frontmatter 补 version（SemVer）与 author</li><li>P1 · 半小时：加 tags、触发词段、AI-INDEX.json 或 llms.txt、互链段</li><li>P2 · 作者工作：写 tests/*.json 与执行器、补 demo、声明安全边界</li></ul>
 </div>
 
+<h2>Fairness test: can a package we did not write reach 90?</h2>
+<div class="card">
+<p>Same rubric, same engine, applied to microsoft's <code>azure-deploy</code> in a copy. Each stage is
+real work, scored after each step. Nothing was padded to inflate the number.</p>
+<table><tr><th>stage</th><th style="text-align:right">score</th><th>what changed</th></tr>
+<tr><td>原样 / as shipped</td><td class='num'>20</td><td style='font-size:13px'>structure 6 · consistency 0 · reproducible 0 · hygiene 8 · discoverable 4 · licensing 2</td></tr><tr><td>仅机械整改 / mechanical only</td><td class='num'>24</td><td style='font-size:13px'>补 LICENSE + AI-INDEX.json；licensing 2→3，discoverable 4→7</td></tr><tr><td>机械 + 补测试与 demo / + tests & demo</td><td class='num'>57</td><td style='font-size:13px'>加 tests/golden.json、可跑 runner、llms.txt、tags、version；reproducible 0→16</td></tr><tr><td>再补作者工作 / + authored CLI</td><td class='num'>86</td><td style='font-size:13px'>写 scripts/check_prereqs.py（argparse）、在 SKILL.md 声明其命令、补安全边界与生态段；consistency 0→15，hygiene 8→15</td></tr>
+</table>
+<p style="margin-top:12px;font-size:13px">剩 14 分：references/recipes/azcli 层级超过 3 段（structure −4）、以及只实现了一条声明命令（consistency −10）</p>
+<p style="margin-top:8px">Why this matters: our four packages score 96 partly because they were
+written to this rubric. That is a weakness, not a strength. This test removes it: a package by another
+author reaches 86 with work any maintainer can do, and the remaining 14 points are specific, named,
+and fixable. If the ruler only ever fit the ruler's authors, this table could not exist.</p>
+</div>
+
 <h2>How to reproduce</h2>
 <div class="card"><pre><code>git clone --depth 1 https://github.com/microsoft/azure-skills.git
 python scripts/review.py azure-skills/skills/azure-deploy --json</code></pre>

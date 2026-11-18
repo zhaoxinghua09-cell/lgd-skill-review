@@ -3,6 +3,33 @@
   "generator": "lgd-skill-review/scripts/gen_site.py",
   "rubric": "https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.html",
   "note": "静态审计结果，不执行被审代码；分数衡量可验证性，不衡量有用性。",
+  "remediation_experiment": {
+    "target": "microsoft/azure-skills · skills/azure-deploy（第三方包，我们未作者）",
+    "purpose": "检验同一把尺子能否被非作者的包满足，回应「标准为作者量身定做」的质疑",
+    "stages": [
+      {
+        "stage": "原样 / as shipped",
+        "score": 20,
+        "change": "structure 6 · consistency 0 · reproducible 0 · hygiene 8 · discoverable 4 · licensing 2"
+      },
+      {
+        "stage": "仅机械整改 / mechanical only",
+        "score": 24,
+        "change": "补 LICENSE + AI-INDEX.json；licensing 2→3，discoverable 4→7"
+      },
+      {
+        "stage": "机械 + 补测试与 demo / + tests & demo",
+        "score": 57,
+        "change": "加 tests/golden.json、可跑 runner、llms.txt、tags、version；reproducible 0→16"
+      },
+      {
+        "stage": "再补作者工作 / + authored CLI",
+        "score": 86,
+        "change": "写 scripts/check_prereqs.py（argparse）、在 SKILL.md 声明其命令、补安全边界与生态段；consistency 0→15，hygiene 8→15"
+      }
+    ],
+    "remaining": "剩 14 分：references/recipes/azcli 层级超过 3 段（structure −4）、以及只实现了一条声明命令（consistency −10）"
+  },
   "audits": [
     {
       "target": "microsoft / azure-skills",
