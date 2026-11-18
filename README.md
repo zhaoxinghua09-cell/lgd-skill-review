@@ -38,7 +38,7 @@ Zero dependency. Standard library only. Offline.
 {
   "items": [
     {
-      "id": "R03",
+      "id": "reproducible:no-runner",
       "claim": "the test runner exists; its name is outside the recognizer's pattern",
       "path": "tests/test_runner.py",
       "expect": "file_exists"
@@ -47,7 +47,7 @@ Zero dependency. Standard library only. Offline.
 }
 ```
 
-`expect` accepts `file_exists`, `contains:<text>`, `regex:<pattern>`. The engine rules **OVERTURNED**, **UPHELD** or **UNKNOWN_ID**, and appends the ruling to `appeal_log.json`.
+`id` takes either a per-report number (`R03`) or a **semantic key** (`reproducible:no-runner`). Semantic keys are stable across reports — use them. `expect` accepts `file_exists`, `contains:<text>`, `regex:<pattern>`. The engine rules **OVERTURNED**, **UPHELD** or **UNKNOWN_ID**, and appends the ruling to `appeal_log.json`.
 
 Read the full rules: [`references/appeal.md`](references/appeal.md).
 
