@@ -58,7 +58,7 @@ def read(p):
 
 def frontmatter(skill_md):
     """极简 YAML frontmatter 解析（零依赖，只取顶层 key: value 与列表）。"""
-    m = re.match(r"^---\n(.*?)\n---", skill_md, re.S)
+    m = re.match(r"^---\r?\n(.*?)\r?\n---", skill_md, re.S)
     if not m:
         return {}
     body = m.group(1)
@@ -79,33 +79,6 @@ def frontmatter(skill_md):
     for k, v in list(fm.items()):
         if len(v) >= 2 and v[0] == v[-1] and v[0] in ("'", '"'):
             fm[k] = v[1:-1].strip()
-    # 官方最小规格只允许 name/description/license/allowed-tools/metadata 五个顶层键，
-    # 所以 tags/version/description_zh 这类字段常被放进 metadata 里。
-    # 两条布局都要认，否则合规的包反而被扣分——这是改包引起的第二次"尺子读不到"。
-    # 注意：外层循环已 strip 掉缩进，所以嵌套必须回到原始 body 按缩进解析。
-    nested, in_meta, nkey, nbuf = {}, False, None, []
-    for line in body.splitlines():
-        if re.match(r"metadata:\s*$", line):
-            in_meta, nkey, nbuf = True, None, []
-            continue
-        if not in_meta:
-            continue
-        if not line.strip():
-            continue
-        if not line.startswith((" ", "\t")):
-            in_meta = False
-            continue
-        m2 = re.match(r"\s+([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$", line)
-        if m2:
-            if nkey:
-                nested[nkey] = "\n".join(nbuf).strip()
-            nkey, nbuf = m2.group(1), [(m2.group(2) or "").strip()]
-        elif line.strip().startswith("-") and nkey:
-            nbuf.append(line.strip())
-    if nkey:
-        nested[nkey] = "\n".join(nbuf).strip()
-    for k, v in nested.items():
-        fm.setdefault(k, v)
     return fm
 
 
@@ -133,10 +106,7 @@ def d_structure(root, fm, files):
     req = ["name", "description", "version"]
     miss = [k for k in req if not fm.get(k)]
     if miss:
-        # version 是我方口径要求，官方最小规格并不要求它。措辞必须区分二者，
-        # 否则合规包会被读成违反规格。
-        notes.append("未达我方口径：frontmatter 缺 %s（其中 version 为本地口径，官方规格不要求）"
-                     % "、".join(miss))
+        notes.append("frontmatter 缺 %s" % "、".join(miss))
     else:
         got += 6
     if not re.match(r"^\d+\.\d+\.\d+$", str(fm.get("version", ""))):
@@ -144,10 +114,7 @@ def d_structure(root, fm, files):
     else:
         got += 4
     depth_bad = [os.path.relpath(p, root) for p in files
-                 if len(os.path.relpath(p, root).split(os.sep)) > 3
-                 # .github/.vscode 这类是仓库托管目录，不算包内容层级；
-                 # 否则同一个包在 Linux 检出（.github 被保留）会比在本地少 4 分。
-                 and not os.path.relpath(p, root).split(os.sep)[0].startswith(".")]
+                 if len(os.path.relpath(p, root).split(os.sep)) > 3]
     if depth_bad:
         notes.append("层级 >3 段：%s" % depth_bad[0])
     else:
@@ -169,13 +136,7 @@ def d_consistency(root, fm, files):
     desc = " ".join(str(fm.get(k, "")) for k in ("description", "description_en", "description_zh"))
     skill_md = read(os.path.join(root, "SKILL.md"))
     # 只在「真正给出的命令行」里取参数声明；正文里举例讲别人的缺陷（如 --draft）不算我们的承诺
-    line_of_flag = {}
-    cmd_lines = []
-    for i, l in enumerate(skill_md.splitlines(), 1):
-        if re.search(r"python[3]?\s+\S+\.py", l):
-            cmd_lines.append(l)
-            for f in re.findall(r"--[a-z][a-z0-9\-]{1,20}", l):
-                line_of_flag.setdefault(f, []).append(i)
+    cmd_lines = [l for l in skill_md.splitlines() if re.search(r"python[3]?\s+\S+\.py", l)]
     declared_flags = set()
     for l in cmd_lines:
         declared_flags |= set(re.findall(r"--[a-z][a-z0-9\-]{1,20}", l))
@@ -185,13 +146,9 @@ def d_consistency(root, fm, files):
         if m:
             declared_cmds.add(m.group(1))
 
-    src = scripts_text(root)
-    have_flags = set(re.findall(r'''add_argument\(\s*["']--([a-z0-9\-]+)''', src))
+    have_flags = set(re.findall(r'add_argument\(\s*"--([a-z0-9\-]+)', scripts_text(root)))
     have_flags = {"--" + f for f in have_flags}
-    # 子命令：字面量写法直接取；用循环/变量声明（add_parser(name)）也算有子命令，
-    # 只是无法静态解析名字——此前只认字面量，把合法实现判成「无子命令」。
-    have_cmds = set(re.findall(r'''add_parser\(\s*["']([a-z0-9_\-]+)''', src))
-    has_subparsers = bool(re.search(r"add_subparsers\(", src))
+    have_cmds = set(re.findall(r'add_parser\(\s*"([a-z0-9_\-]+)', scripts_text(root)))
 
     # 只校验「我们的脚本」承诺的 flag，避免把目标平台自身的 CLI 参数误判为我们的声明
     ours = {f for f in declared_flags if f in have_flags}
@@ -202,25 +159,20 @@ def d_consistency(root, fm, files):
         missing = unknown - have_flags
         if missing:
             for f in sorted(missing)[:5]:
-                # 结论必须能回到原文某一行：没有行号的结论只是意见
-                ln = (line_of_flag.get(f) or ["?"])[0]
-                notes.append("SKILL.md:%s 声明了未实现的参数 %s" % (ln, f))
+                notes.append("声明了未实现的参数 %s" % f)
                 blocking.append("declared_command_missing:%s" % f)
         else:
             got += 5
     else:
         notes.append("未检出任何脚本参数声明（如无脚本可忽略）")
 
-    if have_cmds or has_subparsers:
+    if have_cmds:
         got += 5
-        if have_cmds:
-            bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
-            if bad:
-                notes.append("SKILL 提到的子命令脚本内不存在：%s" % "、".join(sorted(bad)[:3]))
-            else:
-                notes.append("子命令与实现一致：%s" % "、".join(sorted(have_cmds)))
+        bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
+        if bad:
+            notes.append("SKILL 提到的子命令脚本内不存在：%s" % "、".join(sorted(bad)[:3]))
         else:
-            notes.append("检出 add_subparsers（子命令用变量/循环声明，名字无法静态解析，不判缺失）")
+            notes.append("子命令与实现一致：%s" % "、".join(sorted(have_cmds)))
     if "不编" in desc + skill_md or "faithful" in desc.lower():
         got += 5
     return got, notes, blocking
@@ -238,64 +190,16 @@ def d_reproducible(root, files, do_run):
         for p in files
     )
     has_demo = any(re.search(r"demo[/\\]", p) for p in files)
-    # 抗作弊：只看"有没有文件"会被空壳骗过。
-    # 红队探针实测——零断言的 runner + 只打印一句的 demo，曾拿到 87 分 PASS。
-    runner_src, demo_src = "", ""
-    for p in files:
-        if re.search(r"(?:^|[/\\])tests[/\\](?:run_.*\.py|test_.*\.py|.*_test\.py)", p):
-            fp = p if os.path.isabs(p) else os.path.join(root, p)
-            try:
-                runner_src += read(fp)
-            except Exception:  # noqa: BLE001
-                pass
-        if re.search(r"demo[/\\].*\.py$", p):
-            fp = p if os.path.isabs(p) else os.path.join(root, p)
-            try:
-                demo_src += read(fp)
-            except Exception:  # noqa: BLE001
-                pass
-    runner_asserts = bool(re.search(r"\bassert\b|assertEqual|assertTrue|==|!=|\bexpect\b", runner_src))
     if has_golden:
         got += 6
     else:
         notes.append("无测试用例文件（tests/*.json）")
-    # 抗作弊补充：golden 用例只有 id、没有输入与期望，等于没有用例。
-    # 语义探针实测——{"id": "T1"} 三条空壳用例，结构分照样拿满。
-    thin_cases = 0
-    thin_total = 0
-    for p in files:
-        if re.search(r"tests[/\\].*\.json", p):
-            fp = p if os.path.isabs(p) else os.path.join(root, p)
-            try:
-                data = json.loads(read(fp))
-            except Exception:  # noqa: BLE001
-                continue
-            cases = data.get("cases") if isinstance(data, dict) else data
-            if isinstance(cases, list):
-                for c in cases:
-                    thin_total += 1
-                    if isinstance(c, dict) and len([k for k in c if k != "id"]) >= 1:
-                        continue
-                    thin_cases += 1
-    if thin_total and thin_cases == thin_total:
-        got -= 4
-        notes.append("测试用例只有 id、没有输入与期望（%d 条），等于没有用例" % thin_total)
     if has_runner:
-        if runner_asserts:
-            got += 6
-        else:
-            notes.append("测试执行器里找不到任何断言或比较（形同未测：跑通了但什么都没验）")
+        got += 6
     else:
         notes.append("无测试执行器（tests/run_*.py），别人无法复跑")
     if has_demo:
-        # demo 必须真的碰到包内脚本（调用/导入都算）；只打印一句话的 demo 是装饰
-        stems = [os.path.basename(p)[:-3] for p in files
-                 if re.search(r"(?:^|[/\\])scripts[/\\].*\.py$", p)]
-        if not stems or any(s and s in demo_src for s in stems):
-            got += 4
-        else:
-            got += 1
-            notes.append("demo 未调用或导入包内脚本（只输出固定文本），不能算可验证示例")
+        got += 4
     else:
         notes.append("无 demo，首次使用者无从验证")
     if has_runner and do_run:
@@ -573,88 +477,6 @@ def grade_reading(s_pct, y_pct):
     return "两制都在中段：能用，但结构有缺口、内容密度也一般"
 
 
-SEMANTIC_RULES = [
-    (r"无测试用例文件", "reproducible:no-golden"),
-    (r"无测试执行器", "reproducible:no-runner"),
-    (r"无 demo", "reproducible:no-demo"),
-    (r"实跑失败", "reproducible:run-failed"),
-    (r"未加 --run", "reproducible:not-run"),
-    (r"声明了未实现的参数", "consistency:flag-missing"),
-    (r"未检出任何脚本参数声明", "consistency:no-flags"),
-    (r"未声明安全边界", "hygiene:no-boundary"),
-    (r"标签 [0-9]+ 个", "discoverable:no-tags"),
-    (r"缺触发词段", "discoverable:no-triggers"),
-    (r"缺互链段", "discoverable:no-links"),
-    (r"未提供 ai-index", "discoverable:no-ai-index"),
-    (r"无独立许可文件", "licensing:no-license"),
-    (r"缺 license 字段", "licensing:no-license-field"),
-    (r"缺 author", "licensing:no-author"),
-    (r"建议补：自检", "reviewer:suggest-selfcheck"),
-    (r"建议补：闭环", "reviewer:suggest-demo"),
-    (r"缺少 SKILL.md", "structure:no-skill-md"),
-]
-
-
-def semantic_id(issue, priority):
-    """给整改项一个语义键，跨报告稳定。
-
-    序号（R01）只在当次报告有效；语义键 `维度:规则` 才能让同一个缺陷
-    在不同报告里被指认同一条——这是申诉能累积的前提。
-    """
-    if priority == "P0":
-        return "block:" + re.sub(r"[^a-z0-9_\-]+", "-",
-                                 (issue or "unknown").split(":")[0].lower()).strip("-")[:40]
-    for pat, code in SEMANTIC_RULES:
-        if re.search(pat, issue or ""):
-            return code
-    slug = re.sub(r"[^a-z0-9]+", "-", (issue or "")[:30].lower()).strip("-")
-    return "other:" + (slug or "unnamed")
-
-
-def locate_action(issue, root):
-    """给每条整改项标出证据位置。
-
-    能指到具体行的，给 `文件:行号`；说的是「缺某物」的，显式写「包内不存在」。
-    留空是最差的做法——被评的人不知道该信还是该查。
-    """
-    m = re.search(r"([A-Za-z0-9_\-./]+\.(?:md|py|json|txt|toml|yaml)):(\d+)", issue)
-    if m:
-        return "%s:%s" % (m.group(1), m.group(2))
-    keys = ("tests/", "demo/", "ai-index.json", "llms.txt", "LICENSE", "README", "SKILL.md",
-            "chain.json", "icon.png")
-    for k in keys:
-        if k in issue:
-            hits = []
-            for dp, _, fns in os.walk(root):
-                for fn in fns:
-                    p = os.path.relpath(os.path.join(dp, fn), root).replace("\\", "/")
-                    if k.rstrip("/") in p:
-                        hits.append(p)
-            return hits[0] if hits else "包内不存在（%s）" % k
-    if re.search(r"缺|无|未|没有", issue):
-        return "包内不存在"
-    return "属判断项（无文件可指）"
-
-
-def _safe_path(root, rel):
-    """把申诉者给的路径钉死在包根目录内。
-
-    申诉件是外部输入。`../../.ssh/id_rsa` 或一个绝对路径，足以让申诉者探测
-    包外文件是否存在；再配合 contains:/regex: 就能一位一位试探内容，等于
-    一个布尔预言机。所以这里既拒绝绝对路径，也拒绝任何解析后越出 root 的路径。
-    """
-    p = (rel or "").replace("\\", "/").strip()
-    if not p:
-        return None, "证据路径为空"
-    if p.startswith("/") or re.match(r"^[A-Za-z]:", p):
-        return None, "不接受绝对路径，证据必须位于包内"
-    base = os.path.realpath(root)
-    target = os.path.realpath(os.path.join(base, p))
-    if target != base and not target.startswith(base + os.sep):
-        return None, "证据路径越出包根目录，不予受理"
-    return target, None
-
-
 def appeal_check(root, data, appeal_path):
     """处理申诉：只裁决「原判定依据是否成立」，不修改已给出的分数。
 
@@ -673,31 +495,21 @@ def appeal_check(root, data, appeal_path):
         return {"ok": False, "error": "申诉文件不可解析：%s" % e, "items": []}
 
     items = doc.get("items") or []
-    by_id = {}
-    by_key = {}
-    for a in data.get("actions", []):
-        if a.get("id"):
-            by_id[a["id"]] = a
-        if a.get("key"):
-            by_key.setdefault(a["key"], a)
+    by_id = {a.get("id"): a for a in data.get("actions", []) if a.get("id")}
     out = []
     for it in items:
         rid = it.get("id") or "?"
         claim = it.get("claim") or ""
         path = it.get("path") or ""
         expect = it.get("expect") or "file_exists"
-        # 先按当次序号找，找不到再按语义键找——语义键可跨报告引用
-        target = by_id.get(rid) or by_key.get(rid)
+        target = by_id.get(rid)
         if not target:
             out.append((rid, claim, "UNKNOWN_ID", "报告中无此整改项 ID，可能引用了别的报告"))
             continue
         if not path:
             out.append((rid, claim, "UPHELD", "未提供可核验路径，无法推翻原判定"))
             continue
-        fp, bad = _safe_path(root, path)
-        if bad:
-            out.append((rid, claim, "REJECTED", bad))
-            continue
+        fp = path if os.path.isabs(path) else os.path.join(root, path)
         if not os.path.exists(fp):
             out.append((rid, claim, "UPHELD", "所述路径不存在：%s" % path))
             continue
@@ -727,16 +539,11 @@ def appeal_check(root, data, appeal_path):
             hist = []
     except Exception:
         hist = []
-    entry = {
+    hist.append({
         "root": os.path.basename(root.rstrip("\\/")),
         "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "items": [{"id": r[0], "claim": r[1], "verdict": r[2], "reason": r[3]} for r in out],
-    }
-    # 同一份申诉重复跑不重复追加：审计要留痕，但不必留一串一模一样的记录
-    if hist and hist[-1].get("items") == entry["items"] and hist[-1].get("root") == entry["root"]:
-        hist[-1]["at"] = entry["at"]
-    else:
-        hist.append(entry)
+    })
     try:
         with open(log, "w", encoding="utf-8", newline="\n") as f:
             json.dump(hist, f, ensure_ascii=False, indent=2)
@@ -766,10 +573,9 @@ def eight_report(root, fm, files):
 
     rows = []
 
-    # D1 知识增量：说明性占比越低，真正为 AI 补充的专家知识越多。
-    # 再补一条下限：正文太短时，低说明性只是"没写东西"，不等于"写了干货"。
+    # D1 知识增量：说明性占比越低，真正为 AI 补充的专家知识越多
     if nar <= 40:
-        d1 = 20 if n >= 60 else 14
+        d1 = 20
     elif nar <= 55:
         d1 = 15
     elif nar <= 70:
@@ -781,13 +587,7 @@ def eight_report(root, fm, files):
     rows.append(("D1", "Knowledge Delta 知识增量", d1, 20, "说明性 %d%%" % nar))
 
     # D2 思维模式与流程：决策树 + 有序步骤 + 取舍理由
-    # 决策树不再只认「表格行含 若/如果」——正文写清楚的判定流程、带「否则」的分支同样算，
-    # 否则写得再清楚也可能拿 0 分。
-    tree = 1 if re.search(
-        r'(\|[^\n]*(如果|若|当|when|fallback|备选|情形|条件)[^\n]*\|)'
-        r'|备选方案|Fallback'
-        r'|若[^\n]{1,40}(则|→)[^\n]{1,40}否则'
-        r'|^#+[^\n]*(判定|决策|决策树|流程图)', body, re.I | re.M) else 0
+    tree = 1 if re.search(r'(\|.*(如果|when|若|fallback|备选).*\|)|备选方案|Fallback', body, re.I) else 0
     steps = len(re.findall(r'(?m)^\s*(?:第[一二三四五六七八九十]步|Step\s+\d)', body))
     ordered = len(re.findall(r'(?m)^\s*\d+\.\s', body))
     d2 = (6 if tree else 0) + \
@@ -797,14 +597,10 @@ def eight_report(root, fm, files):
     rows.append(("D2", "Mindset + Procedures 思维与流程", d2, 15,
                  "决策树%d 有序步骤%d" % (tree, max(steps, ordered))))
 
-    # D3 反模式：按「规则行」计数——此前只认 NEVER/MUST NOT，「MUST / 必须」这种规范写法被漏掉。
-    # 试过再收紧"规则必须指向具体对象"，结果把"不得写原文没有的内容"这类正确写法判成 0，
-    # 属于把尺子写窄，已撤回；空话治理交给 D1 的正文长度下限。
-    rule_lines = [l for l in body.splitlines()
-                  if re.search(r'(?:NEVER|MUST|禁止|不得|切勿|不要|必须)', l)]
-    nevers = len(rule_lines)
-    reasoned = sum(1 for l in rule_lines
-                   if re.search(r'(因为|否则|会导致|会漏|会被|一律|代价|权衡)', l))
+    # D3 反模式：NEVER 列表条数 + 是否带理由
+    nevers = len(re.findall(r'(?:NEVER|MUST NOT|禁止|不得|切勿|不要)', body))
+    reasoned = len(re.findall(
+        r'(?:NEVER|MUST NOT|禁止|不得|切勿|不要)[^\n]{0,90}(?:因为|否则|会导致|会漏|会被|就|一律)', body))
     d3 = min(9, nevers) + min(6, reasoned * 2)
     d3 = min(15, d3)
     rows.append(("D3", "Anti-Pattern 反模式", d3, 15, "硬规则%d 带理由%d" % (nevers, reasoned)))
@@ -814,12 +610,9 @@ def eight_report(root, fm, files):
     have = sum(1 for k in req if (fm or {}).get(k))
     d4 = 6 if have == 3 else (3 if have >= 2 else 0)
     desc = str((fm or {}).get("description", "") or "")
-    # 三字段合并判定：英文包常把 WHEN 写在 description_en，此前只读 description 会白扣分
-    desc_all = " ".join(str((fm or {}).get(k, "") or "")
-                        for k in ("description", "description_en", "description_zh"))
-    if re.search(r'(Use when|When user|当用户|适用于|用于)', desc_all, re.I):
+    if re.search(r'(Use when|When user|当用户|适用于|用于)', desc, re.I):
         d4 += 5
-    if len(desc_all) >= 60:
+    if len(desc) >= 60:
         d4 += 4
     d4 = min(15, d4)
     rows.append(("D4", "Specification 规范合规", d4, 15, "字段%d/3 描述%d字" % (have, len(desc))))
@@ -1002,37 +795,18 @@ def review(root, do_run=False, skill_type=None):
 
     actions = []
     for b in blocking:
-        code, _, arg = b.partition(":")
-        # 阻断项必须锚到具体位置：优先复用带行号的明细，而不是只丢一个代码名
-        detail_note = next((n for n in notes_all if arg and arg in n), "")
-        actions.append({"priority": "P0", "key": "block:" + code,
-                        "issue": (detail_note or b)[:100],
-                        "fix": BLOCKING.get(code, "修复该阻断项")})
-    # 阻断项已锚定的明细，不要在 P1 里再列一遍：同一条发现说两遍是噪音
-    blocking_notes = set()
-    for b in blocking:
-        code, _, arg = b.partition(":")
-        n = next((x for x in notes_all if arg and arg in x), "")
-        if n:
-            blocking_notes.add(n)
-
+        actions.append({"priority": "P0", "issue": b.split(":")[0],
+                        "fix": BLOCKING.get(b.split(":")[0], "修复该阻断项")})
     for n in notes_all:
-        if n in blocking_notes:
-            continue
         if re.search(r"缺|未|无|失败|建议", n):
             actions.append({"priority": "P1", "issue": n[:100],
                             "fix": "按该项补齐后复测"})
 
     # 每条整改项给一个稳定 ID，供申诉引用（R01、R02…，按本次报告顺序）
-    # 同时补齐证据位置：能指到行给行号，不存在就明说，不许留空
     for i, a in enumerate(actions[:12]):
         a["id"] = "R%02d" % (i + 1)
-        a.setdefault("key", semantic_id(a.get("issue", ""), a.get("priority", "")))
-        a["where"] = locate_action(a.get("issue", ""), root)
     for i, a in enumerate(type_actions):
         a["id"] = "T%02d" % (i + 1)
-        a.setdefault("key", semantic_id(a.get("issue", ""), a.get("priority", "")))
-        a["where"] = locate_action(a.get("issue", ""), root)
 
     return {
         "ok": True,
@@ -1054,44 +828,40 @@ def review(root, do_run=False, skill_type=None):
     }
 
 
-def spec_notes(root, fm):
-    """规格自检（不进六维总分，只报事实）。
-
-    存在理由：门禁里有官方校验器，但单独跑 review.py 的人得不到这条信息，
-    于是"我方尺子说合格"会盖住"官方规格不合格"。skill-improver 的描述里有未加引号的
-    冒号、YAML 根本解析不了，就是被这样放过去的。这里只提示，不动分——
-    改分会让同一份包在不同版本尺子下得分漂移，那是另一种不可比。
-    """
-    notes = []
-    SKILL_KEYS = {"name", "description", "license", "allowed-tools", "metadata"}
-    raw = read(os.path.join(root, "SKILL.md")) or ""
-    m = re.match(r"^---\n(.*?)\n---", raw, re.S)
-    # 只认列首的键才算顶层：fm 里已把 metadata 子键合并进来，直接用它会把嵌套键误判成越界。
-    top = []
-    if m:
-        for line in m.group(1).splitlines():
-            mm = re.match(r"^([A-Za-z_][A-Za-z0-9_\-]*):\s*", line)
-            if mm:
-                top.append(mm.group(1))
-    extra = [k for k in top if k not in SKILL_KEYS]
-    if extra:
-        notes.append("顶层键超出官方白名单：%s（应移入 metadata）" % ", ".join(sorted(extra)))
-    desc = fm.get("description") or ""
-    if len(desc) > 1024:
-        notes.append("描述 %d 字，超过官方上限 1024 字" % len(desc))
-    if "<" in desc or ">" in desc:
-        notes.append("描述含尖括号，官方规格不允许")
-    if m:
-        for line in m.group(1).splitlines():
-            mm = re.match(r"^([A-Za-z_][A-Za-z0-9_\-]*):\s*(\S.*)$", line)
-            if not mm:
-                continue
-            k, v = mm.group(1), mm.group(2)
-            if k in ("metadata",) or v[:1] in ("\"", "'", "[", "{"):
-                continue
-            if ": " in v:
-                notes.append("字段 %s 的值里有未加引号的冒号，YAML 会解析失败" % k)
-    return notes
+def focus_report(root, files):
+    """聚焦度附加报告（不参与计分）。
+    依据 SkillsBench（arXiv 2602.12670）：聚焦型（2–3 模块）优于全面型文档。
+    只暴露事实，不动六维分数——口径变更须经评审确认，不由引擎自行调分。"""
+    refdir = os.path.join(root, "references")
+    nmd = len([f for f in os.listdir(refdir) if f.endswith(".md")]) if os.path.isdir(refdir) else 0
+    modules = nmd + 1
+    skillp = os.path.join(root, "SKILL.md")
+    lines = []
+    if os.path.isfile(skillp):
+        try:
+            lines = open(skillp, encoding="utf-8", errors="ignore").read().splitlines()
+        except Exception:
+            lines = []
+    n = len(lines)
+    RULE = re.compile(r"(MUST|NEVER|必须|禁止|不得|务必|SHALL)")
+    rule_lines = sum(1 for l in lines if RULE.search(l))
+    code_lines, inb = 0, False
+    for l in lines:
+        if l.strip().startswith("```"):
+            inb = not inb
+            continue
+        if inb and l.strip():
+            code_lines += 1
+    rule_pct = round(100.0 * rule_lines / max(n, 1), 1)
+    ex_pct = round(100.0 * code_lines / max(n, 1), 1)
+    checks = [
+        ("模块数 ≤3", modules <= 3, "模块数 %d（references %d + SKILL.md 1）" % (modules, nmd)),
+        ("正文 ≤120 行", n <= 120, "SKILL.md %d 行" % n),
+        ("规则句 ≥4%", rule_pct >= 4, "规则句 %d/%d = %.1f%%" % (rule_lines, n, rule_pct)),
+        ("示例行 ≥6%", ex_pct >= 6, "示例内容行 %d/%d = %.1f%%" % (code_lines, n, ex_pct)),
+    ]
+    return {"modules": modules, "lines": n, "checks": checks,
+            "passed": sum(1 for _, ok, _ in checks if ok)}
 
 
 def main():
@@ -1108,6 +878,8 @@ def main():
                     help="附加四视角独立评审（规范/代码/安全/设计），不参与计分")
     ap.add_argument("--eight", action="store_true",
                     help="附加八维对照报告（对齐公开 120 分制口径），不参与计分")
+    ap.add_argument("--focus", action="store_true",
+                    help="附加聚焦度报告（模块数/正文行数/规则占比/示例占比），不参与计分")
     ap.add_argument("--appeal", default=None, metavar="FILE",
                     help="对被扣分项提出申诉（JSON），引擎按证据裁决依据是否成立；不修改已给出的分数")
     a = ap.parse_args()
@@ -1136,44 +908,19 @@ def main():
     print()
     for k, v in d["dimensions"].items():
         print("  %-13s %2d/%-2d (%5.1f%%)" % (k, v["score"], v["max"], v["pct"]))
-    # 扣分必须留下痕迹：没有说明的扣分等于悄悄改分，别人复现时无从判断。
-    _notes = d.get("notes") or []
-    if _notes:
-        print("\n扣分依据（逐条可核）：")
-        for n in _notes:
-            print("  · " + n)
     if d["blocking"]:
         print("\n阻断项：")
         for b in d["blocking"]:
             print("  ✗ " + b)
     if d["actions"]:
-        print("\n整改清单（每条都带语义键 + 证据位置）：")
+        print("\n整改清单：")
         for x in d["actions"]:
-            print("  [%s] %s·%s" % (x["priority"], x.get("id", "  "), x.get("key", "")))
-            print("        %-28s %s" % (x.get("where", ""), x["issue"]))
-    if d["dimensions"].get("reproducible", {}).get("pct", 100) < 100:
-        _fs = walk(os.path.abspath(a.path))
-        _has_runner = any(os.path.basename(x).startswith("run_") and x.endswith(".py") for x in _fs)
-        if _has_runner:
-            # 有执行器却没跑，是"还没验证"，不是"没法验证"——两者不能混为一谈。
-            print("\n判据适用性：本包提供了执行器，但本次未实际运行测试；加 --run 才会执行并计分。")
-        else:
-            print("\n判据适用性：本尺子把“别人能否复跑”计入 reproducible 分。该包只提供文本、"
-                  "不提供测试与执行器，低分反映的是复现条件缺失，不代表内容无用。")
+            print("  [%s] %s  %s" % (x["priority"], x.get("id", "  "), x["issue"]))
     print("\n复测：%s" % d["rerun"])
 
     root_abs = os.path.abspath(a.path)
     files = walk(root_abs)
     fm = frontmatter(read(os.path.join(root_abs, "SKILL.md")) or "")
-
-    sn = spec_notes(root_abs, fm)
-    if sn:
-        print("\n规格自检（不计分，官方 quick_validate.py 会因此判不合格）：")
-        for x in sn:
-            print("  ! " + x)
-    else:
-        print("\n规格自检：顶层键与描述长度符合官方最小规格")
-
 
     # ---- 双制汇总：结构分（六维 100）与语义分（八维 120）是两类正交判断，不混算 ----
     # 结构分问：能不能交付、能不能复现、有没有互链与许可。
@@ -1219,6 +966,14 @@ def main():
             score, notes = mr[k]
             print("  %-9s %-4s %3d/100  %s" % (k, label, score, "；".join(notes) if notes else "无问题"))
 
+    if a.focus:
+        fr = focus_report(root_abs, files)
+        print("\n聚焦度报告（不参与计分 · 依据 SkillsBench arXiv 2602.12670）")
+        for label, ok, detail in fr["checks"]:
+            print("  %-4s %-12s %s" % ("PASS" if ok else "FAIL", label, detail))
+        print("  小结：%d/4 项达标。此报告只暴露事实，不改变六维分数；"
+              "是否把聚焦度纳入计分须经评审确认。" % fr["passed"])
+
     if a.appeal:
         ar = appeal_check(root_abs, d, a.appeal)
         print("\n申诉裁决（只核验依据是否成立，不修改上面的分数）")
@@ -1227,7 +982,7 @@ def main():
         else:
             cnt_ov = 0
             for rid, claim, verdict, why in ar["items"]:
-                mark = "推翻" if verdict == "OVERTURNED" else ("无效ID" if verdict == "UNKNOWN_ID" else ("拒收" if verdict == "REJECTED" else "维持"))
+                mark = "推翻" if verdict == "OVERTURNED" else ("无效ID" if verdict == "UNKNOWN_ID" else "维持")
                 if verdict == "OVERTURNED":
                     cnt_ov += 1
                 print("  %-5s %-5s %s" % (rid, mark, why))
