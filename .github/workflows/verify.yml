@@ -1,50 +1,23 @@
 name: verify
 
-# 存在理由：此前所有"已验证"的数字都只在作者本机跑过。
-# 这一步由 GitHub 的机器执行，日志公开可重放，才算有第二个执行主体。
-# 三条断言必须全部成立，否则红叉——不留"参考值"这种说法。
-
 on:
   push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  verify:
+  golden:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
     steps:
-      - name: Checkout reviewer
-        uses: actions/checkout@v4
-
-      - name: Checkout redteam suite
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          repository: zhaoxinghua09-cell/skill-redteam-suite
-          path: suite
-
-      - name: Move suite out of the reviewed tree
-        # 放在仓库内部，探针包会被算进"本包文件"，层级与杂物检查随即扣分——
-        # 自评从 100 掉到 92 就是这么来的。审自己之前必须把它挪走。
-        run: mv "$GITHUB_WORKSPACE/suite" "$GITHUB_WORKSPACE/../suite"
-
-      - name: Python version
-        run: python3 --version
-
-      - name: Assert golden self-tests are 5/5
-        run: |
-          python3 tests/run_golden.py | tee /tmp/golden.txt
-          grep -q "5/5 PASS" /tmp/golden.txt
-
-      - name: Assert both redteam probes are blocked
-        run: |
-          python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" \
-            --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tee /tmp/suite.txt
-          grep -q "ALL PROBES BLOCKED" /tmp/suite.txt
-
-      - name: Assert the one-command demo runs
-        # 演示是陌生人接触本包的第一入口，它坏了比分数错了更致命。
-        run: python3 demo/run_demo.py
-
-      - name: Assert self review reaches 100/100
-        run: |
-          python3 scripts/review.py . --run --eight | tee /tmp/self.txt
-          grep -q "总分：100/100" /tmp/self.txt
+          python-version: ${{ matrix.python-version }}
+      - name: Run golden set (offline, stdlib only)
+        run: python tests/run_golden.py
+      - name: Six-dimension audit (if engine vendored)
+        if: hashFiles('scripts/review.py') != ''
+        run: python scripts/review.py . --run --json

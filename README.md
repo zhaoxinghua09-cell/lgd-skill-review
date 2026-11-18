@@ -4,6 +4,20 @@ Agent 技能六维审计器：每一处扣分都必须给出证据，输出分�
 
 A six-dimension auditor for agent skills: every deduction must cite evidence, and every package gets a score, a blocker list and a remediation order — so an author (or an agent) can fix, re-run and raise the score.
 
+## 已上架 / Published on LobeHub
+
+[![verify](https://github.com/zhaoxinghua09-cell/lgd-skill-review/actions/workflows/verify.yml/badge.svg)](https://github.com/zhaoxinghua09-cell/lgd-skill-review/actions/workflows/verify.yml)
+
+- 市场页 / Marketplace: https://lobehub.com/skills/zhaoxinghua09-cell-lgd-skill-review
+- 安装标识符 / Identifier: `zhaoxinghua09-cell-lgd-skill-review`
+- 安装 / Install:
+
+```bash
+npx -y @lobehub/market-cli skills install zhaoxinghua09-cell-lgd-skill-review --agent codex
+```
+
+- 审计报告 / Audit report: [`AUDIT-REPORT.md`](AUDIT-REPORT.md)（自跑，未经第三方；重跑可推翻）
+
 ## 快速开始 / Quick start
 
 ```bash
