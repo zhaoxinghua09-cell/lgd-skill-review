@@ -55,4 +55,4 @@ replies with score + blockers + fix order.
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
 
 ## 9. site
-https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, badge, skill-review, quickfix, benchmark
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, badge, audits, skill-review, quickfix, benchmark

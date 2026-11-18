@@ -52,6 +52,47 @@ SKILLS = [
     },
 ]
 
+AUDITS = [
+    {
+        "name": "microsoft / azure-skills",
+        "skill": "skills/azure-deploy",
+        "installs": "≈731k",
+        "before": 20,
+        "after_mech": 24,
+        "dims_before": "structure 6 / consistency 0 / reproducible 0 / hygiene 8 / discoverable 4 / licensing 2",
+        "findings": [
+            "frontmatter 缺 version（structure 扣分）",
+            "references/recipes/azcli/errors.md 层级超过 3 段",
+            "无测试文件（tests/*.json）与执行器，别人无法复跑",
+            "无 demo，首次使用者无从验证",
+            "SKILL.md 未声明安全边界与降级规则",
+            "标签 0 个；缺互链段；无 AI-INDEX.json / llms.txt",
+            "缺 author；无独立许可文件（仅 frontmatter 声明）",
+        ],
+        "mechanical": [
+            "补 LICENSE（MIT）→ licensing 2→3",
+            "生成 AI-INDEX.json → discoverable 4→7",
+        ],
+    },
+    {
+        "name": "prisma / skills",
+        "skill": "prisma-cli",
+        "installs": "≈435k",
+        "before": 20,
+        "after_mech": None,
+        "dims_before": "structure 10 / consistency 0 / reproducible 0 / hygiene 8 / discoverable 0 / licensing 2",
+        "findings": [
+            "frontmatter 缺 version（且非 SemVer）",
+            "无测试文件与执行器，无法复跑",
+            "无 demo",
+            "未声明安全边界与降级规则",
+            "标签 0 个；缺触发词段；缺互链段；无机器可读索引",
+            "缺 author；无独立许可文件",
+        ],
+        "mechanical": ["同上四类机械动作可补，未在本轮实测（避免对未验证项下结论）"],
+    },
+]
+
 CSS = """
 :root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +159,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./quickfix.html">QuickFix</a>
 <a href="./benchmark.html">Benchmark</a>
 <a href="./badge.html">Badge</a>
+<a href="./audits.html">Audits</a>
 <a href="{REPO}">GitHub</a>
 </nav>
 """
@@ -330,8 +372,53 @@ The leaderboard behind it: <a class="a" href="{REPO}/blob/main/bench/leaderboard
     html += FOOT
     open(os.path.join(DOCS, "badge.html"), "w", encoding="utf-8").write(html)
 
+    # audits page — 对真实大仓的公开审计结果，可被任何人复跑
+    html = head("Audits — two large public repos, real findings",
+                "Full-dimension audits of microsoft/azure-skills and prisma/skills, with the findings "
+                "and the part that one command can fix.", "audits.html")
+    html += """
+<div class="kick">audits</div>
+<h1>We looked at two 400k+ install repositories. Here is what we found.</h1>
+<p class="lead">Not opinions — dimension scores, the exact items that cost points, and how far a
+one-command mechanical fix gets you. Every number below is reproducible with the command at the bottom.</p>
+"""
+    for a in AUDITS:
+        f = "".join(f"<li>{x}</li>" for x in a["findings"])
+        m = "".join(f"<li>{x}</li>" for x in a["mechanical"])
+        html += f"""
+<div class="card">
+<h3>{a['name']} · <code>{a['skill']}</code> · installs {a['installs']}</h3>
+<table>
+<tr><th>Stage</th><th style="text-align:right">Score</th></tr>
+<tr><td>As shipped</td><td class="num bad">{a['before']}</td></tr>
+<tr><td>After mechanical fixes only</td><td class="num">{(str(a['after_mech']) if a['after_mech'] else '未实测')}</td></tr>
+</table>
+<p style="margin-top:10px;font-size:13px">Dimensions as shipped: {a['dims_before']}</p>
+<h3 style="margin-top:16px">Findings</h3><ul>{f}</ul>
+<h3 style="margin-top:16px">What one command fixes</h3><ul>{m}</ul>
+</div>
+"""
+    html += """
+<h2>How to reproduce</h2>
+<div class="card"><pre><code>git clone --depth 1 https://github.com/microsoft/azure-skills.git
+python scripts/review.py azure-skills/skills/azure-deploy --json</code></pre>
+<p style="margin-top:10px">The mechanical part:</p>
+<pre><code>python scripts/quickfix.py &lt;copy-of-skill-dir&gt; --apply</code></pre>
+</div>
+
+<h2>Why publish this instead of sending them issues</h2>
+<div class="card"><p>Because an issue we file is a request; a public report with a reproducible runner
+is evidence. Anyone — including the maintainers — can rerun the command and check whether we are right.
+If we are wrong about a single item, the runner will show it.</p>
+<p style="margin-top:10px">These are third-party projects. We are not claiming they are bad packages.
+A score of 20 means <b>a stranger cannot verify the claims in ten minutes</b>, which is a property of
+the package's evidence, not of its usefulness.</p></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "audits.html"), "w", encoding="utf-8").write(html)
+
     # sitemap / robots / llms
-    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html"] + [s["slug"] + ".html" for s in SKILLS]
+    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html"] + [s["slug"] + ".html" for s in SKILLS]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
@@ -428,4 +515,6 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
+
 
