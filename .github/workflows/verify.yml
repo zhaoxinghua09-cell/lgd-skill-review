@@ -40,6 +40,10 @@ jobs:
             --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tee /tmp/suite.txt
           grep -q "ALL PROBES BLOCKED" /tmp/suite.txt
 
+      - name: Assert the one-command demo runs
+        # 演示是陌生人接触本包的第一入口，它坏了比分数错了更致命。
+        run: python3 demo/run_demo.py
+
       - name: Assert self review reaches 100/100
         run: |
           python3 scripts/review.py . --run --eight | tee /tmp/self.txt
