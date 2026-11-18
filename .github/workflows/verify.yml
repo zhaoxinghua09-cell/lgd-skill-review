@@ -1,7 +1,8 @@
 name: verify
 
-# 这个工作流的存在理由：所有"已验证"的数字此前都只在作者本机跑过。
-# 交给 GitHub 的机器跑，日志公开、任何人可重放，才算有第二个执行主体。
+# 存在理由：此前所有"已验证"的数字都只在作者本机跑过。
+# 这一步由 GitHub 的机器执行，日志公开可重放，才算有第二个执行主体。
+# 三条断言必须全部成立，否则红叉——不留"参考值"这种说法。
 
 on:
   push:
@@ -18,51 +19,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: zhaoxinghua09-cell/skill-redteam-suite
-          # 必须检在工作区内（否则 checkout 直接报错），随后再移出去。
           path: suite
 
       - name: Move suite out of the reviewed tree
-        # 放进仓库内部，探针包会被算进"本包文件"，层级与杂物检查随即扣分——
-        # 自评从 100 掉到 92 就是这么来的。所以审自己之前必须把它挪走。
+        # 放在仓库内部，探针包会被算进"本包文件"，层级与杂物检查随即扣分——
+        # 自评从 100 掉到 92 就是这么来的。审自己之前必须把它挪走。
         run: mv "$GITHUB_WORKSPACE/suite" "$GITHUB_WORKSPACE/../suite"
 
       - name: Python version
         run: python3 --version
 
-      - name: Golden self-tests
-        run: python3 tests/run_golden.py || true
-
-      - name: Redteam probes
-        run: python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" --reviewer "$GITHUB_WORKSPACE/scripts/review.py" || true
-
-      - name: Self review (full dimensions, informational)
-        run: python3 scripts/review.py . --eight || true
-
-      - name: Diagnose structure
+      - name: Assert golden self-tests are 5/5
         run: |
-          python3 - <<'PY'
-          import sys
-          sys.path.insert(0, 'scripts')
-          import review as rv
-          fm = rv.frontmatter(open('SKILL.md', encoding='utf-8').read())
-          print("FM KEYS:", sorted(fm.keys()))
-          print("VERSION:", repr(fm.get("version")))
-          res = rv.review('.', do_run=False)
-          print("DIMS:",
-                {k: (v["score"], v["max"]) for k, v in res["data"]["dimensions"].items()})
-          files = rv.walk(rv.os.path.abspath('.'))
-          print("GOT_NOTES:", rv.d_structure(rv.os.path.abspath('.'), fm, files))
-          deep = [f for f in files
-                  if len(rv.os.path.relpath(f, rv.os.path.abspath('.')).split(rv.os.sep)) > 3]
-          print("DEEP:", deep[:6])
-          print("STRAY:", [f for f in files if f.endswith(('.pyc', '.zip')) or '__pycache__' in f][:6])
-          for a in res["data"]["actions"][:8]:
-              print("ACT:", a.get("id"), a.get("issue"))
-          PY
+          python3 tests/run_golden.py | tee /tmp/golden.txt
+          grep -q "5/5 PASS" /tmp/golden.txt
 
-      - name: Assert the three published numbers
+      - name: Assert both redteam probes are blocked
         run: |
-          python3 tests/run_golden.py | tail -1
-          python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tail -1
-          python3 scripts/review.py . --eight > /tmp/self.txt || true
-          grep -E "总分：" /tmp/self.txt
+          python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" \
+            --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tee /tmp/suite.txt
+          grep -q "ALL PROBES BLOCKED" /tmp/suite.txt
+
+      - name: Assert self review reaches 100/100
+        run: |
+          python3 scripts/review.py . --run --eight | tee /tmp/self.txt
+          grep -q "总分：100/100" /tmp/self.txt
