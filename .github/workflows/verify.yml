@@ -18,7 +18,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: zhaoxinghua09-cell/skill-redteam-suite
-          path: suite
+          # 必须检出到被测目录之外。放进仓库内部，探针包会被算进"本包文件"，
+          # 层级与杂物检查随即扣分——自评从 100 掉到 92 就是这么来的。
+          path: ../suite
 
       - name: Python version
         run: python3 --version
@@ -27,7 +29,7 @@ jobs:
         run: python3 tests/run_golden.py || true
 
       - name: Redteam probes
-        run: python3 suite/run_suite.py --reviewer "$GITHUB_WORKSPACE/scripts/review.py" || true
+        run: python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" --reviewer "$GITHUB_WORKSPACE/scripts/review.py" || true
 
       - name: Self review (full dimensions, informational)
         run: python3 scripts/review.py . --eight || true
@@ -57,6 +59,6 @@ jobs:
       - name: Assert the three published numbers
         run: |
           python3 tests/run_golden.py | tail -1
-          python3 suite/run_suite.py --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tail -1
+          python3 "$GITHUB_WORKSPACE/../suite/run_suite.py" --reviewer "$GITHUB_WORKSPACE/scripts/review.py" | tail -1
           python3 scripts/review.py . --eight > /tmp/self.txt || true
           grep -E "总分：" /tmp/self.txt
