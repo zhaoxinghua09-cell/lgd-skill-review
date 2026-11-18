@@ -485,6 +485,40 @@ def grade_reading(s_pct, y_pct):
     return "两制都在中段：能用，但结构有缺口、内容密度也一般"
 
 
+SEMANTIC_RULES = [
+    (r"无测试用例文件", "reproducible:no-golden"),
+    (r"无测试执行器", "reproducible:no-runner"),
+    (r"无 demo", "reproducible:no-demo"),
+    (r"实跑失败", "reproducible:run-failed"),
+    (r"未加 --run", "reproducible:not-run"),
+    (r"声明了未实现的参数", "consistency:flag-missing"),
+    (r"未检出任何脚本参数声明", "consistency:no-flags"),
+    (r"未声明安全边界", "hygiene:no-boundary"),
+    (r"标签 [0-9]+ 个", "discoverable:no-tags"),
+    (r"缺触发词段", "discoverable:no-triggers"),
+    (r"缺互链段", "discoverable:no-links"),
+    (r"未提供 ai-index", "discoverable:no-ai-index"),
+    (r"无独立许可文件", "licensing:no-license"),
+    (r"缺少 SKILL.md", "structure:no-skill-md"),
+]
+
+
+def semantic_id(issue, priority):
+    """给整改项一个语义键，跨报告稳定。
+
+    序号（R01）只在当次报告有效；语义键 `维度:规则` 才能让同一个缺陷
+    在不同报告里被指认同一条——这是申诉能累积的前提。
+    """
+    if priority == "P0":
+        return "block:" + re.sub(r"[^a-z0-9_\-]+", "-",
+                                 (issue or "unknown").split(":")[0].lower()).strip("-")[:40]
+    for pat, code in SEMANTIC_RULES:
+        if re.search(pat, issue or ""):
+            return code
+    slug = re.sub(r"[^a-z0-9]+", "-", (issue or "")[:30].lower()).strip("-")
+    return "other:" + (slug or "unnamed")
+
+
 def locate_action(issue, root):
     """给每条整改项标出证据位置。
 
@@ -528,14 +562,21 @@ def appeal_check(root, data, appeal_path):
         return {"ok": False, "error": "申诉文件不可解析：%s" % e, "items": []}
 
     items = doc.get("items") or []
-    by_id = {a.get("id"): a for a in data.get("actions", []) if a.get("id")}
+    by_id = {}
+    by_key = {}
+    for a in data.get("actions", []):
+        if a.get("id"):
+            by_id[a["id"]] = a
+        if a.get("key"):
+            by_key.setdefault(a["key"], a)
     out = []
     for it in items:
         rid = it.get("id") or "?"
         claim = it.get("claim") or ""
         path = it.get("path") or ""
         expect = it.get("expect") or "file_exists"
-        target = by_id.get(rid)
+        # 先按当次序号找，找不到再按语义键找——语义键可跨报告引用
+        target = by_id.get(rid) or by_key.get(rid)
         if not target:
             out.append((rid, claim, "UNKNOWN_ID", "报告中无此整改项 ID，可能引用了别的报告"))
             continue
@@ -831,7 +872,8 @@ def review(root, do_run=False, skill_type=None):
         code, _, arg = b.partition(":")
         # 阻断项必须锚到具体位置：优先复用带行号的明细，而不是只丢一个代码名
         detail_note = next((n for n in notes_all if arg and arg in n), "")
-        actions.append({"priority": "P0", "issue": (detail_note or b)[:100],
+        actions.append({"priority": "P0", "key": "block:" + code,
+                        "issue": (detail_note or b)[:100],
                         "fix": BLOCKING.get(code, "修复该阻断项")})
     # 阻断项已锚定的明细，不要在 P1 里再列一遍：同一条发现说两遍是噪音
     blocking_notes = set()
@@ -852,9 +894,11 @@ def review(root, do_run=False, skill_type=None):
     # 同时补齐证据位置：能指到行给行号，不存在就明说，不许留空
     for i, a in enumerate(actions[:12]):
         a["id"] = "R%02d" % (i + 1)
+        a.setdefault("key", semantic_id(a.get("issue", ""), a.get("priority", "")))
         a["where"] = locate_action(a.get("issue", ""), root)
     for i, a in enumerate(type_actions):
         a["id"] = "T%02d" % (i + 1)
+        a.setdefault("key", semantic_id(a.get("issue", ""), a.get("priority", "")))
         a["where"] = locate_action(a.get("issue", ""), root)
 
     return {
@@ -924,10 +968,10 @@ def main():
         for b in d["blocking"]:
             print("  ✗ " + b)
     if d["actions"]:
-        print("\n整改清单（每条都带证据位置）：")
+        print("\n整改清单（每条都带语义键 + 证据位置）：")
         for x in d["actions"]:
-            print("  [%s] %s  %-26s %s" % (x["priority"], x.get("id", "  "),
-                                              x.get("where", ""), x["issue"]))
+            print("  [%s] %s·%s" % (x["priority"], x.get("id", "  "), x.get("key", "")))
+            print("        %-28s %s" % (x.get("where", ""), x["issue"]))
     print("\n复测：%s" % d["rerun"])
 
     root_abs = os.path.abspath(a.path)
