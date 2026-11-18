@@ -7,7 +7,7 @@ display_name_en: Skill Reviewer
 slug: lgd-skill-review
 author: 诺声(Logos)@SynomosAI
 copyright: SynomosAI
-version: 1.1.11
+version: 1.1.12
 license: MIT
 description: "Use when reviewing, auditing or scoring any AI skill package, or when a skill was rejected and you need to know why. A dual-ruler reviewer: reports a structure score (100) and a semantics score (120) as two orthogonal verdicts instead of merging them, and flags the case when the two disagree by 20 points or more. Structure asks whether the package can be used at all (tests, declared-vs-implemented consistency, reproducibility, hygiene, discovery, licensing); semantics asks whether it is worth using (knowledge delta, procedures, anti-patterns with reasons, specification, progressive disclosure, freedom calibration, pattern fit, usability). Every finding carries a stable ID and is traceable to a specific file. Accepts evidence-based appeals: the appellant supplies a path and a check, the engine opens it and rules OVERTURNED / UPHELD, and records the ruling in appeal_log.json. Appeals never silently change a score - they turn a deduction into a verifiable dispute. Zero dependency, standard library only, offline. Triggers: review my skill, audit skill quality, why is my skill rejected, skill checklist, score this skill, improve my SKILL.md, skill package gate, appeal a score."
 description_zh: "技能体检 / 评测 / 打分 / 为什么被拒 / 对评分不服 —— 对任意 AI 技能包做双制评测：结构制（100 分，量能不能用）与语义制（120 分，量值不值得用）各自出结论、绝不加权成一个数，两者背离 ≥20 分时会明确标出。每条整改项带稳定 ID、可指到具体文件；支持证据驱动的申诉（给出路径与核验方式，引擎自己打开判断），裁决推翻/维持并写入 appeal_log.json，但**不会因为申诉直接改分**——申诉的作用是把扣分变成可核验的争议点，不是让人自己给自己加分。"
