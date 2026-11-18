@@ -14,6 +14,10 @@
 - benchmark data: https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/leaderboard.json
 - refreshed daily; every number rerunnable with `python bench.py`
 
+## third-party audits, machine-readable
+- https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
+- 人读版：https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.html
+
 ## submit a skill for review
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml
 

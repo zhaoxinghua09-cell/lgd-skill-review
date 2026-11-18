@@ -73,6 +73,11 @@ AUDITS = [
             "补 LICENSE（MIT）→ licensing 2→3",
             "生成 AI-INDEX.json → discoverable 4→7",
         ],
+        "fix_order": [
+            "P0 · 5 分钟：加 LICENSE 文件、给 frontmatter 补 version 与 author",
+            "P1 · 半小时：加 tags、触发词段、AI-INDEX.json 或 llms.txt、互链段",
+            "P2 · 作者工作：写 tests/*.json 与执行器、补 demo、声明安全边界",
+        ],
     },
     {
         "name": "prisma / skills",
@@ -90,6 +95,11 @@ AUDITS = [
             "缺 author；无独立许可文件",
         ],
         "mechanical": ["同上四类机械动作可补，未在本轮实测（避免对未验证项下结论）"],
+        "fix_order": [
+            "P0 · 5 分钟：加 LICENSE 文件、给 frontmatter 补 version（SemVer）与 author",
+            "P1 · 半小时：加 tags、触发词段、AI-INDEX.json 或 llms.txt、互链段",
+            "P2 · 作者工作：写 tests/*.json 与执行器、补 demo、声明安全边界",
+        ],
     },
 ]
 
@@ -385,6 +395,7 @@ one-command mechanical fix gets you. Every number below is reproducible with the
     for a in AUDITS:
         f = "".join(f"<li>{x}</li>" for x in a["findings"])
         m = "".join(f"<li>{x}</li>" for x in a["mechanical"])
+        o = "".join(f"<li>{x}</li>" for x in a["fix_order"])
         html += f"""
 <div class="card">
 <h3>{a['name']} · <code>{a['skill']}</code> · installs {a['installs']}</h3>
@@ -396,6 +407,7 @@ one-command mechanical fix gets you. Every number below is reproducible with the
 <p style="margin-top:10px;font-size:13px">Dimensions as shipped: {a['dims_before']}</p>
 <h3 style="margin-top:16px">Findings</h3><ul>{f}</ul>
 <h3 style="margin-top:16px">What one command fixes</h3><ul>{m}</ul>
+<h3 style="margin-top:16px">Fix order if you are the maintainer</h3><ul>{o}</ul>
 </div>
 """
     html += """
@@ -416,6 +428,32 @@ the package's evidence, not of its usefulness.</p></div>
 """
     html += FOOT
     open(os.path.join(DOCS, "audits.html"), "w", encoding="utf-8").write(html)
+
+    # audits.json — 机器可读的审计结果，供 AI 直接消费（HTML 给人，JSON 给 agent）
+    audits_doc = {
+        "schema_version": "1.0",
+        "generator": "lgd-skill-review/scripts/gen_site.py",
+        "rubric": "https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.html",
+        "note": "静态审计结果，不执行被审代码；分数衡量可验证性，不衡量有用性。",
+        "audits": [
+            {
+                "target": a["name"],
+                "skill_path": a["skill"],
+                "reported_installs": a["installs"],
+                "score_before": a["before"],
+                "score_after_mechanical": a["after_mech"],
+                "dimensions_before": a["dims_before"],
+                "findings": a["findings"],
+                "mechanical_fixes": a["mechanical"],
+                "fix_order": a["fix_order"],
+                "reproduce": "python scripts/review.py <local-clone>/%s --json" % a["skill"],
+            }
+            for a in AUDITS
+        ],
+    }
+    open(os.path.join(DOCS, "audits.json"), "w", encoding="utf-8").write(
+        json.dumps(audits_doc, ensure_ascii=False, indent=2)
+    )
 
     # sitemap / robots / llms
     urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html"] + [s["slug"] + ".html" for s in SKILLS]
@@ -444,6 +482,10 @@ the package's evidence, not of its usefulness.</p></div>
 - one-click mechanical fixes: {REPO}/blob/main/scripts/quickfix.py
 - benchmark data: {REPO}/blob/main/bench/leaderboard.json
 - refreshed daily; every number rerunnable with `python bench.py`
+
+## third-party audits, machine-readable
+- {SITE}audits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
+- 人读版：{SITE}audits.html
 
 ## submit a skill for review
 {REPO}/issues/new?template=review-request.yml
@@ -505,7 +547,10 @@ replies with score + blockers + fix order.
 ## 8. badge (live endpoint)
 {REPO}/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
 
-## 9. site
+## 9. third-party audits (machine-readable)
+{SITE}audits.json — two large public repos, full findings + fix order + reproduce command.
+
+## 10. site
 {SITE}/ — {', '.join(u.replace('.html','') for u in urls)}
 """
     open(os.path.join(DOCS, "llms-full.txt"), "w", encoding="utf-8").write(full)
@@ -515,6 +560,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
