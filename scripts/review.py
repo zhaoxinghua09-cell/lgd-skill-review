@@ -613,11 +613,16 @@ def appeal_check(root, data, appeal_path):
             hist = []
     except Exception:
         hist = []
-    hist.append({
+    entry = {
         "root": os.path.basename(root.rstrip("\\/")),
         "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "items": [{"id": r[0], "claim": r[1], "verdict": r[2], "reason": r[3]} for r in out],
-    })
+    }
+    # 同一份申诉重复跑不重复追加：审计要留痕，但不必留一串一模一样的记录
+    if hist and hist[-1].get("items") == entry["items"] and hist[-1].get("root") == entry["root"]:
+        hist[-1]["at"] = entry["at"]
+    else:
+        hist.append(entry)
     try:
         with open(log, "w", encoding="utf-8", newline="\n") as f:
             json.dump(hist, f, ensure_ascii=False, indent=2)
