@@ -15,7 +15,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import review as R  # noqa: E402
 
-MARKS = {"OVERTURNED": "推翻", "UPHELD": "维持", "UNKNOWN_ID": "无效 ID"}
+MARKS = {"OVERTURNED": "推翻", "UPHELD": "维持",
+         "UNKNOWN_ID": "无效 ID", "REJECTED": "拒收"}
 
 
 def build_md(root, r, ar):
