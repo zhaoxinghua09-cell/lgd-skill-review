@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Discover — direct endpoints, no search required</title>
+<meta name="description" content="Every entry point to the LGD verifiability system as a direct URL: rubric, leaderboard, registry, audits, badge, engine, intake.">
+<link rel="canonical" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/discover.html">
+<meta property="og:title" content="Discover — direct endpoints, no search required">
+<meta property="og:description" content="Every entry point to the LGD verifiability system as a direct URL: rubric, leaderboard, registry, audits, badge, engine, intake.">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,"Segoe UI","Microsoft YaHei",Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:56px 24px 96px}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--mut);margin-bottom:36px}
+nav a{color:var(--mut);text-decoration:none;border-bottom:1px solid transparent}
+nav a:hover{color:var(--acc);border-color:var(--acc)}
+.kick{color:var(--acc);letter-spacing:.18em;text-transform:uppercase;font-size:12px}
+h1{font-size:38px;line-height:1.2;margin:10px 0 14px;letter-spacing:-.5px}
+h2{font-size:22px;margin:40px 0 12px}
+h3{font-size:16px;margin:20px 0 8px}
+p,li{color:var(--mut)}
+.lead{font-size:18px;color:var(--fg);max-width:760px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:16px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--acc);font-weight:600;letter-spacing:.06em;font-size:12px;text-transform:uppercase}
+td.num{text-align:right;font-variant-numeric:tabular-nums;width:64px}
+.bad{color:var(--warn)} .good{color:var(--acc)}
+code{background:rgba(88,124,200,.14);padding:2px 6px;border-radius:4px;font-size:13px}
+pre{background:#0a0f1a;border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;margin-top:12px}
+pre code{background:none;padding:0}
+ul{margin:10px 0 0 20px}
+.tag{display:inline-block;font-size:12px;color:var(--acc);border:1px solid rgba(127,231,196,.4);border-radius:4px;padding:3px 8px;margin:4px 6px 0 0}
+.a{color:var(--acc);text-decoration:none}
+.foot{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:#6f86a6}
+</style>
+<script type="application/ld+json">{
+  "@context":"https://schema.org",
+  "@type":"SoftwareApplication",
+  "name":"lgd-skill-review",
+  "applicationCategory":"DeveloperApplication",
+  "operatingSystem":"Any",
+  "description":"Six-dimension verifiability auditor for agent skills. Every deduction cites evidence; every result includes a remediation order.",
+  "url":"https://zhaoxinghua09-cell.github.io/lgd-skill-review/",
+  "codeRepository":"https://github.com/zhaoxinghua09-cell/lgd-skill-review",
+  "license":"https://opensource.org/licenses/MIT",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+}</script>
+
+</head>
+<body>
+<div class="wrap">
+<nav>
+<a href="./index.html">Home</a>
+<a href="./rubric.html">Rubric</a>
+<a href="./skill-review.html">Audit</a>
+<a href="./quickfix.html">QuickFix</a>
+<a href="./benchmark.html">Benchmark</a>
+<a href="./badge.html">Badge</a>
+<a href="./audits.html">Audits</a>
+<a href="./registry.html">Registry</a>
+<a href="./discover.html">Discover</a>
+<a href="https://github.com/zhaoxinghua09-cell/lgd-skill-review">GitHub</a>
+</nav>
+
+<div class="kick">discover</div>
+<h1>Direct endpoints. No marketplace search required.</h1>
+<p class="lead">We measured both marketplaces: skills.sh returns us for brand queries
+(<code>lgd</code>, <code>lgd skill review</code>) but not for generic ones; LobeHub market search
+returns 500 popularity-ranked items and does not surface us even on our own display name. So this page
+lists the addresses an agent can hit directly instead of hoping a ranking puts us first.</p>
+<div class="card"><table>
+<tr><th>what</th><th>where</th><th>why</th></tr>
+<tr><td>评价标准（人读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewrubric.html</code></td><td style='font-size:13px'>六维权重、阻断项、上限说明</td></tr><tr><td>评价标准（机读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewrubric.json</code></td><td style='font-size:13px'>权重/阻断/敏感模式，由引擎常量导出</td></tr><tr><td>公开榜单</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewbenchmark.html</code></td><td style='font-size:13px'>17 行，13 个第三方目标</td></tr><tr><td>榜单数据</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewleaderboard.json</code></td><td style='font-size:13px'>行级数据 + 三条局限</td></tr><tr><td>认证清单（人读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.html</code></td><td style='font-size:13px'>verified / watch / blocked 三档</td></tr><tr><td>认证清单（机读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json</code></td><td style='font-size:13px'>阈值、规则、全部条目</td></tr><tr><td>真实审计（人读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.html</code></td><td style='font-size:13px'>两个 40 万级安装量仓库的逐条缺陷</td></tr><tr><td>真实审计（机读）</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json</code></td><td style='font-size:13px'>含 scores/findings/fix_order/reproduce</td></tr><tr><td>徽章端点</td><td><code>https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzhaoxinghua09-cell%2Flgd-skill-review%2Fmain%2Fbench%2Fbadge.json</code></td><td style='font-size:13px'>实时读数，非静态图片</td></tr><tr><td>全量语料</td><td><code>https://zhaoxinghua09-cell.github.io/lgd-skill-reviewllms-full.txt</code></td><td style='font-size:13px'>一次抓取拿到口径+榜单+审计+复现</td></tr><tr><td>评测引擎</td><td><code>https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/scripts/review.py</code></td><td style='font-size:13px'>标准库、离线、不执行被评代码</td></tr><tr><td>一键整改</td><td><code>https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/scripts/quickfix.py</code></td><td style='font-size:13px'>默认 dry-run，单文件改动>30% 拒绝写入</td></tr><tr><td>提交评测</td><td><code>https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml</code></td><td style='font-size:13px'>机器人回帖给分与整改顺序</td></tr>
+</table></div>
+
+<h2>What an agent can do without contacting anyone</h2>
+<div class="card"><ol>
+<li>Fetch <code>rubric.json</code> to get weights, blocking rules and the static cap.</li>
+<li>Score any local package with <code>review.py --json</code>.</li>
+<li>Read <code>findings</code>, apply the fixes in the given order.</li>
+<li>Re-run the same engine; the score change is the proof.</li>
+<li>If the result seems wrong, appeal with a path and a check — the ruling is recorded.</li>
+</ol></div>
+
+<h2>Two entry points that are actively hostile to newcomers</h2>
+<div class="card"><p>We are not hiding this: marketplace search ranks by install counts and star
+signals we cannot influence without faking them, which we will not do. If you need a verdict today,
+use the endpoints above; if you want us to be found by search, the honest lever is people choosing to
+install and cite us.</p></div>
+
+<div class="foot">
+Measures verifiability, not usefulness or popularity. Low score means evidence is missing, not that the skill is bad.
+Snapshot at a point in time; the sample is not random.<br>
+Data: <a class="a" href="https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/leaderboard.json">leaderboard.json</a> ·
+Machine entry: <a class="a" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/llms.txt">llms.txt</a> ·
+Request a review: <a class="a" href="https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml">open an issue</a>
+</div>
+</div>
+</body>
+</html>

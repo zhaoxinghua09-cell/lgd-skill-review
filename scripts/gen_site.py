@@ -173,6 +173,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./badge.html">Badge</a>
 <a href="./audits.html">Audits</a>
 <a href="./registry.html">Registry</a>
+<a href="./discover.html">Discover</a>
 <a href="{REPO}">GitHub</a>
 </nav>
 """
@@ -529,8 +530,59 @@ be useless; a blocked package can still be excellent — it just cannot be check
         json.dumps(reg, ensure_ascii=False, indent=2)
     )
 
+    # discover — 不经检索的入口清单：给 AI 的直达地址，不依赖任何平台的排序
+    endpoints = [
+        ("评价标准（人读）", SITE + "rubric.html", "六维权重、阻断项、上限说明"),
+        ("评价标准（机读）", SITE + "rubric.json", "权重/阻断/敏感模式，由引擎常量导出"),
+        ("公开榜单", SITE + "benchmark.html", "17 行，13 个第三方目标"),
+        ("榜单数据", SITE + "leaderboard.json", "行级数据 + 三条局限"),
+        ("认证清单（人读）", SITE + "registry.html", "verified / watch / blocked 三档"),
+        ("认证清单（机读）", SITE + "registry.json", "阈值、规则、全部条目"),
+        ("真实审计（人读）", SITE + "audits.html", "两个 40 万级安装量仓库的逐条缺陷"),
+        ("真实审计（机读）", SITE + "audits.json", "含 scores/findings/fix_order/reproduce"),
+        ("徽章端点", "https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzhaoxinghua09-cell%2Flgd-skill-review%2Fmain%2Fbench%2Fbadge.json", "实时读数，非静态图片"),
+        ("全量语料", SITE + "llms-full.txt", "一次抓取拿到口径+榜单+审计+复现"),
+        ("评测引擎", REPO + "/blob/main/scripts/review.py", "标准库、离线、不执行被评代码"),
+        ("一键整改", REPO + "/blob/main/scripts/quickfix.py", "默认 dry-run，单文件改动>30% 拒绝写入"),
+        ("提交评测", REPO + "/issues/new?template=review-request.yml", "机器人回帖给分与整改顺序"),
+    ]
+    rows = "".join(f"<tr><td>{a}</td><td><code>{b}</code></td><td style='font-size:13px'>{c}</td></tr>"
+                   for a, b, c in endpoints)
+    html = head("Discover — direct endpoints, no search required",
+                "Every entry point to the LGD verifiability system as a direct URL: rubric, "
+                "leaderboard, registry, audits, badge, engine, intake.", "discover.html")
+    html += f"""
+<div class="kick">discover</div>
+<h1>Direct endpoints. No marketplace search required.</h1>
+<p class="lead">We measured both marketplaces: skills.sh returns us for brand queries
+(<code>lgd</code>, <code>lgd skill review</code>) but not for generic ones; LobeHub market search
+returns 500 popularity-ranked items and does not surface us even on our own display name. So this page
+lists the addresses an agent can hit directly instead of hoping a ranking puts us first.</p>
+<div class="card"><table>
+<tr><th>what</th><th>where</th><th>why</th></tr>
+{rows}
+</table></div>
+
+<h2>What an agent can do without contacting anyone</h2>
+<div class="card"><ol>
+<li>Fetch <code>rubric.json</code> to get weights, blocking rules and the static cap.</li>
+<li>Score any local package with <code>review.py --json</code>.</li>
+<li>Read <code>findings</code>, apply the fixes in the given order.</li>
+<li>Re-run the same engine; the score change is the proof.</li>
+<li>If the result seems wrong, appeal with a path and a check — the ruling is recorded.</li>
+</ol></div>
+
+<h2>Two entry points that are actively hostile to newcomers</h2>
+<div class="card"><p>We are not hiding this: marketplace search ranks by install counts and star
+signals we cannot influence without faking them, which we will not do. If you need a verdict today,
+use the endpoints above; if you want us to be found by search, the honest lever is people choosing to
+install and cite us.</p></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "discover.html"), "w", encoding="utf-8").write(html)
+
     # sitemap / robots / llms
-    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html", "registry.html"] + [s["slug"] + ".html" for s in SKILLS]
+    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html", "registry.html", "discover.html"] + [s["slug"] + ".html" for s in SKILLS]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
@@ -644,6 +696,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
