@@ -88,3 +88,26 @@ https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=revie
 - 被评技能需要出纪要/结论 → `summarize-pro`
 - 被评技能需要排查故障 → `debug-pro`
 - 被评技能是内容选题类 → `wechat-viral-topic`
+
+## Commands
+
+以下命令与参数均从脚本源码解析得到，声明与实现一致。
+
+```bash
+python scripts/handle_appeal.py --out --run
+```
+
+> 把一份申诉跑成可直接回帖的裁决。
+
+```bash
+python scripts/quickfix.py --apply --holder --license
+```
+
+> QuickFix: apply only the *mechanical* fixes that raise verifiability — and prove the delta.
+
+```bash
+python scripts/review.py --appeal --eight --focus --json --multi-role --run --token --type
+```
+
+> LGD 技能评测引擎（零依赖）。
+

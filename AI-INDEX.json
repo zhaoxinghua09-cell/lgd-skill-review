@@ -38,5 +38,41 @@
     "stdio_only": true,
     "network": false,
     "credentials": false
-  }
+  },
+  "commands": [
+    {
+      "script": "scripts/handle_appeal.py",
+      "flags": [
+        "--out",
+        "--run"
+      ],
+      "subcommands": [],
+      "summary": "把一份申诉跑成可直接回帖的裁决。"
+    },
+    {
+      "script": "scripts/quickfix.py",
+      "flags": [
+        "--apply",
+        "--holder",
+        "--license"
+      ],
+      "subcommands": [],
+      "summary": "QuickFix: apply only the *mechanical* fixes that raise verifiability — and prove the delta."
+    },
+    {
+      "script": "scripts/review.py",
+      "flags": [
+        "--appeal",
+        "--eight",
+        "--focus",
+        "--json",
+        "--multi-role",
+        "--run",
+        "--token",
+        "--type"
+      ],
+      "subcommands": [],
+      "summary": "LGD 技能评测引擎（零依赖）。"
+    }
+  ]
 }

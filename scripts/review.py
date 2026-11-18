@@ -166,6 +166,18 @@ def d_consistency(root, fm, files):
     else:
         notes.append("未检出任何脚本参数声明（如无脚本可忽略）")
 
+    # 位置参数也算一种可验证的声明：SKILL.md 里写了 `python x.py <a> <b>`，脚本真的读 sys.argv。
+    # 这类用法以前被判 0 分，属于测量偏见——同一件事（声明与实现是否对得上）只是接口形式不同。
+    # 只给 5 分：位置参数没有名字，无法逐项核对语义，价值明显低于具名 flag。
+    if not have_flags:
+        pos_doc = re.search(r"\.py\s+(?:<[^>]+>\s*)+", skill_md)
+        argv_use = len(re.findall(r"sys\.argv\[[1-9]", scripts_text(root)))
+        if pos_doc and argv_use:
+            got += 5
+            notes.append("位置参数入口与 sys.argv 实现一致（未具名，仅部分可核）")
+        elif pos_doc and not argv_use:
+            notes.append("文档给了位置参数用法，但脚本未读取 sys.argv（声明与实现不符）")
+
     if have_cmds:
         got += 5
         bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
@@ -280,7 +292,7 @@ def d_discoverable(root, fm, files):
         got += 3
     else:
         notes.append("缺互链段（无法形成生态入口网络）")
-    if any(re.search(r"(ai-index\.json|llms\.txt)", p) for p in files):
+    if any(re.search(r"(ai-index\.json|llms\.txt)", p.lower()) for p in files):
         got += 3
         notes.append("已提供机器可读索引")
     else:
