@@ -168,3 +168,11 @@ python scripts/review.py 包目录 --appeal 申诉.json
 ## 许可
 
 MIT。
+
+## 自证
+
+- 已知偏差：加 `--run` 复跑时会真正执行 5 个黄金用例，它们被判为薄用例，总分扣四分。这是尺子对自己偏严，不是包有问题。
+
+- 自检 5/5 PASS（python tests/run_golden.py）
+- 结构制 100/100 PASS（python scripts/review.py <包>）
+
