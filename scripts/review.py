@@ -152,9 +152,13 @@ def d_consistency(root, fm, files):
         if m:
             declared_cmds.add(m.group(1))
 
-    have_flags = set(re.findall(r'add_argument\(\s*"--([a-z0-9\-]+)', scripts_text(root)))
+    src = scripts_text(root)
+    have_flags = set(re.findall(r'''add_argument\(\s*["']--([a-z0-9\-]+)''', src))
     have_flags = {"--" + f for f in have_flags}
-    have_cmds = set(re.findall(r'add_parser\(\s*"([a-z0-9_\-]+)', scripts_text(root)))
+    # 子命令：字面量写法直接取；用循环/变量声明（add_parser(name)）也算有子命令，
+    # 只是无法静态解析名字——此前只认字面量，把合法实现判成「无子命令」。
+    have_cmds = set(re.findall(r'''add_parser\(\s*["']([a-z0-9_\-]+)''', src))
+    has_subparsers = bool(re.search(r"add_subparsers\(", src))
 
     # 只校验「我们的脚本」承诺的 flag，避免把目标平台自身的 CLI 参数误判为我们的声明
     ours = {f for f in declared_flags if f in have_flags}
@@ -174,13 +178,16 @@ def d_consistency(root, fm, files):
     else:
         notes.append("未检出任何脚本参数声明（如无脚本可忽略）")
 
-    if have_cmds:
+    if have_cmds or has_subparsers:
         got += 5
-        bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
-        if bad:
-            notes.append("SKILL 提到的子命令脚本内不存在：%s" % "、".join(sorted(bad)[:3]))
+        if have_cmds:
+            bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
+            if bad:
+                notes.append("SKILL 提到的子命令脚本内不存在：%s" % "、".join(sorted(bad)[:3]))
+            else:
+                notes.append("子命令与实现一致：%s" % "、".join(sorted(have_cmds)))
         else:
-            notes.append("子命令与实现一致：%s" % "、".join(sorted(have_cmds)))
+            notes.append("检出 add_subparsers（子命令用变量/循环声明，名字无法静态解析，不判缺失）")
     if "不编" in desc + skill_md or "faithful" in desc.lower():
         got += 5
     return got, notes, blocking
@@ -692,7 +699,13 @@ def eight_report(root, fm, files):
     rows.append(("D1", "Knowledge Delta 知识增量", d1, 20, "说明性 %d%%" % nar))
 
     # D2 思维模式与流程：决策树 + 有序步骤 + 取舍理由
-    tree = 1 if re.search(r'(\|.*(如果|when|若|fallback|备选).*\|)|备选方案|Fallback', body, re.I) else 0
+    # 决策树不再只认「表格行含 若/如果」——正文写清楚的判定流程、带「否则」的分支同样算，
+    # 否则写得再清楚也可能拿 0 分。
+    tree = 1 if re.search(
+        r'(\|[^\n]*(如果|若|当|when|fallback|备选|情形|条件)[^\n]*\|)'
+        r'|备选方案|Fallback'
+        r'|若[^\n]{1,40}(则|→)[^\n]{1,40}否则'
+        r'|^#+[^\n]*(判定|决策|决策树|流程图)', body, re.I | re.M) else 0
     steps = len(re.findall(r'(?m)^\s*(?:第[一二三四五六七八九十]步|Step\s+\d)', body))
     ordered = len(re.findall(r'(?m)^\s*\d+\.\s', body))
     d2 = (6 if tree else 0) + \
@@ -702,10 +715,12 @@ def eight_report(root, fm, files):
     rows.append(("D2", "Mindset + Procedures 思维与流程", d2, 15,
                  "决策树%d 有序步骤%d" % (tree, max(steps, ordered))))
 
-    # D3 反模式：NEVER 列表条数 + 是否带理由
-    nevers = len(re.findall(r'(?:NEVER|MUST NOT|禁止|不得|切勿|不要)', body))
-    reasoned = len(re.findall(
-        r'(?:NEVER|MUST NOT|禁止|不得|切勿|不要)[^\n]{0,90}(?:因为|否则|会导致|会漏|会被|就|一律)', body))
+    # D3 反模式：按「规则行」计数——此前只认 NEVER/MUST NOT，「MUST / 必须」这种规范写法被漏掉。
+    rule_lines = [l for l in body.splitlines()
+                  if re.search(r'(?:NEVER|MUST|禁止|不得|切勿|不要|必须)', l)]
+    nevers = len(rule_lines)
+    reasoned = sum(1 for l in rule_lines
+                   if re.search(r'(因为|否则|会导致|会漏|会被|一律|代价|权衡)', l))
     d3 = min(9, nevers) + min(6, reasoned * 2)
     d3 = min(15, d3)
     rows.append(("D3", "Anti-Pattern 反模式", d3, 15, "硬规则%d 带理由%d" % (nevers, reasoned)))
@@ -715,9 +730,12 @@ def eight_report(root, fm, files):
     have = sum(1 for k in req if (fm or {}).get(k))
     d4 = 6 if have == 3 else (3 if have >= 2 else 0)
     desc = str((fm or {}).get("description", "") or "")
-    if re.search(r'(Use when|When user|当用户|适用于|用于)', desc, re.I):
+    # 三字段合并判定：英文包常把 WHEN 写在 description_en，此前只读 description 会白扣分
+    desc_all = " ".join(str((fm or {}).get(k, "") or "")
+                        for k in ("description", "description_en", "description_zh"))
+    if re.search(r'(Use when|When user|当用户|适用于|用于)', desc_all, re.I):
         d4 += 5
-    if len(desc) >= 60:
+    if len(desc_all) >= 60:
         d4 += 4
     d4 = min(15, d4)
     rows.append(("D4", "Specification 规范合规", d4, 15, "字段%d/3 描述%d字" % (have, len(desc))))
