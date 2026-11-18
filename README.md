@@ -21,6 +21,12 @@ Most skill reviewers hand you a score and stop. This one hands you a score, tell
 
 Because a reviewer that raises its own score when challenged has stopped being a reviewer. The appeal turns a deduction into a **verifiable dispute** — the appellant must produce something the engine can open and read. If the basis really was wrong, the next run shows it. If not, the ruling stands and is on record.
 
+## What a review looks like
+
+See a real, unedited run against a third-party package: [`docs/sample-report.md`](docs/sample-report.md) — dual verdict, every finding with a semantic key and a place, and the scope note that keeps the score from being over-read.
+
+一次真实评测的完整输出见 [`docs/sample-report.md`](docs/sample-report.md)。
+
 ## Quick start
 
 ```bash
