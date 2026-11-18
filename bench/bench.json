@@ -163,6 +163,60 @@
     "bucket": "third-party"
   },
   {
+    "score": 10,
+    "verdict": "BLOCK",
+    "blocking": [
+      "secret_leak:SKILL.md",
+      "secret_leak:SKILL.md",
+      "secret_leak:SKILL.md",
+      "secret_leak:references\\authentication.md",
+      "secret_leak:references\\authentication.md"
+    ],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 0,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "agent-browser-HEAD/skill-data/core",
+    "target": "vercel-labs/agent-browser@skill-data/core",
+    "bucket": "third-party"
+  },
+  {
+    "score": 18,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "superpowers-HEAD/skills/brainstorming",
+    "target": "obra/superpowers@skills/brainstorming",
+    "bucket": "third-party"
+  },
+  {
+    "score": 18,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 0,
+      "licensing": 0
+    },
+    "dir": "agent-skills-HEAD/skills/code-review-and-quality",
+    "target": "addyosmani/agent-skills@skills/code-review-and-quality",
+    "bucket": "third-party"
+  },
+  {
     "score": 96,
     "verdict": "PASS",
     "blocking": [],

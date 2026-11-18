@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at_utc": "2026-11-18T23:03:16Z",
+  "generated_at_utc": "2026-11-18T23:06:56Z",
   "source": "https://zhaoxinghua09-cell.github.io/lgd-skill-reviewbenchmark.html",
   "tiers": [
     {
@@ -45,7 +45,7 @@
       "min_score": 0,
       "label": "LGD Blocked · 未通过",
       "meaning": "<60：核心证据缺失，无法核实",
-      "count": 10,
+      "count": 13,
       "entries": [
         {
           "target": "anthropics/skills@skills/pptx",
@@ -93,7 +93,22 @@
           "verdict": "FAIL"
         },
         {
+          "target": "obra/superpowers@skills/brainstorming",
+          "score": 18,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "addyosmani/agent-skills@skills/code-review-and-quality",
+          "score": 18,
+          "verdict": "FAIL"
+        },
+        {
           "target": "leonxlnx/taste-skill@skills/taste-skill",
+          "score": 10,
+          "verdict": "BLOCK"
+        },
+        {
+          "target": "vercel-labs/agent-browser@skill-data/core",
           "score": 10,
           "verdict": "BLOCK"
         }

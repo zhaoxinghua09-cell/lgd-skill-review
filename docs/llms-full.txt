@@ -1,6 +1,6 @@
 # lgd-skill-review — full corpus
 
-> One fetch, everything an agent needs. Numbers below are generated at 2026-11-18T23:03:16Z
+> One fetch, everything an agent needs. Numbers below are generated at 2026-11-18T23:06:56Z
 > from bench/leaderboard.json; they change when the benchmark changes.
 
 ## 1. what this is
@@ -35,7 +35,10 @@ Static mode caps at 96; the remaining 4 points require the target's own tests to
 | third-party | prisma/skills@prisma-cli | 20 | FAIL |
 | third-party | mattpocock/skills@skills/engineering/code-review | 18 | FAIL |
 | third-party | juliusbrussee/caveman@skills/caveman | 18 | FAIL |
+| third-party | obra/superpowers@skills/brainstorming | 18 | FAIL |
+| third-party | addyosmani/agent-skills@skills/code-review-and-quality | 18 | FAIL |
 | third-party | leonxlnx/taste-skill@skills/taste-skill | 10 | BLOCK |
+| third-party | vercel-labs/agent-browser@skill-data/core | 10 | BLOCK |
 | lgd | summarize-pro | 96 | PASS |
 | lgd | debug-pro | 96 | PASS |
 | lgd | wechat-viral-topic | 96 | PASS |

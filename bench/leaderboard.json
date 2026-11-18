@@ -1,13 +1,13 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-18T23:03:16Z",
+  "generated_at_utc": "2026-11-18T23:06:56Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
     "static_cap_note": "100 requires --run with the target's own tests"
   },
   "summary": {
-    "third_party_entries": 10,
+    "third_party_entries": 13,
     "lgd_entries": 4,
     "third_party_top": 36,
     "lgd_top": 96,
@@ -78,6 +78,20 @@
       "blocking": []
     },
     {
+      "target": "obra/superpowers@skills/brainstorming",
+      "bucket": "third-party",
+      "score": 18,
+      "verdict": "FAIL",
+      "blocking": []
+    },
+    {
+      "target": "addyosmani/agent-skills@skills/code-review-and-quality",
+      "bucket": "third-party",
+      "score": 18,
+      "verdict": "FAIL",
+      "blocking": []
+    },
+    {
       "target": "leonxlnx/taste-skill@skills/taste-skill",
       "bucket": "third-party",
       "score": 10,
@@ -85,6 +99,19 @@
       "blocking": [
         "secret_leak:assets\\photos\\photos.json",
         "secret_leak:assets\\photos\\photos.json"
+      ]
+    },
+    {
+      "target": "vercel-labs/agent-browser@skill-data/core",
+      "bucket": "third-party",
+      "score": 10,
+      "verdict": "BLOCK",
+      "blocking": [
+        "secret_leak:SKILL.md",
+        "secret_leak:SKILL.md",
+        "secret_leak:SKILL.md",
+        "secret_leak:references\\authentication.md",
+        "secret_leak:references\\authentication.md"
       ]
     },
     {
