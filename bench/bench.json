@@ -43,7 +43,7 @@
       "discoverable": 4,
       "licensing": 2
     },
-    "dir": "azure-skills-HEAD/.github/plugins/azure-skills/skills/azure-deploy",
+    "dir": "azure-skills-HEAD/skills/azure-deploy",
     "target": "microsoft/azure-skills@skills/azure-deploy",
     "bucket": "third-party"
   },
@@ -67,8 +67,8 @@
     "score": 10,
     "verdict": "BLOCK",
     "blocking": [
-      "secret_leak:assets\\photos\\photos.json",
-      "secret_leak:assets\\photos\\photos.json"
+      "secret_leak:assets/photos/photos.json",
+      "secret_leak:assets/photos/photos.json"
     ],
     "dims": {
       "structure": 6,
@@ -161,67 +161,5 @@
     "dir": "skills-HEAD/skills/docx",
     "target": "anthropics/skills@skills/docx",
     "bucket": "third-party"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "summarize-pro",
-    "bucket": "lgd"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "debug-pro",
-    "bucket": "lgd"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "wechat-viral-topic",
-    "bucket": "lgd"
-  },
-  {
-    "score": 88,
-    "verdict": "BLOCK",
-    "blocking": [
-      "secret_leak:.github\\workflows\\bench-nightly.yml"
-    ],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 7,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "lgd-skill-review",
-    "bucket": "lgd"
   }
 ]
