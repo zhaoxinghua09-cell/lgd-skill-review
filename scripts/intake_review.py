@@ -144,6 +144,49 @@ def render(data, owner, repo, skill_rel):
             else:
                 lines.append("- %s" % f)
         lines.append("")
+
+    # Gap decomposition + mechanical projection (projection, not a promise)
+    if isinstance(dims, dict) and dims:
+        mechanical = {"licensing": "加 LICENSE 文件 / add a LICENSE file",
+                      "discoverable": "加机器可读索引 AI-INDEX.json 或 llms.txt / add a machine-readable index",
+                      "consistency": "让声明的命令与脚本 argparse 一致 / align declared commands with the scripts",
+                      "hygiene": "清掉绝对路径与临时文件 / scrub absolute paths and temp files"}
+        rows = []
+        gain = 0
+        for k, v in dims.items():
+            if not isinstance(v, dict):
+                continue
+            got, mx = v.get("score", 0), v.get("max", 0)
+            gap = mx - got
+            if gap <= 0:
+                continue
+            fix = mechanical.get(k, "需真写测试并离线跑通 / requires real tests that run offline")
+            can = k in mechanical
+            if can:
+                gain += gap
+            rows.append((k, got, mx, gap, fix, can))
+        if rows:
+            lines.append("**缺在哪、补什么 / Where the points went, and what closes it**")
+            lines.append("")
+            lines.append("| Dimension | Got | Max | Gap | What closes it | Mechanical? |")
+            lines.append("|---|---|---|---|---|---|")
+            for k, got, mx, gap, fix, can in rows:
+                lines.append("| %s | %s | %s | %s | %s | %s |" % (k, got, mx, gap, fix, "是 / yes" if can else "否 / no"))
+            lines.append("")
+            try:
+                base = float(d.get("structure_score", d.get("total", 0)))
+            except (TypeError, ValueError):
+                base = 0
+            projected = min(100, int(base + gain))
+            lines.append("**机械可补上限 / Projected ceiling from mechanical fixes only: %d / 100**" % projected)
+            lines.append("")
+            lines.append("> 这是**预测**，不是承诺：只把「加许可、加索引、对齐命令、清路径」这类确定性动作计入，"
+                         "**不含写测试**。要把可复跑维度拿满，必须真的交付能离线跑通的 tests。")
+            lines.append(">")
+            lines.append("> This is a **projection, not a promise**: it counts only deterministic fixes (license, machine-readable index, "
+                         "aligned commands, path hygiene). It **does not include writing tests** — the reproducibility dimension "
+                         "only fills when real offline tests exist.")
+            lines.append("")
     lines.append("---")
     lines.append("*Static analysis only; nothing in your repository was executed. "
                  "Appeals take evidence: name a path and a check, and we open it and rule OVERTURNED / UPHELD.*")
