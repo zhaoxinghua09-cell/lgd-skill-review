@@ -47,6 +47,82 @@ def fetch(owner, repo):
         return r.read()
 
 
+# ---- 稀疏抓取：最大的技能都住在巨型单仓里，整仓下载会被体积上限挡死 ----
+SKIP_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".pdf", ".zip", ".tar", ".gz",
+            ".woff", ".woff2", ".ttf", ".otf", ".mp4", ".mov", ".mp3", ".wav", ".psd", ".sketch"}
+SPARSE_MAX_FILES = 120
+SPARSE_MAX_FILE = 400 * 1024
+SPARSE_MAX_DEPTH = 3
+
+
+def _headers(accept):
+    h = {"User-Agent": "lgd-review-intake", "Accept": accept}
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if token:
+        h["Authorization"] = "Bearer " + token
+    return h
+
+
+def _api(path):
+    url = "https://api.github.com/repos/%s" % path
+    req = urllib.request.Request(url, headers=_headers("application/vnd.github.raw"))
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
+def _api_json(path):
+    url = "https://api.github.com/repos/%s" % path
+    req = urllib.request.Request(url, headers=_headers("application/vnd.github+json"))
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def fetch_sparse(owner, repo, path, dest):
+    """Download only one subtree. Bounded by file count and per-file size."""
+    state = {"files": 0, "skipped": 0}
+
+    def walk(rel, depth):
+        listing = _api_json("%s/%s/contents/%s" % (owner, repo, rel or ""))
+        if isinstance(listing, dict):
+            listing = [listing]
+        for item in listing:
+            if state["files"] >= SPARSE_MAX_FILES:
+                state["skipped"] += 1
+                continue
+            kind = item.get("type")
+            name = item.get("name", "")
+            sub = (rel + "/" + name) if rel else name
+            if kind == "dir":
+                if depth >= SPARSE_MAX_DEPTH:
+                    state["skipped"] += 1
+                    continue
+                walk(sub, depth + 1)
+                continue
+            if kind != "file":
+                continue
+            if os.path.splitext(name)[1].lower() in SKIP_EXT:
+                state["skipped"] += 1
+                continue
+            if item.get("size", 0) > SPARSE_MAX_FILE:
+                state["skipped"] += 1
+                continue
+            try:
+                blob = _api("%s/%s/contents/%s" % (owner, repo, sub))
+            except Exception:
+                state["skipped"] += 1
+                continue
+            target = os.path.join(dest, sub)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target, "wb") as out:
+                out.write(blob)
+            state["files"] += 1
+
+    walk(path, 0)
+    if state["files"] == 0:
+        raise SystemExit("稀疏抓取没取到文件 / sparse fetch returned nothing for %s" % path)
+    return state
+
+
 def extract(blob, dest):
     count = 0
     total = 0
@@ -221,9 +297,14 @@ def render(data, owner, repo, skill_rel):
 def main():
     body = sys.argv[1] if len(sys.argv) > 1 else ""
     owner, repo, hint = parse_target(body)
-    blob = fetch(owner, repo)
     tmp = tempfile.mkdtemp(prefix="lgd-intake-")
-    extract(blob, tmp)
+    if hint:
+        # 给定了 Path：只取这个子树，巨型单仓也能评
+        state = fetch_sparse(owner, repo, hint, tmp)
+        sys.stderr.write("sparse: files=%d skipped=%d\n" % (state["files"], state["skipped"]))
+    else:
+        blob = fetch(owner, repo)
+        extract(blob, tmp)
     skill_dir = find_skill_dir(tmp, hint)
     rel = os.path.relpath(skill_dir, tmp).replace(os.sep, "/")
     outer = subprocess.run([sys.executable, REVIEW, skill_dir, "--json"],
