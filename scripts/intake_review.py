@@ -134,6 +134,35 @@ def fetch_sparse(owner, repo, path, dest):
             state["files"] += 1
 
     walk(path, 0)
+
+    # 仓库根的元数据文件（许可、索引、README、llms.txt）不在子树里，但评分只看包目录内部，
+    # 所以要把它们放到包目录下——否则分数会虚假地偏低（稀疏抓取引入的假阴性）。
+    root_meta = re.compile(r"^(LICEN[SC]E.*|AI-INDEX\.json|llms.*\.txt|README.*|SECURITY\.md|NOTICE.*)$", re.I)
+    pkg_dir = os.path.join(dest, path)
+    meta_dest = pkg_dir if os.path.isdir(pkg_dir) else dest
+    try:
+        root_listing = _api_json("%s/%s/contents/" % (owner, repo))
+    except Exception:
+        root_listing = []
+    if isinstance(root_listing, dict):
+        root_listing = [root_listing]
+    for item in root_listing:
+        name = item.get("name", "")
+        if item.get("type") != "file" or not root_meta.match(name):
+            continue
+        if item.get("size", 0) > SPARSE_MAX_FILE:
+            continue
+        target = os.path.join(meta_dest, name)
+        if os.path.isfile(target):
+            continue
+        try:
+            blob = _api("%s/%s/contents/%s" % (owner, repo, name))
+        except Exception:
+            continue
+        with open(target, "wb") as out:
+            out.write(blob)
+        state["files"] += 1
+
     if state["files"] == 0:
         raise SystemExit("稀疏抓取没取到文件 / sparse fetch returned nothing for %s" % path)
     return state
