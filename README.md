@@ -1,5 +1,8 @@
 # lgd-skill-review · 技能审计官
 
+**skills.sh 页面**: https://skills.sh/zhaoxinghua09-cell/lgd-skill-review ｜ `npx skills add zhaoxinghua09-cell/lgd-skill-review`
+
+
 Agent 技能六维审计器：每一处扣分都必须给出证据，输出分数、阻断项与整改顺序，作者或 AI 可据此整改、复评、再提高。这是我们做「权威评测」的引擎。
 
 A six-dimension auditor for agent skills: every deduction must cite evidence, and every package gets a score, a blocker list and a remediation order — so an author (or an agent) can fix, re-run and raise the score.
