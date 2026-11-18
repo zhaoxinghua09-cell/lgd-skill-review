@@ -11,7 +11,7 @@ metadata:
   slug: lgd-skill-review
   author: 诺声(Logos)@SynomosAI
   copyright: SynomosAI
-  version: 1.1.20
+  version: 1.1.21
   description_zh: 技能体检 / 评测 / 打分 / 为什么被拒 / 对评分不服 —— 对任意 AI 技能包做双制评测：结构制（100 分，量能不能用）与语义制（120 分，量值不值得用）各自出结论、绝不加权成一个数，两者背离 ≥20 分时会明确标出。每条整改项带稳定 ID、可指到具体文件；支持证据驱动的申诉（给出路径与核验方式，引擎自己打开判断），裁决推翻/维持并写入 appeal_log.json，但**不会因为申诉直接改分**——申诉的作用是把扣分变成可核验的争议点，不是让人自己给自己加分。
   description_en: 'A six-dimension, evidence-based reviewer for any AI skill package: scores structure, declared-vs-implemented consistency, reproducibility, hygiene, AI discoverability and licensing on a weighted 100-point scale, emits a prioritized fix list (P0 blocking / P1 improvement) and a rerun command, closing the review -> fix -> re-review loop. Every point is traceable to a file and finding.'
   tags:
