@@ -179,11 +179,15 @@ def d_consistency(root, fm, files):
             notes.append("文档给了位置参数用法，但脚本未读取 sys.argv（声明与实现不符）")
 
     if have_cmds:
-        got += 5
         bad = {c for c in declared_cmds if c not in have_cmds and c not in ("run", "py")}
         if bad:
-            notes.append("SKILL 提到的子命令脚本内不存在：%s" % "、".join(sorted(bad)[:3]))
+            # 以前这里照样给满分：检出「文档写了、脚本里没有」却只记账不扣分。
+            # 这正是本维度要测的东西，扣分是对的——而且专挑我们自己的包开刀才对得住「同一把尺子」。
+            notes.append("SKILL 提到的子命令脚本内不存在：%s（声明与实现不符，扣 5）"
+                         % "、".join(sorted(bad)[:3]))
+            blocking.append("declared_subcommand_missing:%s" % sorted(bad)[0])
         else:
+            got += 5
             notes.append("子命令与实现一致：%s" % "、".join(sorted(have_cmds)))
     if "不编" in desc + skill_md or "faithful" in desc.lower():
         got += 5
