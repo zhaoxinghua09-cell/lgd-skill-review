@@ -53,4 +53,4 @@ https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=revie
 - snapshot in time; sample is not random
 
 ## current numbers
-third-party top: 31 | lgd top: 96 | gap: 65
+third-party top: 38 | lgd top: 96 | gap: 58

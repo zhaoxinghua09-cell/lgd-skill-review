@@ -281,5 +281,53 @@
     },
     "target": "lgd-skill-review",
     "bucket": "lgd"
+  },
+  {
+    "score": 38,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 15,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 1
+    },
+    "dir": "skills-HEAD/skills/skill-creator",
+    "target": "anthropics/skills@skills/skill-creator",
+    "bucket": "third-party"
+  },
+  {
+    "score": 25,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 3
+    },
+    "dir": "skills-HEAD/skills/frontend-design",
+    "target": "anthropics/skills@skills/frontend-design",
+    "bucket": "third-party"
+  },
+  {
+    "score": 22,
+    "verdict": "FAIL",
+    "blocking": [],
+    "dims": {
+      "structure": 10,
+      "consistency": 0,
+      "reproducible": 0,
+      "hygiene": 8,
+      "discoverable": 4,
+      "licensing": 0
+    },
+    "dir": "skills-HEAD/skills/apple-design",
+    "target": "emilkowalski/skills@skills/apple-design",
+    "bucket": "third-party"
   }
 ]

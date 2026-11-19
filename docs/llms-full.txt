@@ -1,6 +1,6 @@
 # lgd-skill-review — full corpus
 
-> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T01:34:19Z
+> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T05:03:28Z
 > from bench/leaderboard.json; they change when the benchmark changes.
 
 ## 1. what this is

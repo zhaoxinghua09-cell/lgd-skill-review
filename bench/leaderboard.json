@@ -1,17 +1,17 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-19T01:34:19Z",
+  "generated_at_utc": "2026-11-19T05:03:28Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
     "static_cap_note": "100 requires --run with the target's own tests"
   },
   "summary": {
-    "third_party_entries": 13,
+    "third_party_entries": 16,
     "lgd_entries": 4,
-    "third_party_top": 31,
+    "third_party_top": 38,
     "lgd_top": 96,
-    "gap": 65
+    "gap": 58
   },
   "rows": [
     {

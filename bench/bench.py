@@ -37,6 +37,9 @@ TARGETS = [
     ("vercel-labs", "agent-browser", "skill-data/core"),
     ("obra", "superpowers", "skills/brainstorming"),
     ("addyosmani", "agent-skills", "skills/code-review-and-quality"),
+    ("anthropics", "skills", "skills/skill-creator"),
+    ("anthropics", "skills", "skills/frontend-design"),
+    ("emilkowalski", "skills", "skills/apple-design"),
 ]
 
 # Optional: score our own packages too. Set LGD_BENCH_OWN_DIR to the folder that
