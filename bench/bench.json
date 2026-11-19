@@ -43,7 +43,7 @@
       "discoverable": 4,
       "licensing": 2
     },
-    "dir": "azure-skills-HEAD/.github/plugins/azure-skills/skills/azure-deploy",
+    "dir": "azure-skills-HEAD/skills/azure-deploy",
     "target": "microsoft/azure-skills@skills/azure-deploy",
     "bucket": "third-party"
   },
@@ -67,8 +67,8 @@
     "score": 10,
     "verdict": "BLOCK",
     "blocking": [
-      "secret_leak:assets\\photos\\photos.json",
-      "secret_leak:assets\\photos\\photos.json"
+      "secret_leak:assets/photos/photos.json",
+      "secret_leak:assets/photos/photos.json"
     ],
     "dims": {
       "structure": 6,
@@ -175,8 +175,8 @@
       "secret_leak:SKILL.md",
       "secret_leak:SKILL.md",
       "secret_leak:SKILL.md",
-      "secret_leak:references\\authentication.md",
-      "secret_leak:references\\authentication.md"
+      "secret_leak:references/authentication.md",
+      "secret_leak:references/authentication.md"
     ],
     "dims": {
       "structure": 10,
@@ -221,66 +221,6 @@
     "dir": "agent-skills-HEAD/skills/code-review-and-quality",
     "target": "addyosmani/agent-skills@skills/code-review-and-quality",
     "bucket": "third-party"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "summarize-pro",
-    "bucket": "lgd"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "debug-pro",
-    "bucket": "lgd"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "wechat-viral-topic",
-    "bucket": "lgd"
-  },
-  {
-    "score": 96,
-    "verdict": "PASS",
-    "blocking": [],
-    "dims": {
-      "structure": 20,
-      "consistency": 25,
-      "reproducible": 16,
-      "hygiene": 15,
-      "discoverable": 15,
-      "licensing": 5
-    },
-    "target": "lgd-skill-review",
-    "bucket": "lgd"
   },
   {
     "score": 38,
