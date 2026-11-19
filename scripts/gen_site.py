@@ -671,6 +671,10 @@ by an execution we performed on someone's package.</p>
 {SITE}run-proof.json — our four packages scored with `review.py --run` (tests actually executed),
 with timestamp and commit. This is the only number in the sample backed by a real run.
 
+## rubric, item by item (23 checks)
+{SITE}rubric.json — every dimension broken into individual checks with points and the concrete fix.
+第 6 维共 23 条判据，每条给了分值和「怎么修」；`drift_check` 保证判据之和等于引擎权重，文档不会悄悄和引擎脱节。
+
 ## re-review loop
 Comment `/re-review` in the same issue to re-score after a fix; the bot replies with before -> after delta.
 首次评审后，在同一 issue 留言 `/re-review` 即重评，回帖给出「改前 → 改后」分数变化。
@@ -759,6 +763,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
