@@ -95,7 +95,12 @@ def run_case(case):
         shutil.copytree("fixtures/" + case["kind"], tmp, dirs_exist_ok=True)
         out = subprocess.run([sys.executable, "scripts/review.py", tmp, "--json"],
                              capture_output=True, text=True)
-        got = json.loads(out.stdout)["data"]      # 契约：{"ok":..,"data":{total,verdict,...}}
+        j = json.loads(out.stdout if out.stdout.strip() else out.stderr)
+        if not j.get("ok", False):
+            # 无效包：JSON 走 stderr，形如 {"ok":false,"error_id":"R001","msg":"目录下没有 SKILL.md"}
+            got = {"verdict": "BLOCK", "total": 0, "error_id": j.get("error_id")}
+        else:
+            got = j["data"]                    # {"total":..,"verdict":..,"dimensions":..}
         want = case["expect"]
         if "verdict" in want and got.get("verdict") != want["verdict"]:
             return False, "%s: want verdict %r got %r" % (case["id"], want["verdict"], got.get("verdict"))
@@ -119,7 +124,9 @@ def main():
 sys.exit(main())
 </code></pre>
 <p style="margin-top:10px;font-size:13px">评分器认「有 runner 且退出码为 0」和「runner 真能跑通」。退出码恒为 0 的脚本不算分。
-注意字段名：结果是 <code>data.total</code>（不是 <code>score</code>）——写错字段名会让用例永远「通过」。</p></div>
+两个契约要点：正常结果在 <code>data.total</code>（不是 <code>score</code>）；
+无效包返回 <code>ok=false + error_id</code> 且 <b>JSON 写在 stderr</b>、<b>没有 data</b>——
+这几个坑不踩一遍就会写出「永远通过」的假测试。</p></div>
 
 <h2>第三步：把它接进 CI，让它每次都被执行</h2>
 <div class="card"><pre><code># .github/workflows/verify.yml
