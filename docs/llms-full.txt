@@ -1,6 +1,6 @@
 # lgd-skill-review — full corpus
 
-> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T01:18:28Z
+> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T01:34:19Z
 > from bench/leaderboard.json; they change when the benchmark changes.
 
 ## 1. what this is
@@ -26,8 +26,8 @@ Static mode caps at 96; the remaining 4 points require the target's own tests to
 ## 4. leaderboard (bucket | target | score | verdict)
 | bucket | target | score | verdict |
 |---|---|---|---|
-| third-party | anthropics/skills@skills/pptx | 36 | FAIL |
-| third-party | anthropics/skills@skills/docx | 36 | FAIL |
+| third-party | anthropics/skills@skills/pptx | 31 | BLOCK |
+| third-party | anthropics/skills@skills/docx | 31 | BLOCK |
 | third-party | vercel-labs/agent-skills@skills/react-best-practices | 24 | FAIL |
 | third-party | google/agents-cli@skills/google-agents-cli-adk-code | 22 | FAIL |
 | third-party | anthropics/skills@skills/pdf | 21 | FAIL |

@@ -24,3 +24,8 @@ jobs:
 
       - name: Self-audit with the LGD engine (static 96 + executed 100)
         run: python scripts/review.py . --json --run
+
+      # 判据一致性：每一条公布的判据，都要能被一次人为违规真的扣到分。
+      # 没有这一步，判据就只是文案——写了、没执行、无人发现。
+      - name: Every published check must actually deduct
+        run: python tests/rubric_probe.py

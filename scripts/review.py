@@ -91,6 +91,22 @@ def walk(root):
     return out
 
 
+def junk_entries(root):
+    """不被 walk() 剪枝的垃圾扫描。
+
+    审过才知道：walk() 把 __pycache__ 整枝剪掉，于是「无 junk 文件」这条判据对 __pycache__
+    永远不会触发——判据写了，代码看不见。这里单独走一遍，只找垃圾，不改主枚举。
+    """
+    out = []
+    for dp, dns, fns in os.walk(root):
+        if "__pycache__" in dns:
+            out.append(os.path.join(dp, "__pycache__"))
+        for fn in fns:
+            if fn.endswith((".pyc", ".zip")):
+                out.append(os.path.join(dp, fn))
+    return out
+
+
 def scripts_text(root):
     parts = []
     for p in walk(root):
@@ -119,8 +135,9 @@ def d_structure(root, fm, files):
         notes.append("层级 >3 段：%s" % depth_bad[0])
     else:
         got += 4
-    if any(p.endswith((".pyc", ".zip")) or "__pycache__" in p for p in files):
-        notes.append("含 junk 文件（.pyc/.zip/__pycache__）")
+    if junk_entries(root):
+        notes.append("含 junk 文件（.pyc/.zip/__pycache__）：%s"
+                     % os.path.relpath(junk_entries(root)[0], root))
     else:
         got += 3
     if fm.get("displayName") or fm.get("display_name") or fm.get("name"):
@@ -150,10 +167,19 @@ def d_consistency(root, fm, files):
     have_flags = {"--" + f for f in have_flags}
     have_cmds = set(re.findall(r'add_parser\(\s*"([a-z0-9_\-]+)', scripts_text(root)))
 
-    # 只校验「我们的脚本」承诺的 flag，避免把目标平台自身的 CLI 参数误判为我们的声明
-    ours = {f for f in declared_flags if f in have_flags}
-    unknown = {f for f in declared_flags
+    # 只校验「我们的脚本」承诺的 flag，避免把目标平台自身的 CLI 参数误判为我们的声明。
+    # 判据写的是「每个 --flag 都要实现」，原实现却多加了关键词门（我们的工具/子命令/…），
+    # 结果：一条普通命令行 `python scripts/x.py --foo` 即便 foo 不存在也不扣分 —— 判据没被执行。
+    # 现在的归属判定换成证据：命令行里的脚本在本仓存在，这一行的 flag 就是我们的承诺。
+    repo_names = {os.path.basename(p) for p in files}
+    ours_declared = set()
+    for l in cmd_lines:
+        scripts_on_line = re.findall(r"([\w./\\-]+\.(?:py|sh|js|ts))", l)
+        if any(os.path.basename(s) in repo_names for s in scripts_on_line):
+            ours_declared |= set(re.findall(r"--[a-z][a-z0-9\-]{1,20}", l))
+    unknown = {f for f in (declared_flags | ours_declared)
                if f not in have_flags and re.search(r"我们的?工具|本技能提供|子命令|脚本支持", skill_md)}
+    unknown |= {f for f in ours_declared if f not in have_flags}
     if have_flags:
         got += 10
         missing = unknown - have_flags

@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-19T01:18:28Z",
+  "generated_at_utc": "2026-11-19T01:34:19Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -9,24 +9,30 @@
   "summary": {
     "third_party_entries": 13,
     "lgd_entries": 4,
-    "third_party_top": 36,
+    "third_party_top": 31,
     "lgd_top": 96,
-    "gap": 60
+    "gap": 65
   },
   "rows": [
     {
       "target": "anthropics/skills@skills/pptx",
       "bucket": "third-party",
-      "score": 36,
-      "verdict": "FAIL",
-      "blocking": []
+      "score": 31,
+      "verdict": "BLOCK",
+      "blocking": [
+        "declared_command_missing:--convert-to",
+        "declared_command_missing:--headless"
+      ]
     },
     {
       "target": "anthropics/skills@skills/docx",
       "bucket": "third-party",
-      "score": 36,
-      "verdict": "FAIL",
-      "blocking": []
+      "score": 31,
+      "verdict": "BLOCK",
+      "blocking": [
+        "declared_command_missing:--convert-to",
+        "declared_command_missing:--headless"
+      ]
     },
     {
       "target": "vercel-labs/agent-skills@skills/react-best-practices",

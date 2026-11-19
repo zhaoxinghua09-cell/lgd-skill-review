@@ -131,12 +131,15 @@
     "bucket": "third-party"
   },
   {
-    "score": 36,
-    "verdict": "FAIL",
-    "blocking": [],
+    "score": 31,
+    "verdict": "BLOCK",
+    "blocking": [
+      "declared_command_missing:--convert-to",
+      "declared_command_missing:--headless"
+    ],
     "dims": {
       "structure": 6,
-      "consistency": 15,
+      "consistency": 10,
       "reproducible": 0,
       "hygiene": 8,
       "discoverable": 4,
@@ -147,12 +150,15 @@
     "bucket": "third-party"
   },
   {
-    "score": 36,
-    "verdict": "FAIL",
-    "blocking": [],
+    "score": 31,
+    "verdict": "BLOCK",
+    "blocking": [
+      "declared_command_missing:--convert-to",
+      "declared_command_missing:--headless"
+    ],
     "dims": {
       "structure": 6,
-      "consistency": 15,
+      "consistency": 10,
       "reproducible": 0,
       "hygiene": 8,
       "discoverable": 4,
