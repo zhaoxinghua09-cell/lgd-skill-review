@@ -92,19 +92,36 @@ def walk(root):
 
 
 def junk_entries(root):
-    """不被 walk() 剪枝的垃圾扫描。
+    """垃圾判定只针对「交付出去的东西」，不针对运行产物。
 
-    审过才知道：walk() 把 __pycache__ 整枝剪掉，于是「无 junk 文件」这条判据对 __pycache__
-    永远不会触发——判据写了，代码看不见。这里单独走一遍，只找垃圾，不改主枚举。
+    两次踩坑后的定稿：
+      1. walk() 把 __pycache__ 整枝剪掉 → 判据对 __pycache__ 永远不触发（判据写了、代码看不见）
+      2. 改成全盘扫之后，CI 里跑一次 review 自己就生成 __pycache__ → 自评被自己扣 3 分（假阳性）
+    所以有 git 时只认受版本控制的文件（committed junk 才是 junk）；没有 git 时才退回文件系统扫描。
     """
-    out = []
+    tracked = None
+    if os.path.isdir(os.path.join(root, ".git")):
+        try:
+            out = subprocess.run(["git", "ls-files"], cwd=root, capture_output=True,
+                                 text=True, timeout=60)
+            if out.returncode == 0:
+                tracked = {os.path.join(root, p.replace("/", os.sep))
+                           for p in out.stdout.splitlines() if p.strip()}
+        except Exception:
+            tracked = None
+    entries = []
+    if tracked is not None:
+        for p in tracked:
+            if p.endswith((".pyc", ".zip")) or "__pycache__" in p.split(os.sep):
+                entries.append(p)
+        return entries
     for dp, dns, fns in os.walk(root):
         if "__pycache__" in dns:
-            out.append(os.path.join(dp, "__pycache__"))
+            entries.append(os.path.join(dp, "__pycache__"))
         for fn in fns:
             if fn.endswith((".pyc", ".zip")):
-                out.append(os.path.join(dp, fn))
-    return out
+                entries.append(os.path.join(dp, fn))
+    return entries
 
 
 def scripts_text(root):
