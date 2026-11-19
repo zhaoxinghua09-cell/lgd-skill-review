@@ -417,6 +417,82 @@ checkability, not usefulness.</b></p></div>
     html += FOOT
     open(os.path.join(DOCS, "benchmark.html"), "w", encoding="utf-8").write(html)
 
+    # skill-review detail page（此前这里没有手写页，只剩 stub，等于「审计页不写怎么审计」）
+    html = head("Audit a skill — score, blockers, fix order",
+                "One command turns a skill package into a score, a blocker list with file:line evidence, "
+                "and an ordered remediation list. Re-run after fixing to see the delta.",
+                "skill-review.html")
+    html += f"""
+<div class="kick">audit</div>
+<h1>Score, blockers, fix order — from one command.</h1>
+<p class="lead">It never reads your README and trusts it. With <code>--run</code> it executes the
+package's own golden set, so 「我自己测过」和「它真的能跑」是两件事。</p>
+
+<h2>Run it</h2>
+<div class="card"><pre><code># 静态六维评分（不执行目标代码）
+python scripts/review.py &lt;package-dir&gt; --json
+
+# 加上实跑：执行包内黄金集，拿到最后 4 分
+python scripts/review.py &lt;package-dir&gt; --run --json
+
+# 只看某一维的整改（例如「声明与实现是否一致」）
+python scripts/review.py &lt;package-dir&gt; --run --focus declared-consistency</code></pre>
+<p style="margin-top:10px;font-size:13px">零依赖、不联网、标准库即可跑。退出码 0 通过 / 1 有阻断 / 2 参数错误。</p></div>
+
+<h2>What you get</h2>
+<div class="card"><table>
+<tr><th>输出</th><th>内容</th></tr>
+<tr><td>逐维分数</td><td>structure 20 · consistency 25 · reproducible 20 · hygiene 15 · discoverability 15 · licensing 5</td></tr>
+<tr><td>阻断项</td><td>每条带 <code>file:line</code> 证据，不给「建议优化一下」这种无法执行的结论</td></tr>
+<tr><td>整改顺序</td><td>按「先修能一次修好的」排，改完复评能直接看到分数差</td></tr>
+<tr><td>机器可读</td><td><code>--json</code> 输出 <code>{{ok, data}}</code>，可直接进 CI</td></tr>
+</table></div>
+
+<h2>What it deliberately does not do</h2>
+<div class="card"><ul>
+<li>不判断技能「好不好用」——它只判断「陌生人能否核验」</li>
+<li>不替代人工评审：分数高不等于内容正确</li>
+<li>不执行不可信代码，除非你显式加 <code>--run</code></li>
+</ul></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "skill-review.html"), "w", encoding="utf-8").write(html)
+
+    # quickfix detail page
+    html = head("QuickFix — only the fixes that raise verifiability",
+                "Applies mechanical fixes (license, machine-readable index, declared commands) and proves "
+                "the score delta. Dry-run by default; refuses a single file changed over 30%.",
+                "quickfix.html")
+    html += f"""
+<div class="kick">quickfix</div>
+<h1>Fix what a machine can fix. Prove the delta.</h1>
+<p class="lead">大多数审计报告读完还是不会改。这条命令只做「机械可判定」的那几件事，并且改完立刻复评，
+把分数差贴出来——不接受「我们改好了」这种自述。</p>
+
+<h2>Run it</h2>
+<div class="card"><pre><code># 先看它想改什么（默认 dry-run，不写盘）
+python scripts/quickfix.py &lt;package-dir&gt;
+
+# 真改：补 LICENSE + 声明 license 字段 + 生成 AI-INDEX.json + 对齐已声明命令
+python scripts/quickfix.py &lt;package-dir&gt; --apply
+
+# 改完立刻复评，拿到前后分数差
+python scripts/review.py &lt;package-dir&gt; --run --json</code></pre>
+<p style="margin-top:10px;font-size:13px">默认只动「机械可判定」项，语义改写一律不碰；单文件改动超过 30% 会被拒绝写入。</p></div>
+
+<h2>What it actually moves</h2>
+<div class="card"><table>
+<tr><th>缺陷</th><th>它能做什么</th><th>实测效果</th></tr>
+<tr><td>无 LICENSE、无 license 字段</td><td>补 MIT 许可文件 + 加 front-matter 字段</td><td>licensing 2 → 3</td></tr>
+<tr><td>无机器可读索引</td><td>生成 AI-INDEX.json（含入口与命令）</td><td>discoverability 4 → 7</td></tr>
+<tr><td>文档声明的命令脚本不存在</td><td><em>只报告，不代写</em>——这需要人决定</td><td>保持阻断，避免掩盖</td></tr>
+</table>
+<p style="margin-top:12px;font-size:13px">真实案例：microsoft/azure-skills 的 azure-deploy 从 20 分，仅靠机械整改到 24 分；
+再补 tests/golden、可跑 runner、llms.txt、tags 到 57 分——剩下的必须由人写内容，机器补不了。</p></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "quickfix.html"), "w", encoding="utf-8").write(html)
+
     # rubric
     html = head("Rubric — six dimensions, 100 points",
                 "The exact scoring rules, weights and what each dimension can and cannot prove.", "rubric.html")

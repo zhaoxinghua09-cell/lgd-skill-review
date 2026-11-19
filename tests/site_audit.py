@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+"""站点审计：每个页面必须有「内容」，不能是只有标题+安装命令的 stub。
+
+起因：gen_site 的 stub 循环曾把 benchmark / skill-review / quickfix 三个手写详情页
+整页覆盖，线上榜单页连续多日零表格而没人发现。这个脚本就是那道闸。
+
+断言分两层：
+  [结构] 每页必须有实质块（h2 / 表格 / 代码块 至少各一个以上），且带 canonical 与站点导航
+  [内容] 每个页面对应的关键事实必须出现在 HTML 里（数字取自 leaderboard，命令取自仓库真实脚本）
+"""
+import io
+import json
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOCS = os.path.join(ROOT, "docs")
+LB = os.path.join(ROOT, "bench", "leaderboard.json")
+
+PAGES = ["index", "rubric", "skill-review", "quickfix", "benchmark",
+         "badge", "audits", "registry", "discover"]
+
+
+def read(name):
+    return io.open(os.path.join(DOCS, name + ".html"), encoding="utf-8").read()
+
+
+def main():
+    lb = json.load(io.open(LB, encoding="utf-8"))
+    s = lb["summary"]
+    fails = []
+
+    for name in PAGES:
+        p = os.path.join(DOCS, name + ".html")
+        if not os.path.exists(p):
+            fails.append("%s.html 不存在" % name)
+            continue
+        t = read(name)
+        h2 = len(re.findall(r"<h2", t))
+        tr = len(re.findall(r"<tr>", t))
+        code = len(re.findall(r"<pre><code", t))
+        # 结构：不能是 stub（stub 只有 kick+h1+lead+一段正文+一个安装块）
+        if not (h2 >= 1 and (tr >= 1 or code >= 1)):
+            fails.append("%s 像 stub：h2=%d tr=%d code=%d" % (name, h2, tr, code))
+        if "canonical" not in t:
+            fails.append("%s 缺 canonical" % name)
+        if "./benchmark.html" not in t or "./rubric.html" not in t:
+            fails.append("%s 缺站点导航" % name)
+
+    # 内容：数字与命令必须真的在页面上
+    idx = read("index")
+    for k in ("third_party_entries", "third_party_top", "gap"):
+        if str(s[k]) not in idx:
+            fails.append("index 未出现 %s=%s" % (k, s[k]))
+
+    bm = read("benchmark")
+    if len(re.findall(r"<tr>", bm)) < len(lb["rows"]):
+        fails.append("benchmark 表格行 %d < 榜单 %d 条" % (len(re.findall(r"<tr>", bm)), len(lb["rows"])))
+    if "Generated" not in bm:
+        fails.append("benchmark 缺生成时间戳")
+
+    for name, must in (("skill-review", "review.py"), ("quickfix", "quickfix.py")):
+        if must not in read(name):
+            fails.append("%s 未出现可运行命令 %s" % (name, must))
+
+    # 机器出口与页面数一致
+    sm = io.open(os.path.join(DOCS, "sitemap.xml"), encoding="utf-8").read()
+    locs = re.findall(r"<loc>", sm)
+    if len(locs) != len([n for n in PAGES if os.path.exists(os.path.join(DOCS, n + ".html"))]):
+        fails.append("sitemap loc=%d 与页面数不符" % len(locs))
+
+    rj = json.load(io.open(os.path.join(DOCS, "rubric.json"), encoding="utf-8"))
+    if not rj.get("drift_check", {}).get("consistent"):
+        fails.append("rubric.json drift_check 不一致")
+
+    for f in fails:
+        print("  - " + f)
+    print("ALL PASS" if not fails else "FAIL: %d 处" % len(fails))
+    return 0 if not fails else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

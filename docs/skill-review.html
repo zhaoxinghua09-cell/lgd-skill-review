@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Skill Review · 技能审计 — lgd-skill-review</title>
-<meta name="description" content="技能审计：每一处扣分都钉在具体文件上 · Six dimensions, static analysis, every deduction pinned to a file with a line. Same package in, same score out. Every re">
+<title>Audit a skill — score, blockers, fix order</title>
+<meta name="description" content="One command turns a skill package into a score, a blocker list with file:line evidence, and an ordered remediation list. Re-run after fixing to see the delta.">
 <link rel="canonical" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/skill-review.html">
-<meta property="og:title" content="Skill Review · 技能审计 — lgd-skill-review">
-<meta property="og:description" content="技能审计：每一处扣分都钉在具体文件上 · Six dimensions, static analysis, every deduction pinned to a file with a line. Same package in, same score out. Every re">
+<meta property="og:title" content="Audit a skill — score, blockers, fix order">
+<meta property="og:description" content="One command turns a skill package into a score, a blocker list with file:line evidence, and an ordered remediation list. Re-run after fixing to see the delta.">
 <meta property="og:type" content="website">
 <style>
 :root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
@@ -66,15 +66,37 @@ ul{margin:10px 0 0 20px}
 <a href="https://github.com/zhaoxinghua09-cell/lgd-skill-review">GitHub</a>
 </nav>
 
-<div class="kick">skill-review</div>
-<h1>Audit a skill, get evidence — not opinions</h1>
-<p class="lead">技能审计：每一处扣分都钉在具体文件上</p>
-<div class="card"><p>Six dimensions, static analysis, every deduction pinned to a file with a line. Same package in, same score out. Every result comes with a remediation order and a projected ceiling that separates mechanical fixes from work you still have to do.</p>
-<h3 style="margin-top:16px">When an agent should reach for this</h3>
-<p><span class="tag">skill audit</span><span class="tag">skill review</span><span class="tag">rate my skill</span><span class="tag">SKILL.md review</span><span class="tag">技能评测</span><span class="tag">技能审计</span><span class="tag">帮我看看这个技能缺什么</span></p></div>
-<h2>Install</h2>
-<div class="card"><pre><code>npx skills add zhaoxinghua09-cell/lgd-skills</code></pre>
-<p style="margin-top:10px;font-size:13px">Bundled with all four skills under <code>skills/&lt;name&gt;/</code>.</p></div>
+<div class="kick">audit</div>
+<h1>Score, blockers, fix order — from one command.</h1>
+<p class="lead">It never reads your README and trusts it. With <code>--run</code> it executes the
+package's own golden set, so 「我自己测过」和「它真的能跑」是两件事。</p>
+
+<h2>Run it</h2>
+<div class="card"><pre><code># 静态六维评分（不执行目标代码）
+python scripts/review.py &lt;package-dir&gt; --json
+
+# 加上实跑：执行包内黄金集，拿到最后 4 分
+python scripts/review.py &lt;package-dir&gt; --run --json
+
+# 只看某一维的整改（例如「声明与实现是否一致」）
+python scripts/review.py &lt;package-dir&gt; --run --focus declared-consistency</code></pre>
+<p style="margin-top:10px;font-size:13px">零依赖、不联网、标准库即可跑。退出码 0 通过 / 1 有阻断 / 2 参数错误。</p></div>
+
+<h2>What you get</h2>
+<div class="card"><table>
+<tr><th>输出</th><th>内容</th></tr>
+<tr><td>逐维分数</td><td>structure 20 · consistency 25 · reproducible 20 · hygiene 15 · discoverability 15 · licensing 5</td></tr>
+<tr><td>阻断项</td><td>每条带 <code>file:line</code> 证据，不给「建议优化一下」这种无法执行的结论</td></tr>
+<tr><td>整改顺序</td><td>按「先修能一次修好的」排，改完复评能直接看到分数差</td></tr>
+<tr><td>机器可读</td><td><code>--json</code> 输出 <code>{ok, data}</code>，可直接进 CI</td></tr>
+</table></div>
+
+<h2>What it deliberately does not do</h2>
+<div class="card"><ul>
+<li>不判断技能「好不好用」——它只判断「陌生人能否核验」</li>
+<li>不替代人工评审：分数高不等于内容正确</li>
+<li>不执行不可信代码，除非你显式加 <code>--run</code></li>
+</ul></div>
 
 <div class="foot">
 Measures verifiability, not usefulness or popularity. Low score means evidence is missing, not that the skill is bad.

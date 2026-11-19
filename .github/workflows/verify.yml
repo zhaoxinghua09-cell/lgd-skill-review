@@ -39,3 +39,10 @@ jobs:
       # 「声称能路由」和「真的路由」是两件事。
       - name: Published intents must point at things that exist
         run: python tests/intent_audit.py
+
+      # 站点审计：每个页面必须有实质内容（h2 + 表格或代码块），关键数字与可运行命令必须在页面上。
+      # 起因：stub 循环曾把三个手写详情页整页覆盖，线上榜单页连续多日零表格而没人发现。
+      - name: Every published page must contain real content
+        run: |
+          python scripts/gen_site.py
+          python tests/site_audit.py

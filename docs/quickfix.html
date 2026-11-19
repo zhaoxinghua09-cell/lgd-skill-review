@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QuickFix · 一键机械整改 — lgd-skill-review</title>
-<meta name="description" content="机械可补的部分，一条命令补完 · Adds LICENSE and a license field, generates AI-INDEX.json, appends a Commands section built from the flags that really e">
+<title>QuickFix — only the fixes that raise verifiability</title>
+<meta name="description" content="Applies mechanical fixes (license, machine-readable index, declared commands) and proves the score delta. Dry-run by default; refuses a single file changed over 30%.">
 <link rel="canonical" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/quickfix.html">
-<meta property="og:title" content="QuickFix · 一键机械整改 — lgd-skill-review">
-<meta property="og:description" content="机械可补的部分，一条命令补完 · Adds LICENSE and a license field, generates AI-INDEX.json, appends a Commands section built from the flags that really e">
+<meta property="og:title" content="QuickFix — only the fixes that raise verifiability">
+<meta property="og:description" content="Applies mechanical fixes (license, machine-readable index, declared commands) and proves the score delta. Dry-run by default; refuses a single file changed over 30%.">
 <meta property="og:type" content="website">
 <style>
 :root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
@@ -67,14 +67,30 @@ ul{margin:10px 0 0 20px}
 </nav>
 
 <div class="kick">quickfix</div>
-<h1>The fixes anyone can apply in one command</h1>
-<p class="lead">机械可补的部分，一条命令补完</p>
-<div class="card"><p>Adds LICENSE and a license field, generates AI-INDEX.json, appends a Commands section built from the flags that really exist in the source, and scrubs absolute paths. Dry-run by default; a single file changed over 30% is refused.</p>
-<h3 style="margin-top:16px">When an agent should reach for this</h3>
-<p><span class="tag">quickfix skill</span><span class="tag">add license to skill</span><span class="tag">AI-INDEX.json</span><span class="tag">skill hygiene</span><span class="tag">技能整改</span><span class="tag">补许可</span><span class="tag">清路径</span></p></div>
-<h2>Install</h2>
-<div class="card"><pre><code>npx skills add zhaoxinghua09-cell/lgd-skills</code></pre>
-<p style="margin-top:10px;font-size:13px">Bundled with all four skills under <code>skills/&lt;name&gt;/</code>.</p></div>
+<h1>Fix what a machine can fix. Prove the delta.</h1>
+<p class="lead">大多数审计报告读完还是不会改。这条命令只做「机械可判定」的那几件事，并且改完立刻复评，
+把分数差贴出来——不接受「我们改好了」这种自述。</p>
+
+<h2>Run it</h2>
+<div class="card"><pre><code># 先看它想改什么（默认 dry-run，不写盘）
+python scripts/quickfix.py &lt;package-dir&gt;
+
+# 真改：补 LICENSE + 声明 license 字段 + 生成 AI-INDEX.json + 对齐已声明命令
+python scripts/quickfix.py &lt;package-dir&gt; --apply
+
+# 改完立刻复评，拿到前后分数差
+python scripts/review.py &lt;package-dir&gt; --run --json</code></pre>
+<p style="margin-top:10px;font-size:13px">默认只动「机械可判定」项，语义改写一律不碰；单文件改动超过 30% 会被拒绝写入。</p></div>
+
+<h2>What it actually moves</h2>
+<div class="card"><table>
+<tr><th>缺陷</th><th>它能做什么</th><th>实测效果</th></tr>
+<tr><td>无 LICENSE、无 license 字段</td><td>补 MIT 许可文件 + 加 front-matter 字段</td><td>licensing 2 → 3</td></tr>
+<tr><td>无机器可读索引</td><td>生成 AI-INDEX.json（含入口与命令）</td><td>discoverability 4 → 7</td></tr>
+<tr><td>文档声明的命令脚本不存在</td><td><em>只报告，不代写</em>——这需要人决定</td><td>保持阻断，避免掩盖</td></tr>
+</table>
+<p style="margin-top:12px;font-size:13px">真实案例：microsoft/azure-skills 的 azure-deploy 从 20 分，仅靠机械整改到 24 分；
+再补 tests/golden、可跑 runner、llms.txt、tags 到 57 分——剩下的必须由人写内容，机器补不了。</p></div>
 
 <div class="foot">
 Measures verifiability, not usefulness or popularity. Low score means evidence is missing, not that the skill is bad.
