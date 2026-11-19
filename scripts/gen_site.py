@@ -7,6 +7,7 @@ site cannot drift away from the measured numbers.
 
 No JavaScript. One page = one topic. JSON-LD on every page.
 """
+import datetime
 import json
 import subprocess
 import sys
@@ -659,12 +660,21 @@ by an execution we performed on someone's package.</p>
         json.dump(proof, open(os.path.join(DOCS, "run-proof.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
 
-    # sitemap / robots / llms
-    urls = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html", "registry.html", "discover.html"] + [s["slug"] + ".html" for s in SKILLS]
+    # sitemap：去重 + 带 lastmod（没有 lastmod，搜索引擎无法判断"这页更新过没有"）
+    base = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html",
+            "registry.html", "discover.html"]
+    urls = list(dict.fromkeys(base + [s["slug"] + ".html" for s in SKILLS]))
+    today = datetime.date.today().isoformat()
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
-        sm.append(f"  <url><loc>{SITE}/{u}</loc><changefreq>daily</changefreq></item>".replace("</item>", "</url>"))
+        path = os.path.join(DOCS, u)
+        lastmod = today
+        if os.path.isfile(path):
+            lastmod = datetime.date.fromtimestamp(os.path.getmtime(path)).isoformat()
+        pri = "1.0" if u == "index.html" else ("0.9" if u in ("rubric.html", "benchmark.html") else "0.7")
+        sm.append("  <url><loc>%s/%s</loc><lastmod>%s</lastmod><changefreq>daily</changefreq>"
+                  "<priority>%s</priority></url>" % (SITE, u, lastmod, pri))
     sm.append("</urlset>")
     open(os.path.join(DOCS, "sitemap.xml"), "w", encoding="utf-8").write("\n".join(sm))
 
@@ -786,6 +796,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
