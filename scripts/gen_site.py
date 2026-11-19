@@ -501,7 +501,8 @@ python scripts/review.py &lt;package-dir&gt; --run --json</code></pre>
                                      "bench", "bench.json"), encoding="utf-8"))
     tp = next((r for r in BJ
                if r["bucket"] == "third-party" and r["score"] == s["third_party_top"]), None)
-    own = max((r for r in BJ if r["bucket"] == "lgd"), key=lambda r: r["score"])
+    own = (next((r for r in BJ if "lgd-skill-review" in r["target"]), None)
+           or max((r for r in BJ if r["bucket"] == "lgd"), key=lambda r: r["score"]))
     crow = ""
     for key, zh, mx in DIM_MAX:
         a = tp["dims"].get(key, 0)
