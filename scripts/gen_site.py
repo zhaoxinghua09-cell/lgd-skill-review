@@ -308,6 +308,28 @@ checkability, not usefulness.</b></p></div>
     # rubric
     html = head("Rubric — six dimensions, 100 points",
                 "The exact scoring rules, weights and what each dimension can and cannot prove.", "rubric.html")
+    rb = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "rubric.json"),
+                        encoding="utf-8")) if os.path.isfile(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "rubric.json")) else None
+    detail = ""
+    if rb:
+        detail = "<h2>Item by item · %d checks</h2><div class='card'><p>Read the JSON, not this page, " \
+                 "if you want to act on it: " \
+                 "<a class='a' href='./rubric.json'>rubric.json</a>. " \
+                 "Sum of checks per dimension is asserted equal to the weight at generation time " \
+                 "(<code>drift_check</code>), so this page cannot silently drift from the engine.</p></div>" % \
+                 sum(len(d["checks"]) for d in rb["dimensions"] if d.get("checks"))
+        for d in rb["dimensions"]:
+            if not d.get("checks"):
+                continue
+            detail += "<div class='card'><h3>%s<span style='color:#6f86a6;font-weight:400'> · %d pts</span></h3>" % (
+                d["key"], d["weight"])
+            detail += "<table><tr><th>Check</th><th style='text-align:right'>Pts</th><th>How to fix</th></tr>"
+            for c in d["checks"]:
+                tag = " <span style='color:#9ab;font-size:12px'>(alt path)</span>" if c.get("alternative") else ""
+                detail += "<tr><td>%s%s</td><td class='num'>%d</td><td style='font-size:13px'>%s</td></tr>" % (
+                    c["check"], tag, c["points"], c["fix"])
+            detail += "</table></div>"
     html += """
 <div class="kick">rubric</div>
 <h1>Six dimensions, 100 points, no black box.</h1>
@@ -324,6 +346,7 @@ stapled to it. Static mode caps at 96; the last 4 points require the target's ow
 <tr><td>Licensing</td><td class="num">5</td><td>A real license file plus a declared field</td></tr>
 </table>
 </div>
+""" + detail + """
 <h2>What the score cannot tell you</h2>
 <div class="card"><ul>
 <li>Whether the skill is useful, correct, or popular</li>
