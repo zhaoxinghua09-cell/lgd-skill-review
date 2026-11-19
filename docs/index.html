@@ -128,9 +128,10 @@ a number, the JSON is public and the runner is public.</p>
 <h2>Our ruler is tested too</h2>
 <div class="card">
 <p>It is easy to publish checks and never enforce them. So every published check has a probe that
-breaks it on purpose and asserts the score actually drops — 13 cases, run in CI on every push:</p>
+breaks it on purpose and asserts the score actually drops — 22 cases covering all 23 checks (one check
+shares its evidence with another), run in CI on every push:</p>
 <pre style="margin-top:10px"><code>python tests/rubric_probe.py
-# 13/13 enforced</code></pre>
+# 22/22 enforced</code></pre>
 <p style="margin-top:10px">Two of those probes found real defects in <b>this project</b>: a junk scan that
 could never fire (its walk pruned the very directory it was looking for), and a flag check that
 recorded a mismatch without deducting. Both are fixed — and the third-party top went from 36 to
