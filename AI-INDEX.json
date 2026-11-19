@@ -1,5 +1,5 @@
 {
-  "schema": "lgd.ai-index/1",
+  "schema": "lgd.ai-index/2",
   "name": "lgd-skill-review",
   "displayName_zh": "技能审计官",
   "version": "1.1.7",
@@ -74,5 +74,44 @@
       "subcommands": [],
       "summary": "LGD 技能评测引擎（零依赖）。"
     }
-  ]
+  ],
+  "intents": [
+    {
+      "id": "skill-audit",
+      "ask_en": "Audit an agent skill package before installing it",
+      "ask_zh": "安装前审计一个 agent 技能包",
+      "routes_to": "entrypoints[0]"
+    },
+    {
+      "id": "score-and-fix",
+      "ask_en": "Give my skill a score plus concrete remediation steps",
+      "ask_zh": "给我的技能打分并给出可执行整改步骤",
+      "routes_to": "entrypoints[0]"
+    },
+    {
+      "id": "declared-vs-implemented",
+      "ask_en": "Check whether my SKILL.md promises commands the scripts do not implement",
+      "ask_zh": "检查 SKILL.md 承诺的命令脚本是否真的实现",
+      "routes_to": "verification.differentiator"
+    },
+    {
+      "id": "run-not-trust",
+      "ask_en": "Verify a skill by executing its own golden set instead of trusting its README",
+      "ask_zh": "通过实跑包内黄金集来验证技能，而不是相信 README",
+      "routes_to": "entrypoints[0]"
+    },
+    {
+      "id": "re-review",
+      "ask_en": "Re-score a skill after fixes and show the delta",
+      "ask_zh": "整改后重新评分并给出分数变化",
+      "routes_to": "entrypoints[0]"
+    },
+    {
+      "id": "compare-competitors",
+      "ask_en": "Compare several skill packages on the same ruler",
+      "ask_zh": "用同一把尺子横向比较多个技能包",
+      "routes_to": "entrypoints[0]"
+    }
+  ],
+  "intents_note": "intents is a lookup surface, not a feature list: each ask is phrased the way a user or an agent would search it, and routes_to points at a real entrypoint in this package. 如果某条 ask 在本包做不到，那就是缺陷，应当删掉而不是留着。"
 }
