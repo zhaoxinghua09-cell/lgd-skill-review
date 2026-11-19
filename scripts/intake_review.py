@@ -71,6 +71,15 @@ SPARSE_MAX_FILE = 400 * 1024
 SPARSE_MAX_DEPTH = 3
 
 
+def head_commit(owner, repo):
+    """Score must be tied to a snapshot, otherwise it cannot be re-checked tomorrow."""
+    try:
+        data = _api_json("%s/%s/commits/HEAD" % (owner, repo))
+        return (data.get("sha") or "")[:12] or None
+    except Exception:
+        return None
+
+
 def _headers(accept):
     h = {"User-Agent": "lgd-review-intake", "Accept": accept}
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
@@ -209,7 +218,7 @@ def find_skill_dir(root, hint=None):
     return best[1]
 
 
-def render(data, owner, repo, skill_rel):
+def render(data, owner, repo, skill_rel, commit_sha=None):
     d = data.get("data", data)
     dims = d.get("dimensions", {})
     blocking = d.get("blocking", [])
@@ -224,6 +233,8 @@ def render(data, owner, repo, skill_rel):
         lines.append("| Semantics score / 语义分 | **%s / 120** |" % d.get("semantics_score"))
     lines.append("| Verdict / 结论 | **%s** |" % d.get("verdict", "-"))
     lines.append("| Skill directory | `%s` |" % skill_rel)
+    if commit_sha:
+        lines.append("| Snapshot / 快照 | `%s` |" % commit_sha)
     lines.append("| Mode | static only, no code executed / 仅静态，不执行代码 |")
     lines.append("")
     score = d.get("structure_score", d.get("total", 0))
@@ -314,6 +325,7 @@ def render(data, owner, repo, skill_rel):
         "engine": "review.py (static)",
         "repo": "%s/%s" % (owner, repo),
         "skill_path": skill_rel,
+        "target_commit": commit_sha,
         "score": d.get("structure_score", d.get("total")),
         "semantics": d.get("semantics_score"),
         "verdict": d.get("verdict"),
@@ -358,8 +370,9 @@ def main():
         sys.stderr.write(outer.stderr)
         raise SystemExit("评审引擎执行失败 / review engine failed")
     payload = json.loads(outer.stdout)
-    print(render(payload, owner, repo, rel))
+    print(render(payload, owner, repo, rel, head_commit(owner, repo)))
 
 
 if __name__ == "__main__":
     main()
+

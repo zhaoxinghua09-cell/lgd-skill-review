@@ -78,6 +78,12 @@ def main():
                 line += " — 分数未变：改动可能不在评分维度内，或测试仍未可跑 / unchanged: the edit may sit outside scored dimensions, or tests still do not run."
             else:
                 line += " — 分数下降：新改动引入了扣分项 / the edit introduced a deduction."
+            # 快照变了才谈"改动"；否则分数变化来自别处（比如我们自己的引擎修正）
+            pc, nc = prev.get("target_commit"), new.get("target_commit")
+            if pc and nc and pc != nc:
+                line += "\n> 快照 / snapshot：`%s` → `%s`（分数变化对应这两个提交之间的差异）" % (pc, nc)
+            elif pc and nc and pc == nc and delta != 0:
+                line += "\n> 快照未变（`%s`）：这次分数变化**不是**提交内容造成的，应来自评审侧修正 / same snapshot — the delta did not come from the repo." % nc
 
     marker = "\n---\n"
     idx = text.find(marker)
