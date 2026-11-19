@@ -19,7 +19,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 
-SPECIMEN = os.environ.get("LGD_AUDIT_SPECIMEN", os.path.join(os.path.dirname(REPO), "summarize-pro"))
+def pick_specimen():
+    """挑一个「应当满分」的样本：显式指定 > 兄弟包 > 本仓库自身。
+
+    CI 里只有本仓库，没有兄弟包目录，所以必须能退回自身——本仓库自评 --run 就是 100。
+    """
+    cands = [os.environ.get("LGD_AUDIT_SPECIMEN"),
+             os.path.join(os.path.dirname(REPO), "summarize-pro"),
+             REPO]
+    for c in cands:
+        if c and os.path.isdir(c) and os.path.exists(os.path.join(c, "SKILL.md")):
+            return c
+    raise SystemExit("no specimen found")
+
+
+SPECIMEN = pick_specimen()
 
 
 def load(name, path):
