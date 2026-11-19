@@ -47,7 +47,7 @@ SKILLS = [
     {
         "slug": "benchmark",
         "title": "SkillBench · 公开基准",
-        "h1": "Fourteen public targets, one ruler",
+        "h1": "Sixteen third-party targets, one ruler",
         "zh": "同引擎、同口径、同一时点，任何人都能重跑",
         "triggers": ["skill benchmark", "agent skill score", "verifiability score",
                      "技能基准", "评分对比", "可验证性"],
@@ -328,7 +328,7 @@ def main():
     html += f"""
 <div class="kick">verifiability, measured — not claimed</div>
 <h1>We measure whether a stranger can check your skill.</h1>
-<p class="lead">Fourteen public targets, one ruler, one command. Third-party skills with
+<p class="lead">{s['third_party_entries']} third-party targets + our 4 packages, one ruler, one command. Third-party skills with
 hundreds of thousands of installs score <b>{s['third_party_top']}</b> at best here; our four
 packages score <b>{s['lgd_top']}</b> static and 100 with their own tests. The gap is not prose
 quality — it is <b>whether the evidence is checkable</b>.</p>
@@ -396,7 +396,9 @@ the blockers, and the order to fix them.</p>
 
     # benchmark page
     html = head("Benchmark — every number is reproducible",
-                "Full leaderboard of 14 public targets with scores, verdicts and blockers.", "benchmark.html")
+                "Full leaderboard of %d public targets (%d third-party) with scores, verdicts and blockers."
+                % (len(data.get("rows", [])), data.get("summary", {}).get("third_party_entries", 0)),
+                "benchmark.html")
     html += f"""
 <div class="kick">leaderboard</div>
 <h1>Everyone can rerun this.</h1>
@@ -472,7 +474,13 @@ were scored zero. Both are documented in the repository history.</p></div>
     open(os.path.join(DOCS, "rubric.html"), "w", encoding="utf-8").write(html)
 
     # skill pages
+    # 注意：SKILLS 里的 slug 同时是「已有手写详情页」的三个页面（skill-review / quickfix / benchmark）。
+    # 这个循环早期的写法会把上面手写好的详情页整页覆盖成 stub——榜单表格、命令示例全部丢掉。
+    # 现在跳过它们，只渲染没有手写详情页的 slug（当前一个都没有，保留循环是为了将来加新页）。
+    HAND_BUILT = {"skill-review", "quickfix", "benchmark"}
     for sk in SKILLS:
+        if sk["slug"] in HAND_BUILT:
+            continue
         tags = "".join(f'<span class="tag">{t}</span>' for t in sk["triggers"])
         html = head(f"{sk['title']} — lgd-skill-review",
                     sk["zh"] + " · " + sk["body"][:120], sk["slug"] + ".html")

@@ -1,6 +1,6 @@
 # lgd-skill-review — full corpus
 
-> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T05:03:28Z
+> One fetch, everything an agent needs. Numbers below are generated at 2026-11-19T05:07:44Z
 > from bench/leaderboard.json; they change when the benchmark changes.
 
 ## 1. what this is
@@ -26,10 +26,17 @@ Static mode caps at 96; the remaining 4 points require the target's own tests to
 ## 4. leaderboard (bucket | target | score | verdict)
 | bucket | target | score | verdict |
 |---|---|---|---|
+| lgd | summarize-pro | 96 | PASS |
+| lgd | debug-pro | 96 | PASS |
+| lgd | wechat-viral-topic | 96 | PASS |
+| lgd | lgd-skill-review | 96 | PASS |
+| third-party | anthropics/skills@skills/skill-creator | 38 | FAIL |
 | third-party | anthropics/skills@skills/pptx | 31 | BLOCK |
 | third-party | anthropics/skills@skills/docx | 31 | BLOCK |
+| third-party | anthropics/skills@skills/frontend-design | 25 | FAIL |
 | third-party | vercel-labs/agent-skills@skills/react-best-practices | 24 | FAIL |
 | third-party | google/agents-cli@skills/google-agents-cli-adk-code | 22 | FAIL |
+| third-party | emilkowalski/skills@skills/apple-design | 22 | FAIL |
 | third-party | anthropics/skills@skills/pdf | 21 | FAIL |
 | third-party | microsoft/azure-skills@skills/azure-deploy | 20 | FAIL |
 | third-party | prisma/skills@prisma-cli | 20 | FAIL |
@@ -39,10 +46,6 @@ Static mode caps at 96; the remaining 4 points require the target's own tests to
 | third-party | addyosmani/agent-skills@skills/code-review-and-quality | 18 | FAIL |
 | third-party | leonxlnx/taste-skill@skills/taste-skill | 10 | BLOCK |
 | third-party | vercel-labs/agent-browser@skill-data/core | 10 | BLOCK |
-| lgd | summarize-pro | 96 | PASS |
-| lgd | debug-pro | 96 | PASS |
-| lgd | wechat-viral-topic | 96 | PASS |
-| lgd | lgd-skill-review | 96 | PASS |
 
 ## 5. what the score cannot tell you
 usefulness, correctness, popularity, maintainer responsiveness, or anything about packages not measured.

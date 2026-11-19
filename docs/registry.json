@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at_utc": "2026-11-19T05:03:28Z",
+  "generated_at_utc": "2026-11-19T05:07:44Z",
   "source": "https://zhaoxinghua09-cell.github.io/lgd-skill-reviewbenchmark.html",
   "tiers": [
     {
@@ -45,8 +45,13 @@
       "min_score": 0,
       "label": "LGD Blocked · 未通过",
       "meaning": "<60：核心证据缺失，无法核实",
-      "count": 13,
+      "count": 16,
       "entries": [
+        {
+          "target": "anthropics/skills@skills/skill-creator",
+          "score": 38,
+          "verdict": "FAIL"
+        },
         {
           "target": "anthropics/skills@skills/pptx",
           "score": 31,
@@ -58,12 +63,22 @@
           "verdict": "BLOCK"
         },
         {
+          "target": "anthropics/skills@skills/frontend-design",
+          "score": 25,
+          "verdict": "FAIL"
+        },
+        {
           "target": "vercel-labs/agent-skills@skills/react-best-practices",
           "score": 24,
           "verdict": "FAIL"
         },
         {
           "target": "google/agents-cli@skills/google-agents-cli-adk-code",
+          "score": 22,
+          "verdict": "FAIL"
+        },
+        {
+          "target": "emilkowalski/skills@skills/apple-design",
           "score": 22,
           "verdict": "FAIL"
         },

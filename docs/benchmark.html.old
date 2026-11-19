@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkillBench · 公开基准 — lgd-skill-review</title>
+<meta name="description" content="同引擎、同口径、同一时点，任何人都能重跑 · Third-party skills with hundreds of thousands of installs score 10–36 here. It measures verifiability — whether a strang">
+<link rel="canonical" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/benchmark.html">
+<meta property="og:title" content="SkillBench · 公开基准 — lgd-skill-review">
+<meta property="og:description" content="同引擎、同口径、同一时点，任何人都能重跑 · Third-party skills with hundreds of thousands of installs score 10–36 here. It measures verifiability — whether a strang">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,"Segoe UI","Microsoft YaHei",Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:56px 24px 96px}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--mut);margin-bottom:36px}
+nav a{color:var(--mut);text-decoration:none;border-bottom:1px solid transparent}
+nav a:hover{color:var(--acc);border-color:var(--acc)}
+.kick{color:var(--acc);letter-spacing:.18em;text-transform:uppercase;font-size:12px}
+h1{font-size:38px;line-height:1.2;margin:10px 0 14px;letter-spacing:-.5px}
+h2{font-size:22px;margin:40px 0 12px}
+h3{font-size:16px;margin:20px 0 8px}
+p,li{color:var(--mut)}
+.lead{font-size:18px;color:var(--fg);max-width:760px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:16px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--acc);font-weight:600;letter-spacing:.06em;font-size:12px;text-transform:uppercase}
+td.num{text-align:right;font-variant-numeric:tabular-nums;width:64px}
+.bad{color:var(--warn)} .good{color:var(--acc)}
+code{background:rgba(88,124,200,.14);padding:2px 6px;border-radius:4px;font-size:13px}
+pre{background:#0a0f1a;border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;margin-top:12px}
+pre code{background:none;padding:0}
+ul{margin:10px 0 0 20px}
+.tag{display:inline-block;font-size:12px;color:var(--acc);border:1px solid rgba(127,231,196,.4);border-radius:4px;padding:3px 8px;margin:4px 6px 0 0}
+.a{color:var(--acc);text-decoration:none}
+.foot{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:#6f86a6}
+</style>
+<script type="application/ld+json">{
+  "@context":"https://schema.org",
+  "@type":"SoftwareApplication",
+  "name":"lgd-skill-review",
+  "applicationCategory":"DeveloperApplication",
+  "operatingSystem":"Any",
+  "description":"Six-dimension verifiability auditor for agent skills. Every deduction cites evidence; every result includes a remediation order.",
+  "url":"https://zhaoxinghua09-cell.github.io/lgd-skill-review/",
+  "codeRepository":"https://github.com/zhaoxinghua09-cell/lgd-skill-review",
+  "license":"https://opensource.org/licenses/MIT",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+}</script>
+
+</head>
+<body>
+<div class="wrap">
+<nav>
+<a href="./index.html">Home</a>
+<a href="./rubric.html">Rubric</a>
+<a href="./skill-review.html">Audit</a>
+<a href="./quickfix.html">QuickFix</a>
+<a href="./benchmark.html">Benchmark</a>
+<a href="./badge.html">Badge</a>
+<a href="./audits.html">Audits</a>
+<a href="./registry.html">Registry</a>
+<a href="./discover.html">Discover</a>
+<a href="https://github.com/zhaoxinghua09-cell/lgd-skill-review">GitHub</a>
+</nav>
+
+<div class="kick">benchmark</div>
+<h1>Fourteen public targets, one ruler</h1>
+<p class="lead">同引擎、同口径、同一时点，任何人都能重跑</p>
+<div class="card"><p>Third-party skills with hundreds of thousands of installs score 10–36 here. It measures verifiability — whether a stranger can check the work — not usefulness.</p>
+<h3 style="margin-top:16px">When an agent should reach for this</h3>
+<p><span class="tag">skill benchmark</span><span class="tag">agent skill score</span><span class="tag">verifiability score</span><span class="tag">技能基准</span><span class="tag">评分对比</span><span class="tag">可验证性</span></p></div>
+<h2>Install</h2>
+<div class="card"><pre><code>npx skills add zhaoxinghua09-cell/lgd-skills</code></pre>
+<p style="margin-top:10px;font-size:13px">Bundled with all four skills under <code>skills/&lt;name&gt;/</code>.</p></div>
+
+<div class="foot">
+Measures verifiability, not usefulness or popularity. Low score means evidence is missing, not that the skill is bad.
+Snapshot at a point in time; the sample is not random.<br>
+Data: <a class="a" href="https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/leaderboard.json">leaderboard.json</a> ·
+Machine entry: <a class="a" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/llms.txt">llms.txt</a> ·
+Request a review: <a class="a" href="https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml">open an issue</a>
+</div>
+</div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-19T05:03:28Z",
+  "generated_at_utc": "2026-11-19T05:07:44Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -14,6 +14,41 @@
     "gap": 58
   },
   "rows": [
+    {
+      "target": "summarize-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "debug-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "wechat-viral-topic",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "lgd-skill-review",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "anthropics/skills@skills/skill-creator",
+      "bucket": "third-party",
+      "score": 38,
+      "verdict": "FAIL",
+      "blocking": []
+    },
     {
       "target": "anthropics/skills@skills/pptx",
       "bucket": "third-party",
@@ -35,6 +70,13 @@
       ]
     },
     {
+      "target": "anthropics/skills@skills/frontend-design",
+      "bucket": "third-party",
+      "score": 25,
+      "verdict": "FAIL",
+      "blocking": []
+    },
+    {
       "target": "vercel-labs/agent-skills@skills/react-best-practices",
       "bucket": "third-party",
       "score": 24,
@@ -43,6 +85,13 @@
     },
     {
       "target": "google/agents-cli@skills/google-agents-cli-adk-code",
+      "bucket": "third-party",
+      "score": 22,
+      "verdict": "FAIL",
+      "blocking": []
+    },
+    {
+      "target": "emilkowalski/skills@skills/apple-design",
       "bucket": "third-party",
       "score": 22,
       "verdict": "FAIL",
@@ -119,34 +168,6 @@
         "secret_leak:references\\authentication.md",
         "secret_leak:references\\authentication.md"
       ]
-    },
-    {
-      "target": "summarize-pro",
-      "bucket": "lgd",
-      "score": 96,
-      "verdict": "PASS",
-      "blocking": []
-    },
-    {
-      "target": "debug-pro",
-      "bucket": "lgd",
-      "score": 96,
-      "verdict": "PASS",
-      "blocking": []
-    },
-    {
-      "target": "wechat-viral-topic",
-      "bucket": "lgd",
-      "score": 96,
-      "verdict": "PASS",
-      "blocking": []
-    },
-    {
-      "target": "lgd-skill-review",
-      "bucket": "lgd",
-      "score": 96,
-      "verdict": "PASS",
-      "blocking": []
     }
   ],
   "limits": [
