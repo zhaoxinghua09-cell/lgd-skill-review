@@ -184,6 +184,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./quickfix.html">QuickFix</a>
 <a href="./benchmark.html">Benchmark</a>
 <a href="./compare.html">Compare</a>
+<a href="./guide.html">Guide</a>
 <a href="./badge.html">Badge</a>
 <a href="./audits.html">Audits</a>
 <a href="./registry.html">Registry</a>
@@ -551,6 +552,92 @@ cd bench &amp;&amp; python bench.py</code></pre>
     html += FOOT
     open(os.path.join(DOCS, "compare.html"), "w", encoding="utf-8").write(html)
 
+    # guide page —— 别家只告诉你「缺证据」；这里给能照抄的补法，并明说哪些分机器给不了
+    html = head("Guide — how to earn the last points",
+                "A copy-paste path from a documentation-only skill to one a stranger can rerun. "
+                "Three steps, real templates, and the points no machine can award.",
+                "guide.html")
+    html += """
+<div class="kick">guide</div>
+<h1>从「只有文档」到「陌生人能重跑」，三步。</h1>
+<p class="lead">市场上最缺的不是文档，是<b>能让别人验的证据</b>。样本里最强的三方包
+reproducible 都是 0 分——不是它们写得差，是没人写过 golden set。这里给可照抄的模板。</p>
+
+<h2>第一步：写一份 golden.json（20 行）</h2>
+<div class="card"><pre><code>{
+  "cases": [
+    {"id": "T1-missing-skill-md", "kind": "no_skill_md",
+     "expect": {"verdict": "BLOCK"}},
+    {"id": "T2-clean-package", "kind": "clean",
+     "expect": {"verdict": "PASS", "min_score": 90}}
+  ]
+}
+</code></pre>
+<p style="margin-top:10px;font-size:13px">只写「输入是什么、期望结果是什么」。不要写实现细节——
+否则测试会跟着实现一起错。</p></div>
+
+<h2>第二步：写一个能跑、能非零退出的 runner</h2>
+<div class="card"><pre><code>import json, subprocess, sys, tempfile, shutil
+
+def run_case(case):
+    tmp = tempfile.mkdtemp()
+    try:
+        shutil.copytree("fixtures/" + case["kind"], tmp, dirs_exist_ok=True)
+        out = subprocess.run([sys.executable, "scripts/review.py", tmp, "--json"],
+                             capture_output=True, text=True)
+        got = json.loads(out.stdout)["data"]      # 契约：{"ok":..,"data":{total,verdict,...}}
+        want = case["expect"]
+        if "verdict" in want and got.get("verdict") != want["verdict"]:
+            return False, "%s: want verdict %r got %r" % (case["id"], want["verdict"], got.get("verdict"))
+        if "min_score" in want and got.get("total", 0) &lt; want["min_score"]:
+            return False, "%s: want total&gt;=%d got %d" % (case["id"], want["min_score"], got.get("total", 0))
+        return True, case["id"]
+    except Exception as e:
+        return False, "%s: %s" % (case["id"], e)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+def main():
+    cases = json.load(open("tests/golden.json"))["cases"]
+    results = [run_case(c) for c in cases]
+    bad = [msg for ok, msg in results if not ok]
+    print("%d/%d passed" % (len(results) - len(bad), len(results)))
+    for m in bad:
+        print("  FAIL " + m)
+    return 1 if bad else 0      # ← 这一行是关键：失败必须非零退出
+
+sys.exit(main())
+</code></pre>
+<p style="margin-top:10px;font-size:13px">评分器认「有 runner 且退出码为 0」和「runner 真能跑通」。退出码恒为 0 的脚本不算分。
+注意字段名：结果是 <code>data.total</code>（不是 <code>score</code>）——写错字段名会让用例永远「通过」。</p></div>
+
+<h2>第三步：把它接进 CI，让它每次都被执行</h2>
+<div class="card"><pre><code># .github/workflows/verify.yml
+- name: Golden set must actually run
+  run: python tests/run_golden.py
+</code></pre>
+<p style="margin-top:10px;font-size:13px">声明了却从不执行的测试，等于没有。CI 上跑过，才有「它今天仍然能跑」的证据。</p></div>
+
+<h2>做完之后，分数会怎么变</h2>
+<div class="card"><table>
+<tr><th>维度</th><th>做到哪一步</th><th>分数</th></tr>
+<tr><td>reproducible 20</td><td>golden.json + 可跑 runner + 非零退出 + CI 执行</td><td>0 → 16（静态）→ 20（加 --run）</td></tr>
+<tr><td>discoverable 15</td><td>加 AI-INDEX.json 或 llms.txt</td><td>4 → 7</td></tr>
+<tr><td>licensing 5</td><td>许可文件 + 声明字段，二者兼备</td><td>1 → 3 → 5</td></tr>
+</table>
+<p style="margin-top:12px;font-size:13px">以上都是可机械补齐的。剩下这些<b>机器给不了</b>：文档里声明的命令必须真的存在于脚本（要人写或删声明）、
+结构里的 name/description 要写得让人能判断用途、内容本身是否正确——这些只有作者能做。</p></div>
+
+<h2>我们对自己也用同一套</h2>
+<div class="card"><ul>
+<li>本仓的 <code>tests/golden.json</code> + <code>tests/run_golden.py</code> 就是上面这套模板的真实版本（5 条用例，CI 每次跑）</li>
+<li>四个发布包各有 golden 集，<code>review.py --run</code> 实跑 100/100，结果落在 <code>run-proof.json</code></li>
+<li>尺子本身也被测：<code>rubric_probe</code> 造 22 处违规，<code>point_audit</code> 核分值加总——我们不给别人立一套自己不遵守的规矩</li>
+</ul></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "guide.html"), "w", encoding="utf-8").write(html)
+
     # rubric
     html = head("Rubric — six dimensions, 100 points",
                 "The exact scoring rules, weights and what each dimension can and cannot prove.", "rubric.html")
@@ -912,8 +999,8 @@ by an execution we performed on someone's package.</p>
                   ensure_ascii=False, indent=2)
 
     # sitemap：去重 + 带 lastmod（没有 lastmod，搜索引擎无法判断"这页更新过没有"）
-    base = ["index.html", "rubric.html", "benchmark.html", "compare.html", "badge.html", "audits.html",
-            "registry.html", "discover.html"]
+    base = ["index.html", "rubric.html", "benchmark.html", "compare.html", "guide.html", "badge.html",
+            "audits.html", "registry.html", "discover.html"]
     urls = list(dict.fromkeys(base + [s["slug"] + ".html" for s in SKILLS]))
     today = datetime.date.today().isoformat()
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',

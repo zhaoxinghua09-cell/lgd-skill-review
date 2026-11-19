@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 LB = os.path.join(ROOT, "bench", "leaderboard.json")
 
-PAGES = ["index", "rubric", "skill-review", "quickfix", "benchmark", "compare",
+PAGES = ["index", "rubric", "skill-review", "quickfix", "benchmark", "compare", "guide",
          "badge", "audits", "registry", "discover"]
 
 
@@ -75,6 +75,14 @@ def main():
         fails.append("compare 表格行 %d < 8（六维 + 合计 + 表头）" % len(re.findall(r"<tr>", cmpr)))
     if str(tp["score"]) not in cmpr or str(own["score"]) not in cmpr:
         fails.append("compare 未出现两侧总分")
+
+    # guide 页：必须是「可照抄」的，而不是解释哲学——三个代码块 + 退出码这条关键要求
+    gd = read("guide")
+    if len(re.findall(r"<pre><code", gd)) < 3:
+        fails.append("guide 代码块 %d < 3（三步各一块）" % len(re.findall(r"<pre><code", gd)))
+    for k in ("golden.json", "run_golden.py", "verify.yml", "非零退出", "data.total"):
+        if k not in gd:
+            fails.append("guide 未提及 %s" % k)
 
     # 机器出口与页面数一致
     sm = io.open(os.path.join(DOCS, "sitemap.xml"), encoding="utf-8").read()

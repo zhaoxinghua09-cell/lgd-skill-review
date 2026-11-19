@@ -67,4 +67,4 @@ https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json — tiers: ve
 https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json — two large public repos, full findings + fix order + reproduce command.
 
 ## 11. site
-https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, compare, badge, audits, registry, discover, skill-review, quickfix
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, compare, guide, badge, audits, registry, discover, skill-review, quickfix
