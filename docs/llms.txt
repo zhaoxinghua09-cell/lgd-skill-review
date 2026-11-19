@@ -37,6 +37,13 @@ benchmark. Admission rules, tier meaning and every entry in one file. Human page
 - https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
 - 人读版：https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.html
 
+## parity: what is published vs what was authored
+https://zhaoxinghua09-cell.github.io/lgd-skill-reviewparity.json — for each of our four packages: the published SKILL.md, the verbatim original at
+`references/original-SKILL.md`, both SHA-256 values, and the relation between them. The published file
+is a condensed rewrite (v2.1.0-slim), not an excerpt. Verify: sha256 of the original must equal the
+recorded hash.
+发布版是精简重写稿，非原文摘编；原始全文并列发布，哈希可自证。
+
 ## submit a skill for review
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml
 

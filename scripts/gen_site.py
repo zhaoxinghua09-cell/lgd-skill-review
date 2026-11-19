@@ -13,6 +13,7 @@ import subprocess
 import sys
 import os
 import re
+import urllib.request
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BENCH = os.path.join(HERE, "bench", "leaderboard.json")
@@ -205,6 +206,56 @@ Request a review: <a class="a" href="{REPO}/issues/new?template=review-request.y
 """
 
 
+PARITY_REPOS = ["summarize-pro", "debug-pro", "wechat-viral-topic", "lgd-skill-review"]
+
+
+def load_parity():
+    """Fetch each repo's PARITY.json. Returns [] on any failure -- an unreachable network must not break
+    the nightly build, but it must also not silently invent numbers."""
+    out = []
+    for n in PARITY_REPOS:
+        url = "https://raw.githubusercontent.com/zhaoxinghua09-cell/%s/main/PARITY.json" % n
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "lgd-gen-site"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                out.append(json.loads(r.read().decode("utf-8")))
+        except Exception:
+            return []
+    return out
+
+
+def parity_html(items):
+    if not items:
+        return ""
+    rows = []
+    for d in items:
+        p, o = d["published"], d["original"]
+        lost = 100.0 * (1 - (p["lines"] + 0.0) / max(o["lines"], 1))
+        rows.append(
+            "<tr><td><b>%s</b></td><td class='num'>%d</td><td class='num'>%d</td>"
+            "<td class='num'>%d%%</td><td><code>%s</code></td></tr>"
+            % (d["skill"], o["lines"], p["lines"], round(lost),
+               o["sha256"][:12])
+        )
+    return f"""
+<h2>Parity — we publish the version we measured, and the original next to it</h2>
+<div class="card">
+<p>Our packages ship a <b>condensed rewrite</b> (<code>v2.1.0-slim</code>), not an excerpt of the
+source document. That is a fact a stranger cannot check from the rendered page — so every repo
+carries the verbatim original at <code>references/original-SKILL.md</code> plus a
+<code>PARITY.json</code> with both SHA-256 values. Here is what the difference actually is:</p>
+<table>
+<tr><th>Package</th><th style="text-align:right">Original lines</th><th style="text-align:right">Published lines</th><th style="text-align:right">Not in SKILL.md</th><th>Original SHA-256</th></tr>
+{''.join(rows)}
+</table>
+<p style="margin-top:12px;font-size:13px">“Published lines” counts <code>SKILL.md</code> only — the rest of
+the body lives in <code>references/details.md</code>. So this column is a floor, not the real gap.
+Verify any row: <code>curl -s {REPO.replace('lgd-skill-review', '<repo>')}/raw/main/references/original-SKILL.md | sha256sum</code></p>
+<p style="margin-top:8px"><a class="a" href="./parity.json">parity.json (machine-readable) →</a></p>
+</div>
+"""
+
+
 def rows_html(data):
     third = [r for r in data["rows"] if r["bucket"] == "third-party"]
     own = [r for r in data["rows"] if r["bucket"] == "lgd"]
@@ -231,6 +282,14 @@ def main():
     html = head("LGD SkillBench — verifiability, measured",
                 "Public benchmark for agent skills: third-party skills score 10-36, LGD packages 96-100. "
                 "One command reproduces every number.", "index.html")
+    # 发布版 vs 原始全文：能不能核，得先看得见
+    parity_items = load_parity()
+    parity_block = parity_html(parity_items)
+    if parity_items:
+        json.dump({"schema": "lgd-parity-feed-v1", "items": parity_items},
+                  open(os.path.join(DOCS, "parity.json"), "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=2)
+
     html += f"""
 <div class="kick">verifiability, measured — not claimed</div>
 <h1>We measure whether a stranger can check your skill.</h1>
@@ -252,6 +311,7 @@ quality — it is <b>whether the evidence is checkable</b>.</p>
 <p style="margin-top:12px;font-size:13px">Generated {data['generated_at_utc']} · engine: static mode, never executes the target's code</p>
 </div>
 
+{parity_block}
 <h2>What we measure</h2>
 <div class="card">
 <ul>
@@ -719,6 +779,13 @@ benchmark. Admission rules, tier meaning and every entry in one file. Human page
 ## third-party audits, machine-readable
 - {SITE}audits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
 - 人读版：{SITE}audits.html
+
+## parity: what is published vs what was authored
+{SITE}parity.json — for each of our four packages: the published SKILL.md, the verbatim original at
+`references/original-SKILL.md`, both SHA-256 values, and the relation between them. The published file
+is a condensed rewrite (v2.1.0-slim), not an excerpt. Verify: sha256 of the original must equal the
+recorded hash.
+发布版是精简重写稿，非原文摘编；原始全文并列发布，哈希可自证。
 
 ## submit a skill for review
 {REPO}/issues/new?template=review-request.yml
