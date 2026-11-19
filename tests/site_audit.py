@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 LB = os.path.join(ROOT, "bench", "leaderboard.json")
 
-PAGES = ["index", "rubric", "skill-review", "quickfix", "benchmark",
+PAGES = ["index", "rubric", "skill-review", "quickfix", "benchmark", "compare",
          "badge", "audits", "registry", "discover"]
 
 
@@ -63,6 +63,18 @@ def main():
     for name, must in (("skill-review", "review.py"), ("quickfix", "quickfix.py")):
         if must not in read(name):
             fails.append("%s 未出现可运行命令 %s" % (name, must))
+
+    # compare 页：两个目标都要点名，且六维各一行——不能只放合计
+    cmpr = read("compare")
+    bj = json.load(io.open(os.path.join(ROOT, "bench", "bench.json"), encoding="utf-8"))
+    tp = max((r for r in bj if r["bucket"] == "third-party"), key=lambda r: r["score"])
+    own = max((r for r in bj if r["bucket"] == "lgd"), key=lambda r: r["score"])
+    if tp["target"] not in cmpr:
+        fails.append("compare 未出现第三方最强目标 %s" % tp["target"])
+    if len(re.findall(r"<tr>", cmpr)) < 8:
+        fails.append("compare 表格行 %d < 8（六维 + 合计 + 表头）" % len(re.findall(r"<tr>", cmpr)))
+    if str(tp["score"]) not in cmpr or str(own["score"]) not in cmpr:
+        fails.append("compare 未出现两侧总分")
 
     # 机器出口与页面数一致
     sm = io.open(os.path.join(DOCS, "sitemap.xml"), encoding="utf-8").read()

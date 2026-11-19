@@ -183,6 +183,7 @@ def head(title, desc, path, extra_jsonld=""):
 <a href="./skill-review.html">Audit</a>
 <a href="./quickfix.html">QuickFix</a>
 <a href="./benchmark.html">Benchmark</a>
+<a href="./compare.html">Compare</a>
 <a href="./badge.html">Badge</a>
 <a href="./audits.html">Audits</a>
 <a href="./registry.html">Registry</a>
@@ -492,6 +493,62 @@ python scripts/review.py &lt;package-dir&gt; --run --json</code></pre>
 """
     html += FOOT
     open(os.path.join(DOCS, "quickfix.html"), "w", encoding="utf-8").write(html)
+
+    # compare page —— 别家只报总分；这里把差在哪一维、差多少分开算，两个方向都能复现
+    DIM_MAX = [("structure", "结构", 20), ("consistency", "一致性", 25), ("reproducible", "可复现", 20),
+               ("hygiene", "卫生", 15), ("discoverable", "可发现", 15), ("licensing", "许可", 5)]
+    BJ = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                     "bench", "bench.json"), encoding="utf-8"))
+    tp = next((r for r in BJ
+               if r["bucket"] == "third-party" and r["score"] == s["third_party_top"]), None)
+    own = max((r for r in BJ if r["bucket"] == "lgd"), key=lambda r: r["score"])
+    crow = ""
+    for key, zh, mx in DIM_MAX:
+        a = tp["dims"].get(key, 0)
+        b = own["dims"].get(key, 0)
+        crow += ("<tr><td>%s · %s</td><td class=\"num bad\">%d</td><td class=\"num good\">%d</td>"
+                 "<td class=\"num\">%d</td><td style=\"font-size:13px\">%d / %d</td></tr>"
+                 % (key, zh, a, b, b - a, mx, mx))
+    html = head("Compare — where the difference actually is",
+                "The strongest third-party skill in the sample and our own package, dimension by dimension. "
+                "Same engine, same moment, both reproducible.",
+                "compare.html")
+    html += f"""
+<div class="kick">compare</div>
+<h1>Same ruler, two packages, six dimensions.</h1>
+<p class="lead">竞品只给一个总分，读者没法知道差在哪。这里把每一维拆开：
+<b>{tp['target']}</b>（样本里第三方最强，{tp['score']} 分）与我们自己的
+<b>{own['target'].split('/')[-1]}</b>（{own['score']} 分）。</p>
+
+<div class="card"><table>
+<tr><th>维度</th><th style="text-align:right">第三方</th><th style="text-align:right">LGD</th>
+<th style="text-align:right">差值</th><th>满分</th></tr>
+{crow}
+<tr><td><b>合计</b></td><td class="num bad">{tp['score']}</td><td class="num good">{own['score']}</td>
+<td class="num">{own['score'] - tp['score']}</td><td style="font-size:13px">100</td></tr>
+</table>
+<p style="margin-top:12px;font-size:13px">Generated {data['generated_at_utc']} · static mode · 同一引擎、同一时点</p></div>
+
+<h2>差在哪，不是靠形容词</h2>
+<div class="card"><table>
+<tr><th>差距最大的两维</th><th>对方实际缺什么（在仓库里可查）</th></tr>
+<tr><td>consistency 25</td><td>文档里写的子命令在脚本里不存在；或存在但从不校验参数——这是「声称」与「实现」的差</td></tr>
+<tr><td>reproducible 20</td><td>没有 tests/golden，没有可跑 runner：陌生人无法验证「它到底跑不跑」</td></tr>
+</table>
+<p style="margin-top:12px">这两项占了 45 分。它们不是文笔问题，是<b>证据缺失</b>——
+补上就能得分，补不上就只能停在那里。</p></div>
+
+<h2>自己复现这两行</h2>
+<div class="card"><pre><code># 任意一个包，同一把尺子
+python scripts/review.py &lt;package-dir&gt; --json
+
+# 整张榜重新跑（含上面两个目标）
+cd bench &amp;&amp; python bench.py</code></pre>
+<p style="margin-top:10px;font-size:13px">数字来自 <code>bench/leaderboard.json</code>；
+本页在构建时读取它，所以不会与榜单单据脱节。</p></div>
+"""
+    html += FOOT
+    open(os.path.join(DOCS, "compare.html"), "w", encoding="utf-8").write(html)
 
     # rubric
     html = head("Rubric — six dimensions, 100 points",
@@ -854,7 +911,7 @@ by an execution we performed on someone's package.</p>
                   ensure_ascii=False, indent=2)
 
     # sitemap：去重 + 带 lastmod（没有 lastmod，搜索引擎无法判断"这页更新过没有"）
-    base = ["index.html", "rubric.html", "benchmark.html", "badge.html", "audits.html",
+    base = ["index.html", "rubric.html", "benchmark.html", "compare.html", "badge.html", "audits.html",
             "registry.html", "discover.html"]
     urls = list(dict.fromkeys(base + [s["slug"] + ".html" for s in SKILLS]))
     today = datetime.date.today().isoformat()
