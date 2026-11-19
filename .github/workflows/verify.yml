@@ -34,3 +34,8 @@ jobs:
       # 探针只验「会不会扣」，这一步验「扣得对不对」。
       - name: Point values must add up and must be actually awarded
         run: python tests/point_audit.py
+
+      # intents 审计：routes_to 必须解析到真实字段/真实脚本，ask 必须进 llms.txt。
+      # 「声称能路由」和「真的路由」是两件事。
+      - name: Published intents must point at things that exist
+        run: python tests/intent_audit.py
