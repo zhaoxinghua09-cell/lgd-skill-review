@@ -209,24 +209,60 @@ Request a review: <a class="a" href="{REPO}/issues/new?template=review-request.y
 PARITY_REPOS = ["summarize-pro", "debug-pro", "wechat-viral-topic", "lgd-skill-review"]
 
 
+PARITY_CACHE = os.path.join(HERE, "bench", "parity.json")
+
+
 def load_parity():
-    """Fetch each repo's PARITY.json. Returns [] on any failure -- an unreachable network must not break
-    the nightly build, but it must also not silently invent numbers."""
+    """Fetch each repo's PARITY.json, else fall back to the committed cache.
+
+    raw.githubusercontent is flaky from some networks, and a nightly build must not lose the section
+    because of one timeout -- but it also must not silently pretend nothing is missing. Three states:
+    fetched (fresh), cached (stale but real), None (unknown, page says so).
+    """
     out = []
     for n in PARITY_REPOS:
-        url = "https://raw.githubusercontent.com/zhaoxinghua09-cell/%s/main/PARITY.json" % n
+        url = "https://api.github.com/repos/zhaoxinghua09-cell/%s/contents/PARITY.json" % n
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "lgd-gen-site"})
-            with urllib.request.urlopen(req, timeout=20) as r:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "lgd-gen-site",
+                "Accept": "application/vnd.github.raw"})
+            with urllib.request.urlopen(req, timeout=25) as r:
                 out.append(json.loads(r.read().decode("utf-8")))
+            continue
+        except Exception as e:
+            local = os.path.join(os.path.dirname(HERE), n, "PARITY.json")
+            if os.path.isfile(local):
+                out.append(json.load(open(local, encoding="utf-8")))
+                print("parity: %s from local mirror" % n)
+                continue
+            print("parity: %s unavailable (%s)" % (n, str(e)[:50]))
+            out = []
+            break
+    if out:
+        try:
+            json.dump({"schema": "lgd-parity-feed-v1", "items": out},
+                      open(PARITY_CACHE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        except Exception as e:
+            print("parity cache write failed:", str(e)[:40])
+        return out
+    if os.path.isfile(PARITY_CACHE):
+        try:
+            print("parity: using committed cache")
+            return json.load(open(PARITY_CACHE, encoding="utf-8"))["items"]
         except Exception:
-            return []
-    return out
+            pass
+    return None
 
 
 def parity_html(items):
-    if not items:
-        return ""
+    if items is None:
+        return """
+<h2>Parity — status unknown at build time</h2>
+<div class="card">
+<p class="bad">The four PARITY.json files could not be fetched and no cache exists, so this section
+is empty rather than clean. Treat as "unverified", not as "no drift".</p>
+</div>
+"""
     rows = []
     for d in items:
         p, o = d["published"], d["original"]
@@ -289,7 +325,6 @@ def main():
         json.dump({"schema": "lgd-parity-feed-v1", "items": parity_items},
                   open(os.path.join(DOCS, "parity.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
-
     html += f"""
 <div class="kick">verifiability, measured — not claimed</div>
 <h1>We measure whether a stranger can check your skill.</h1>
