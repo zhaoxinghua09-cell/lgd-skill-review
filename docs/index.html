@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LGD SkillBench — verifiability, measured</title>
-<meta name="description" content="Public benchmark for agent skills: third-party skills score 10-36, LGD packages 96-100. One command reproduces every number.">
+<meta name="description" content="Public benchmark for agent skills: third-party skills score 10-31, LGD packages 96-100. One command reproduces every number.">
 <link rel="canonical" href="https://zhaoxinghua09-cell.github.io/lgd-skill-review/index.html">
 <meta property="og:title" content="LGD SkillBench — verifiability, measured">
-<meta property="og:description" content="Public benchmark for agent skills: third-party skills score 10-36, LGD packages 96-100. One command reproduces every number.">
+<meta property="og:description" content="Public benchmark for agent skills: third-party skills score 10-31, LGD packages 96-100. One command reproduces every number.">
 <meta property="og:type" content="website">
 <style>
 :root{--bg:#0b1220;--card:#111a2c;--line:rgba(122,160,255,.18);--fg:#e8eef8;--mut:#a9b8d0;--acc:#7fe7c4;--warn:#f2a65a}
@@ -123,6 +123,19 @@ cd lgd-skill-review/bench
 python bench.py</code></pre>
 <p style="margin-top:10px">Refreshed automatically every day at 09:17 Beijing time. If you disagree with
 a number, the JSON is public and the runner is public.</p>
+</div>
+
+<h2>Our ruler is tested too</h2>
+<div class="card">
+<p>It is easy to publish checks and never enforce them. So every published check has a probe that
+breaks it on purpose and asserts the score actually drops — 13 cases, run in CI on every push:</p>
+<pre style="margin-top:10px"><code>python tests/rubric_probe.py
+# 13/13 enforced</code></pre>
+<p style="margin-top:10px">Two of those probes found real defects in <b>this project</b>: a junk scan that
+could never fire (its walk pruned the very directory it was looking for), and a flag check that
+recorded a mismatch without deducting. Both are fixed — and the third-party top went from 36 to
+<b>31</b> the moment the flag check started enforcing. The gap widened because the
+ruler got stricter, not because competitors got worse.</p>
 </div>
 
 <h2>Get your skill reviewed — without talking to us</h2>

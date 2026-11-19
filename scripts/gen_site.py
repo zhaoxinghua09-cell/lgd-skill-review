@@ -316,7 +316,7 @@ def main():
 
     # index
     html = head("LGD SkillBench — verifiability, measured",
-                "Public benchmark for agent skills: third-party skills score 10-36, LGD packages 96-100. "
+                "Public benchmark for agent skills: third-party skills score 10-31, LGD packages 96-100. "
                 "One command reproduces every number.", "index.html")
     # 发布版 vs 原始全文：能不能核，得先看得见
     parity_items = load_parity()
@@ -367,6 +367,19 @@ cd lgd-skill-review/bench
 python bench.py</code></pre>
 <p style="margin-top:10px">Refreshed automatically every day at 09:17 Beijing time. If you disagree with
 a number, the JSON is public and the runner is public.</p>
+</div>
+
+<h2>Our ruler is tested too</h2>
+<div class="card">
+<p>It is easy to publish checks and never enforce them. So every published check has a probe that
+breaks it on purpose and asserts the score actually drops — 13 cases, run in CI on every push:</p>
+<pre style="margin-top:10px"><code>python tests/rubric_probe.py
+# 13/13 enforced</code></pre>
+<p style="margin-top:10px">Two of those probes found real defects in <b>this project</b>: a junk scan that
+could never fire (its walk pruned the very directory it was looking for), and a flag check that
+recorded a mismatch without deducting. Both are fixed — and the third-party top went from 36 to
+<b>{s['third_party_top']}</b> the moment the flag check started enforcing. The gap widened because the
+ruler got stricter, not because competitors got worse.</p>
 </div>
 
 <h2>Get your skill reviewed — without talking to us</h2>
