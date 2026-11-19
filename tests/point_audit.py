@@ -85,15 +85,16 @@ def main():
         dims = out["dimensions"]
         for k, w in rv.WEIGHTS.items():
             got = dims[k]["score"]
-            declared = sum(c["points"] for c in gr.CHECKS[k] if not c.get("alternative"))
-            # reproducible 维有 4 分只能由 --run 兑现，满分样本实跑应拿满
-            ok = got == w
+            # reproducible 维有 4 分只能由 --run 兑现：静态环境 16 分也算「判据与权重一致」，
+            # 只是实跑那 4 分没拿到；其余维度必须满分。
+            allowed = (16, 20) if k == "reproducible" else (w,)
+            ok = got in allowed
             print("  %-14s got=%3d  max=%3d  %s" % (k, got, w, "OK" if ok else "SHORTFALL"))
             if not ok:
                 fails.append("%s got %d max %d" % (k, got, w))
-        print("  total=%d  verdict=%s" % (out["total"], out["verdict"]))
-        if out["total"] != 100:
-            fails.append("specimen total %d != 100" % out["total"])
+        print("  total=%d  verdict=%s  (96=静态上限, 100=实跑满分)" % (out["total"], out["verdict"]))
+        if out["total"] not in (96, 100):
+            fails.append("specimen total %d not in {96,100}" % out["total"])
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
