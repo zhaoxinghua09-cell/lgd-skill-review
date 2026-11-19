@@ -671,6 +671,10 @@ by an execution we performed on someone's package.</p>
 {SITE}run-proof.json — our four packages scored with `review.py --run` (tests actually executed),
 with timestamp and commit. This is the only number in the sample backed by a real run.
 
+## re-review loop
+Comment `/re-review` in the same issue to re-score after a fix; the bot replies with before -> after delta.
+首次评审后，在同一 issue 留言 `/re-review` 即重评，回帖给出「改前 → 改后」分数变化。
+
 ## registry (verified list), machine-readable
 {SITE}registry.json — three tiers by score (verified ≥90 / watch 60-89 / blocked <60), generated from the
 benchmark. Admission rules, tier meaning and every entry in one file. Human page: {SITE}registry.html
@@ -755,6 +759,7 @@ replies with score + blockers + fix order.
 
 if __name__ == "__main__":
     main()
+
 
 
 
