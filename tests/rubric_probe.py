@@ -167,7 +167,7 @@ def c_runner_fails(tmp, pkg):
 
 
 CASES = [
-    ("structure · 缺 version", 6, c_no_version, "structure"),
+    ("structure · 缺 version（连带 SemVer，6+4）", 10, c_no_version, "structure"),
     ("structure · version 非 SemVer", 4, c_bad_semver, "structure"),
     ("structure · 深层路径", 4, c_deep_path, "structure"),
     ("structure · junk 文件", 3, c_junk, "structure"),
@@ -241,7 +241,9 @@ def main():
             drop = base["total"] - got["total"]
             if do_run:
                 drop = base_run["total"] - got["total"]
-            ok = delta is not None and delta >= expect - 0.01
+            # 从「至少扣这么多」改成「正好扣这么多」：
+            # 只验会不会扣分，会放过超额扣分（缺 version 曾扣 10 而判据写 6，差额其实是另一条判据级联生效）
+            ok = delta is not None and abs(delta - expect) < 0.01
             if not ok:
                 fails += 1
             print("%-42s %6s %6s %8s %s"

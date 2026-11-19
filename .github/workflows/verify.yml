@@ -29,3 +29,8 @@ jobs:
       # 没有这一步，判据就只是文案——写了、没执行、无人发现。
       - name: Every published check must actually deduct
         run: python tests/rubric_probe.py
+
+      # 分值审计：判据之和 == 权重 == 引擎常量，且满分样本逐维真的拿到。
+      # 探针只验「会不会扣」，这一步验「扣得对不对」。
+      - name: Point values must add up and must be actually awarded
+        run: python tests/point_audit.py

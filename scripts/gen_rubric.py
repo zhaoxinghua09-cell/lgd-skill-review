@@ -125,6 +125,12 @@ def main():
             "for_an_agent": "读本文件拿到权重与阻断项；逐维核对；按 findings 顺序整改；整改后重跑同一引擎复评",
             "appeal": "每条扣分可申诉：提交方给路径与检查，引擎裁定 OVERTURNED / UPHELD 并记账",
         },
+        # 公开说明：一条缺陷可能同时触发多条判据，扣分按判据逐条累加，不是重复计分
+        "cascade_note": {
+            "rule": "one defect can fail more than one check; each failed check deducts its own points",
+            "example": "缺 version 同时失去「必填三项齐全 6」与「version 是 SemVer 4」，合计 10",
+            "audited_by": "tests/rubric_probe.py asserts the exact delta per case; tests/point_audit.py asserts the sums",
+        },
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:

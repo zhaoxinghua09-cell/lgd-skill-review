@@ -222,5 +222,10 @@
     "for_a_human": "python scripts/review.py <package-dir> --json",
     "for_an_agent": "读本文件拿到权重与阻断项；逐维核对；按 findings 顺序整改；整改后重跑同一引擎复评",
     "appeal": "每条扣分可申诉：提交方给路径与检查，引擎裁定 OVERTURNED / UPHELD 并记账"
+  },
+  "cascade_note": {
+    "rule": "one defect can fail more than one check; each failed check deducts its own points",
+    "example": "缺 version 同时失去「必填三项齐全 6」与「version 是 SemVer 4」，合计 10",
+    "audited_by": "tests/rubric_probe.py asserts the exact delta per case; tests/point_audit.py asserts the sums"
   }
 }
