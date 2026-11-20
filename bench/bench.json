@@ -175,8 +175,8 @@
       "secret_leak:SKILL.md",
       "secret_leak:SKILL.md",
       "secret_leak:SKILL.md",
-      "secret_leak:references/authentication.md",
-      "secret_leak:references/authentication.md"
+      "secret_leak:references/session-management.md",
+      "secret_leak:references/snapshot-refs.md"
     ],
     "dims": {
       "structure": 10,

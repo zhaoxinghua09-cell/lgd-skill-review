@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-19T08:49:24Z",
+  "generated_at_utc": "2026-11-20T08:34:08Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -137,8 +137,8 @@
         "secret_leak:SKILL.md",
         "secret_leak:SKILL.md",
         "secret_leak:SKILL.md",
-        "secret_leak:references/authentication.md",
-        "secret_leak:references/authentication.md"
+        "secret_leak:references/session-management.md",
+        "secret_leak:references/snapshot-refs.md"
       ]
     }
   ],
