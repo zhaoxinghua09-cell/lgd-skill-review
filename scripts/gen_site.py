@@ -1033,9 +1033,14 @@ directly instead of implying the space was empty.</p>
 verifiers, 18 model-harness configurations, paired with-skills / no-skills evaluation (+16.6 pp)</td>
 <td>We do not measure task efficacy and publish no paired runs. Our ruler asks only whether checkable
 evidence exists, and every check has a probe.</td></tr>
-<tr><td><b>NVIDIA SkillEvaluator</b></td><td>Three tiers: deterministic quality gates, dedup, sandboxed live
-evaluation (Skill Lift, pass@k)</td><td>We overlap on the Tier 1 shape. The difference is 23 checks that each
-get a deliberate-violation probe, plus one-command outsider recomputation.</td></tr>
+<tr><td><b>NVIDIA SkillEvaluator</b> (0.2.0, Apache-2.0, Experimental)</td><td>Four tiers: a keyless
+composite quality score (correctness · discoverability · reliability · efficiency, <code>--min-score 70</code>
+plus a block on HIGH/CRITICAL findings), a host loadability check, dedup, and sandboxed live evaluation
+(Skill Lift from paired with-skill / baseline arms, pass@k) run through Harbor with Codex, Claude Code or
+OpenCode. It also generates synthetic trigger cases (explicit · implicit · contextual-positive · negative)
+and ships SkillSpector security scanning plus CI templates.</td><td>We overlap on the static shape. The
+difference is 23 checks that each get a deliberate-violation probe, plus one-command outsider recomputation
+with no token and no dependency beyond the standard library.</td></tr>
 <tr><td><b>huajielong/skill-evaluator</b></td><td>Community 100-point scheme (trigger 25 + execution 35 +
 economy 20 + trust 12 + comprehension 8)</td><td>Same 100-point shape. We bind the weight to 23 published
 checks with probe evidence, and we do not cover execution efficacy.</td></tr>
@@ -1044,6 +1049,8 @@ checks with probe evidence, and we do not cover execution efficacy.</td></tr>
 <h2>What we do not measure</h2>
 <div class="card"><ul>
 <li>Whether a skill makes an agent do a task better — that is SkillsBench / SkillEvaluator Tier 3.</li>
+<li>Whether a trigger actually fires — we check that the routing line exists, not that a model activates it.
+That needs synthesized trigger cases and a live run, which SkillEvaluator ships and we do not.</li>
 <li>Whether our sample is representative: 20 rows, 16 third-party targets, one point in time.</li>
 <li>Whether a third party has independently reviewed us — registry entries are still self-audited.</li>
 </ul></div>
@@ -1053,6 +1060,11 @@ checks with probe evidence, and we do not cover execution efficacy.</td></tr>
 <tr><th>capability</th><th>who ships it</th><th>our state</th></tr>
 <tr><td>Semantic deduplication against an existing catalog</td><td>NVIDIA SkillEvaluator Tier 2</td>
 <td>not implemented</td></tr>
+<tr><td>Keyless composite quality score over four axes, gated at a minimum and on HIGH/CRITICAL findings</td>
+<td>NVIDIA <code>quality-check</code></td><td>we publish a 100-point rubric, but no second composite index</td></tr>
+<tr><td>Synthetic trigger-case generation (explicit · implicit · contextual-positive · negative)</td>
+<td>NVIDIA <code>create-eval-dataset</code></td><td>not implemented; we check that a trigger line exists, not
+that it fires</td></tr>
 <tr><td>Sandboxed live evaluation with skill lift / pass@k</td><td>NVIDIA Tier 3, SkillsBench</td>
 <td>not implemented; we only run the package's own tests</td></tr>
 <tr><td>Security scanning via a dedicated engine</td><td>NVIDIA Tier 1 (SkillSpector)</td>
