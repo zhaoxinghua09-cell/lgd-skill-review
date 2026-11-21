@@ -60,3 +60,9 @@ jobs:
         run: |
           python scripts/gen_site.py
           python tests/claim_audit.py
+
+      # 可加载性：front-matter 合法、描述不超宿主上限、引用的文件真存在、路径可移植。
+      # 起因：对标 NVIDIA Tier 1 Harness Check 时补上这一层，首次运行就发现我们四包描述 1.6–1.8k 字符，
+      # 超过 1,024 上限会被宿主截断——截掉的正是触发词。
+      - name: The package must survive being loaded by a host
+        run: python tools/harness_check.py .
