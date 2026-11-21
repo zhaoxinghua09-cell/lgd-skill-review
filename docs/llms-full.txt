@@ -61,10 +61,10 @@ replies with score + blockers + fix order.
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/bench/badge.json — shields endpoint format, renders current numbers.
 
 ## 9. registry (verified list)
-https://zhaoxinghua09-cell.github.io/lgd-skill-reviewregistry.json — tiers: verified ≥90 · watch 60-89 · blocked <60; rules and entries.
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/registry.json — tiers: verified ≥90 · watch 60-89 · blocked <60; rules and entries.
 
 ## 10. third-party audits (machine-readable)
-https://zhaoxinghua09-cell.github.io/lgd-skill-reviewaudits.json — two large public repos, full findings + fix order + reproduce command.
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/audits.json — two large public repos, full findings + fix order + reproduce command.
 
 ## 11. site
 https://zhaoxinghua09-cell.github.io/lgd-skill-review/ — index, rubric, benchmark, compare, guide, badge, audits, registry, discover, skill-review, quickfix
