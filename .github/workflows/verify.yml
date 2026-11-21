@@ -46,3 +46,9 @@ jobs:
         run: |
           python scripts/gen_site.py
           python tests/site_audit.py
+
+      # URL 体检：机器入口里的每个 URL 必须可解析、本站 URL 必须真有文件。
+      # 起因：llms.txt / llms-full.txt 连续两轮把「站点根 + 文件名」拼成坏链，
+      # 而所有「页面有没有内容」的断言全绿——机器读到的是 404。
+      - name: Every machine-readable URL must resolve
+        run: python tests/url_audit.py
