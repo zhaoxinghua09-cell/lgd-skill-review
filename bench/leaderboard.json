@@ -1,6 +1,6 @@
 {
   "schema": "lgd-skillbench/leaderboard/1",
-  "generated_at_utc": "2026-11-20T08:34:08Z",
+  "generated_at_utc": "2026-11-19T05:07:44Z",
   "engine": "lgd-skill-review/scripts/review.py (static mode, no target code executed)",
   "scale": {
     "max": 100,
@@ -8,12 +8,40 @@
   },
   "summary": {
     "third_party_entries": 16,
-    "lgd_entries": 0,
+    "lgd_entries": 4,
     "third_party_top": 38,
-    "lgd_top": 0,
-    "gap": -38
+    "lgd_top": 96,
+    "gap": 58
   },
   "rows": [
+    {
+      "target": "summarize-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "debug-pro",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "wechat-viral-topic",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
+    {
+      "target": "lgd-skill-review",
+      "bucket": "lgd",
+      "score": 96,
+      "verdict": "PASS",
+      "blocking": []
+    },
     {
       "target": "anthropics/skills@skills/skill-creator",
       "bucket": "third-party",
@@ -124,8 +152,8 @@
       "score": 10,
       "verdict": "BLOCK",
       "blocking": [
-        "secret_leak:assets/photos/photos.json",
-        "secret_leak:assets/photos/photos.json"
+        "secret_leak:assets\\photos\\photos.json",
+        "secret_leak:assets\\photos\\photos.json"
       ]
     },
     {
@@ -137,8 +165,8 @@
         "secret_leak:SKILL.md",
         "secret_leak:SKILL.md",
         "secret_leak:SKILL.md",
-        "secret_leak:references/session-management.md",
-        "secret_leak:references/snapshot-refs.md"
+        "secret_leak:references\\authentication.md",
+        "secret_leak:references\\authentication.md"
       ]
     }
   ],
