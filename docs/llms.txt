@@ -47,6 +47,14 @@ recorded hash.
 ## submit a skill for review
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/issues/new?template=review-request.yml
 
+## verify us yourself (one command, no token)
+https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/tools/outsider_check.py
+Run `python outsider_check.py`. It reads only the public endpoints listed above: it recomputes
+16 / 38 / 96 / 58 from https://zhaoxinghua09-cell.github.io/lgd-skill-review/leaderboard.json, checks that rubric weights sum to 100 with 23 checks,
+checks run-proof is PASS 100 for all four packages, and probes every machine entry for HTTP 200.
+Exit code 0 means every number published on this site is self-consistent; any mismatch prints the exact
+claim and the live value it contradicts.
+
 ## all pages (every human-readable page on this site)
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/index.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.html
