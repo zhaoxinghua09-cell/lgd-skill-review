@@ -64,8 +64,10 @@ def main(argv):
             continue
         if not os.path.isfile(local):
             sys.exit("missing local file: %s" % local)
+        with open(local, "rb") as fh:
+            raw = fh.read()
         blob = _req("POST", "%s/repos/%s/git/blobs" % (API, slug),
-                    {"content": base64.b64encode(open(local, "rb").read()).decode(),
+                    {"content": base64.b64encode(raw).decode(),
                      "encoding": "base64"}, token=token)
         entries.append({"path": wanted, "mode": "100644", "type": "blob", "sha": blob["sha"]})
         changed.append("M " + wanted)
