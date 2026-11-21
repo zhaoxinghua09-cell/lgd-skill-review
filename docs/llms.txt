@@ -34,7 +34,7 @@ https://zhaoxinghua09-cell.github.io/lgd-skill-review/registry.json — three ti
 benchmark. Admission rules, tier meaning and every entry in one file. Human page: https://zhaoxinghua09-cell.github.io/lgd-skill-review/registry.html
 
 ## third-party audits, machine-readable
-- https://zhaoxinghua09-cell.github.io/lgd-skill-review/audits.json（两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
+- https://zhaoxinghua09-cell.github.io/lgd-skill-review/audits.json （两条真实大仓审计：分数、逐条 findings、整改顺序、复现命令）
 - 人读版：https://zhaoxinghua09-cell.github.io/lgd-skill-review/audits.html
 
 ## parity: what is published vs what was authored
