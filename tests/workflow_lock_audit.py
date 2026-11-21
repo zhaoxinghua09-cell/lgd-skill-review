@@ -58,12 +58,19 @@ def main():
             problems.append(f"{rel}: 未登记在 actions.lock（新增工作流必须重新生成锁）")
             continue
         allowed = lock[rel]
+        actions = 0
         for ref in refs:
             if ref.startswith("./"):
                 continue
+            # 可复用工作流（跨仓 .yml@sha）不在此锁内：GitHub 自己的生成器就是把它留空的，
+            # 实测 lgd-ci.yml 登记为 [] 却照常运行，所以这里只做记录、不做判定。
+            if ref.split("@")[0].endswith(".yml"):
+                print(f"NOTE {rel}: 可复用工作流 {ref.split('@')[0]}（锁文件不登记，跳过）")
+                continue
+            actions += 1
             if ref not in allowed:
                 problems.append(f"{rel}: uses {ref} 不在锁文件登记项 {allowed}")
-        if refs and allowed == []:
+        if actions and allowed == []:
             problems.append(f"{rel}: 使用了 action 但锁文件登记为空")
     print(f"workflows={checked} lock_entries={len(lock)}")
     for p in problems:
