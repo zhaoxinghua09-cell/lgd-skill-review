@@ -19,7 +19,7 @@ https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.json — six weight
 
 ## executed proof (static cap 96 -> 100)
 https://zhaoxinghua09-cell.github.io/lgd-skill-review/run-proof.json — our four packages scored with `review.py --run` (tests actually executed),
-with timestamp and commit. This is the only number in the sample backed by a real run.
+with timestamp and commit. This is the one number in this sample that comes from an executed run.
 
 ## rubric, item by item (23 checks)
 https://zhaoxinghua09-cell.github.io/lgd-skill-review/rubric.json — every dimension broken into individual checks with points and the concrete fix.
@@ -65,6 +65,7 @@ claim and the live value it contradicts.
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/audits.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/registry.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/discover.html
+- https://zhaoxinghua09-cell.github.io/lgd-skill-review/positioning.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/skill-review.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/quickfix.html
 

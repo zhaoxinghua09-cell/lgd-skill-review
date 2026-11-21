@@ -52,3 +52,11 @@ jobs:
       # 而所有「页面有没有内容」的断言全绿——机器读到的是 404。
       - name: Every machine-readable URL must resolve
         run: python tests/url_audit.py
+
+      # 主张审查：对外材料不得出现「首创 / 唯一 / 最强 / 断崖领先」这类表述，
+      # 且必须公开点名已有工作（SkillsBench / NVIDIA SkillEvaluator / 社区百分制）。
+      # 起因：2026-11-21 定位核查发现这些位置已被占，任何"空位"叙述都会被一封事实核查推翻。
+      - name: No overclaiming, and prior work must be named
+        run: |
+          python scripts/gen_site.py
+          python tests/claim_audit.py
