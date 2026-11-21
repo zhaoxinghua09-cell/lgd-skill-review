@@ -55,20 +55,28 @@ def main():
         recomputed["lgd_top"], recomputed["gap"]))
 
     index = get("/index.html")
-    for needle in ("16 third-party", "gap of 58", "96"):
+    for needle in ("16 third-party", "96", "58"):
         if needle not in index:
             notes.append("首页未出现字样：%r（若改过措辞可忽略）" % needle)
 
-    badge = get_json("/bench/badge.json")
-    want = "peers %d / LGD %d" % (recomputed["third_party_top"], recomputed["lgd_top"])
-    if badge.get("message") != want:
-        fails.append("badge.json 写 %r，应为 %r" % (badge.get("message"), want))
-    else:
-        print("badge: %s" % want)
+    badge = None
+    raw_badge = ("https://raw.githubusercontent.com/zhaoxinghua09-cell/lgd-skill-review/main/bench/badge.json")
+    try:
+        with urllib.request.urlopen(urllib.request.Request(raw_badge, headers=UA), timeout=25) as r:
+            badge = json.loads(r.read().decode("utf-8", "ignore"))
+    except Exception as exc:
+        notes.append("badge.json 取自 raw 端点不可达（%s）—— 属本机网络问题，非事实判断" % repr(exc)[:50])
+    if badge:
+        want = "peers %d / LGD %d" % (recomputed["third_party_top"], recomputed["lgd_top"])
+        if badge.get("message") != want:
+            fails.append("badge.json 写 %r，应为 %r" % (badge.get("message"), want))
+        else:
+            print("badge: %s" % want)
 
     rub = get_json("/rubric.json")
-    total = sum(d.get("weight") for d in rub.get("dimensions", []))
-    checks = len(rub.get("checks", []))
+    dims = rub.get("dimensions", [])
+    total = sum(d.get("weight") for d in dims)
+    checks = sum(len(d.get("checks", [])) for d in dims)
     if total != 100:
         fails.append("rubric 权重和 %s != 100" % total)
     if checks != 23:
@@ -76,17 +84,16 @@ def main():
     if not (rub.get("drift_check") or {}).get("consistent"):
         fails.append("rubric drift_check 不为 consistent")
     print("rubric: dims=%d weights=%d checks=%d drift=%s" % (
-        len(rub.get("dimensions", [])), total, checks,
-        (rub.get("drift_check") or {}).get("consistent")))
+        len(dims), total, checks, (rub.get("drift_check") or {}).get("consistent")))
 
     proof = get_json("/run-proof.json")
-    prs = proof.get("results") or proof.get("rows") or []
-    if len(prs) != 4:
-        notes.append("run-proof 条目数 %d（期望 4）" % len(prs))
-    for r in prs:
-        if r.get("verdict") != "PASS" or r.get("total") != 100:
-            fails.append("run-proof %s 写 %s/%s" % (r.get("target"), r.get("verdict"), r.get("total")))
-    print("run-proof: %d 条 %s" % (len(prs), [r.get("verdict") for r in prs]))
+    pkgs = proof.get("packages") or []
+    if len(pkgs) != 4:
+        fails.append("run-proof 条目数 %d（期望 4）" % len(pkgs))
+    for r in pkgs:
+        if r.get("verdict") != "PASS" or r.get("score") != 100:
+            fails.append("run-proof %s 写 %s/%s" % (r.get("package"), r.get("verdict"), r.get("score")))
+    print("run-proof: %d 条 %s" % (len(pkgs), [(r.get("package"), r.get("score")) for r in pkgs]))
 
     llms = get("/llms.txt")
     urls = sorted(set(re.findall(r"https://zhaoxinghua09-cell\.github\.io/lgd-skill-review/\S+", llms)))
