@@ -5,7 +5,7 @@
   "limits": [
     "known-pattern list only: no semantic/intent analysis, no vulnerability discovery",
     "catches what the rule table names; a novel phrasing passes",
-    "language scope: md/py/sh/ps1/js/ts/txt/yaml — binaries and notebooks are skipped"
+    "language scope: .bash,.js,.md,.ps1,.py,.sh,.ts,.txt,.yaml,.yml — binaries and notebooks are skipped"
   ],
   "rules": [
     {
@@ -133,5 +133,5 @@
     }
   ],
   "verdict": "REVIEW",
-  "checked_at": "2026-11-22T14:29:33Z"
+  "checked_at": "2026-11-22T14:37:53Z"
 }

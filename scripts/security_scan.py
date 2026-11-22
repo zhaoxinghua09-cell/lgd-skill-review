@@ -142,7 +142,7 @@ def main():
         "limits": [
             "known-pattern list only: no semantic/intent analysis, no vulnerability discovery",
             "catches what the rule table names; a novel phrasing passes",
-            "language scope: md/py/sh/ps1/js/ts/txt/yaml — binaries and notebooks are skipped",
+            "language scope: %s — binaries and notebooks are skipped" % ",".join(sorted(SCAN_EXT)),
         ],
         "rules": [{"id": r[0], "severity": r[1], "why": r[3]} for r in RULES],
         "counts": {"blocking": len(blocking), "review": len(review), "suppressed": suppressed,
