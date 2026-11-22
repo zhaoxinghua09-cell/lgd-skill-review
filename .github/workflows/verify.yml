@@ -61,8 +61,12 @@ jobs:
           python scripts/gen_site.py
           python tests/claim_audit.py
 
-      # 可加载性：front-matter 合法、描述不超宿主上限、引用的文件真存在、路径可移植。
-      # 起因：对标 NVIDIA Tier 1 Harness Check 时补上这一层，首次运行就发现我们四包描述 1.6–1.8k 字符，
+      # 近重复：词面级去重必须能真的抓住「同一份 front matter」，
+      # 同时必须承认它是词面方法（换词的同义技能抓不到）——这条限制写在页面里。
+      - name: Lexical duplicates must be caught and non-duplicates left alone
+        run: python tests/test_dedup.py
+
+      # 可加载性：front-matter 合法、描述不超宿主上限、引用的文件真存在、路径可移植。      # 起因：对标 NVIDIA Tier 1 Harness Check 时补上这一层，首次运行就发现我们四包描述 1.6–1.8k 字符，
       # 超过 1,024 上限会被宿主截断——截掉的正是触发词。
       - name: The package must survive being loaded by a host
         run: python tools/harness_check.py .

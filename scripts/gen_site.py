@@ -1054,7 +1054,10 @@ That needs synthesized trigger cases and a live run, which SkillEvaluator ships 
 <div class="card"><table>
 <tr><th>capability</th><th>who ships it</th><th>our state</th></tr>
 <tr><td>Semantic deduplication against an existing catalog</td><td>NVIDIA SkillEvaluator Tier 2</td>
-<td>not implemented</td></tr>
+<td><b>lexical only, added 2026-11-22</b>: <code>scripts/dedup_check.py</code> — character 3-gram Jaccard
+over name + description + when-to-use, exit 1 on a NEAR/SAME pair. It catches a copied front matter
+(similarity 1.0) and leaves a rewording alone (0.17 in our fixture). Embeddings and semantic dedup are
+still not implemented, and the page says so.</td></tr>
 <tr><td>Keyless composite quality score over four axes, gated at a minimum and on HIGH/CRITICAL findings</td>
 <td>NVIDIA <code>quality-check</code></td><td>we publish a 100-point rubric, but no second composite index</td></tr>
 <tr><td>Synthetic trigger-case generation (explicit · implicit · contextual-positive · negative)</td>
@@ -1205,6 +1208,12 @@ claim and the live value it contradicts.
 
 ## all pages (every human-readable page on this site)
 {pages_txt}
+
+## duplicate check (lexical, deterministic)
+{REPO}/blob/main/scripts/dedup_check.py — `python scripts/dedup_check.py a/SKILL.md b/SKILL.md`.
+Character 3-gram Jaccard over name + description + when-to-use; exit 1 on NEAR (>=0.65) or SAME
+(>=0.85). It catches a copied front matter and does not catch a paraphrase — semantic dedup is NVIDIA
+Tier 2's, not ours.
 
 ## competitive landscape, machine-readable
 {SITE}/landscape.json — nine projects with an explicit skill-evaluation surface, their star counts and
