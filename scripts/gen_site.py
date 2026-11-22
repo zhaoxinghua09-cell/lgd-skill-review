@@ -1232,6 +1232,15 @@ claim and the live value it contradicts.
 today's HEAD. On 2026-11-22 that was 16 checked, 0 drifted: the published numbers still hold. It checks our
 own sample, not those projects' quality.
 
+## skill security scan (deterministic, not a detector)
+{SITE}/security-scan.json — {REPO}/blob/main/scripts/security_scan.py, `python scripts/security_scan.py .`.
+Seven rule families (prompt override, external data post, destructive delete, credential in repo, curl-to-shell,
+dynamic eval, path traversal) scanned over this repository: 0 blocking, 10 review, 0 suppression. It is a
+word-level list: it does not understand intent, does not discover vulnerabilities, and a novel phrasing
+passes. It is not comparable to NVIDIA SkillSpector (a detector). Two limits are asserted by
+tests/test_security_scan.py rather than hidden: a document that merely quotes a destructive-delete command
+as advice is still flagged, and every suppression must carry a reason or it becomes a blocking finding.
+
 ## cross-endpoint consistency (machine-checkable, no number pinned)
 {REPO}/blob/main/tests/test_endpoint_consistency.py — `python tests/test_endpoint_consistency.py`.
 The JSON files here are produced by different scripts, so a single regeneration can leave two published

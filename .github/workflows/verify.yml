@@ -91,3 +91,16 @@ jobs:
       # 一个永远 PASS 的检查等于没有检查。
       - name: The consistency check must fail on bad data
         run: python tests/selftest_endpoint_consistency.py
+
+      # 安全扫描：确定性正则表，不联网、不调模型、不执行目标代码。
+      # 规则本身与被控夹具按设计含危险字符串，已从扫描范围排除。
+      - name: No blocking security finding in this repository
+        run: python scripts/security_scan.py .
+
+      # 端点保真：published security-scan.json 必须等于一次现扫的结果（除 checked_at）。
+      - name: Published security scan must match a fresh scan
+        run: python scripts/security_scan.py . --check docs/security-scan.json
+
+      # 控制集：每条规则必须真的开枪、良性文本必须零命中、抑制必须带理由、已知盲点必须被断言。
+      - name: Security rules must fire, and the blind spot must stay documented
+        run: python tests/test_security_scan.py

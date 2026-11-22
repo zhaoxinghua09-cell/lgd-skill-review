@@ -1,0 +1,137 @@
+{
+  "schema": "lgd-security-scan-v1",
+  "engine": "scripts/security_scan.py (deterministic regex table, no network, no model, no target code executed)",
+  "scope": "files scanned: 58 | extensions: .bash,.js,.md,.ps1,.py,.sh,.ts,.txt,.yaml,.yml",
+  "limits": [
+    "known-pattern list only: no semantic/intent analysis, no vulnerability discovery",
+    "catches what the rule table names; a novel phrasing passes",
+    "language scope: md/py/sh/ps1/js/ts/txt/yaml — binaries and notebooks are skipped"
+  ],
+  "rules": [
+    {
+      "id": "SEC001_PROMPT_OVERRIDE",
+      "severity": "blocking",
+      "why": "试图让宿主忽略既有指令（提示注入的典型句式）"
+    },
+    {
+      "id": "SEC002_DATA_EXFIL",
+      "severity": "blocking",
+      "why": "把数据发往外部地址（脚本内固定外链或 webhook）"
+    },
+    {
+      "id": "SEC003_DESTRUCTIVE",
+      "severity": "blocking",
+      "why": "不可逆删除/格式化命令"
+    },
+    {
+      "id": "SEC004_SECRET",
+      "severity": "blocking",
+      "why": "仓库里出现疑似凭证/私钥"
+    },
+    {
+      "id": "SEC006_PIPE_SHELL",
+      "severity": "blocking",
+      "why": "把网络返回直接喂给 shell（远程执行入口）"
+    },
+    {
+      "id": "SEC005_CODE_EXEC",
+      "severity": "review",
+      "why": "对动态内容求值/起 shell，需人工看输入是否可控"
+    },
+    {
+      "id": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验"
+    }
+  ],
+  "counts": {
+    "blocking": 0,
+    "review": 10,
+    "suppressed": 0,
+    "files_scanned": 58
+  },
+  "findings": [
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "demo/run_demo.py",
+      "line": 14,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "sys.path.insert(0, os.path.join(HERE, \"..\", \"scripts\"))"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "scripts/gen_rubric.py",
+      "line": 15,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "OUT = os.path.join(HERE, \"..\", \"docs\", \"rubric.json\")"
+    },
+    {
+      "rule": "SEC005_CODE_EXEC",
+      "severity": "review",
+      "file": "scripts/review.py",
+      "line": 828,
+      "why": "对动态内容求值/起 shell，需人工看输入是否可控",
+      "excerpt": "for pat in [\"eval(\", \"exec(\", \"os.system\", \"pickle.loads\"]:"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "scripts/run_proof.py",
+      "line": 20,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "OWN_DIR = os.environ.get(\"LGD_BENCH_OWN_DIR\") or os.path.join(ROOT, \"..\")"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/path_guard.py",
+      "line": 46,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "expect_refused(os.path.join(pkg, \"..\", \"outside.txt\"), \"parent-dir sibling\")"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/path_guard.py",
+      "line": 47,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "expect_refused(os.path.join(pkg, \"..\", \"..\", \"..\", \"etc\", \"passwd\"), \"three levels up\")"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/run_golden.py",
+      "line": 15,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "ROOT = os.path.abspath(os.path.join(HERE, \"..\"))"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/test_dedup.py",
+      "line": 56,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "packages = [os.path.join(REPO, \"..\", \"summarize-pro\", \"SKILL.md\"),"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/test_dedup.py",
+      "line": 57,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "os.path.join(REPO, \"..\", \"debug-pro\", \"SKILL.md\"),"
+    },
+    {
+      "rule": "SEC007_PATH_TRAVERSAL",
+      "severity": "review",
+      "file": "tests/test_dedup.py",
+      "line": 58,
+      "why": "路径拼接里出现 `..`，需确认已做 safe-join 校验",
+      "excerpt": "os.path.join(REPO, \"..\", \"wechat-viral-topic\", \"SKILL.md\"),"
+    }
+  ],
+  "verdict": "REVIEW",
+  "checked_at": "2026-11-22T14:29:33Z"
+}
