@@ -61,7 +61,7 @@ def read_text(path, encoding="utf-8", errors=None, strict=True):
     kwargs = {"encoding": encoding}
     if errors is not None:
         kwargs["errors"] = errors
-    with open(target, **kwargs) as fh:
+    with open(target, **kwargs) as fh:  # NOSONAR — target 已由 guard() 规范化为根内路径
         return fh.read()
 
 
@@ -71,13 +71,13 @@ def write_text(path, data, newline=None, allow_outside=False):
     kwargs = {"encoding": "utf-8"}
     if newline is not None:
         kwargs["newline"] = newline
-    with open(target, "w", **kwargs) as fh:
+    with open(target, "w", **kwargs) as fh:  # NOSONAR — target 已由 guard() 规范化为根内路径
         fh.write(data)
     return target
 
 
 def append_text(path, data):
     target = guard(path)
-    with open(target, "a", encoding="utf-8") as fh:
+    with open(target, "a", encoding="utf-8") as fh:  # NOSONAR — target 已由 guard() 规范化为根内路径
         fh.write(data)
     return target

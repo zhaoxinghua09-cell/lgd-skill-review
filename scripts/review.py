@@ -219,7 +219,8 @@ def d_consistency(root, fm, files):
     repo_names = {os.path.basename(p) for p in files}
     ours_declared = set()
     for l in cmd_lines:
-        scripts_on_line = re.findall(r"([\w./\\-]+\.(?:py|sh|js|ts))", l)
+        scripts_on_line = [t.strip("`'\"(),;") for t in l.split()]
+        scripts_on_line = [t for t in scripts_on_line if t.endswith((".py", ".sh", ".js", ".ts"))]
         if any(os.path.basename(s) in repo_names for s in scripts_on_line):
             ours_declared |= set(re.findall(r"--[a-z][a-z0-9\-]{1,20}", l))
     unknown = {f for f in (declared_flags | ours_declared)
@@ -265,6 +266,25 @@ def d_consistency(root, fm, files):
     return got, notes, blocking
 
 
+RUNNER_NAMES = ("run_tests.py", "runtests.py", "make_test.py")
+
+
+def _is_runner_path(path):
+    """测试执行器的命名判定（纯字符串，不用回溯型正则）。
+
+    只认「文件直接位于 tests/ 下」这一种布局——再往深处走就成了猜测目录约定，
+    判据在别人的仓库上会失真。
+    """
+    parts = path.replace("\\", "/").split("/")
+    if len(parts) < 2 or parts[-2] != "tests":
+        return False
+    name = parts[-1]
+    if not name.endswith(".py"):
+        return False
+    return (name.startswith(("run_", "test_")) or name.endswith("_test.py")
+            or name in RUNNER_NAMES)
+
+
 def d_reproducible(root, files, do_run):
     got, notes = 0, []
     norm = [p.replace("\\", "/") for p in files]
@@ -273,11 +293,7 @@ def d_reproducible(root, files, do_run):
     # 测试执行器：不限于 tests/run_*.py 这一种命名。
     # 申诉反馈暴露过这个问题——tests/test_runner.py 真实存在却被判「无执行器」。
     # 常见合法命名一并识别：run_*.py / test_*.py / *_test.py / run_tests.py / conftest.py 之外的 runner。
-    has_runner = any(
-        re.search(r"(?:^|[/\\])tests[/\\](?:run_.*\.py|test_.*\.py|.*_test\.py|run_tests\.py)", p)
-        or re.search(r"(?:^|[/\\])(?:run_tests|runtests|make_test)\.py$", p)
-        for p in files
-    )
+    has_runner = any(_is_runner_path(p) for p in files)
     has_demo = any(re.search(r"demo[/\\]", p) for p in files)
     if has_golden:
         got += 6
@@ -683,7 +699,15 @@ def eight_report(root, fm, files):
     rows.append(("D1", "Knowledge Delta 知识增量", d1, 20, "说明性 %d%%" % nar))
 
     # D2 思维模式与流程：决策树 + 有序步骤 + 取舍理由
-    tree = 1 if re.search(r'(\|.*(如果|when|若|fallback|备选).*\|)|备选方案|Fallback', body, re.I) else 0
+    tree = 0
+    for line in body.splitlines():
+        low = line.lower()
+        if line.count("|") >= 2 and any(k in low for k in ("如果", "when", "若", "fallback", "备选")):
+            tree = 1
+            break
+        if "备选方案" in low or "fallback" in low:
+            tree = 1
+            break
     steps = len(re.findall(r'(?m)^\s*(?:第[一二三四五六七八九十]步|Step\s+\d)', body))
     ordered = len(re.findall(r'(?m)^\s*\d+\.\s', body))
     d2 = (6 if tree else 0) + \
