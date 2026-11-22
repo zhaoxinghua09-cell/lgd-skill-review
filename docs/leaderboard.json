@@ -11,7 +11,35 @@
     "lgd_entries": 4,
     "third_party_top": 38,
     "lgd_top": 96,
-    "gap": 58
+    "gap": 58,
+    "stats": {
+      "method": "Wilson score interval, 95%, on the static bench (not a live-run interval)",
+      "pass_bar": 60,
+      "buckets": [
+        {
+          "bucket": "third-party",
+          "n": 16,
+          "pass_bar": 60,
+          "passed": 0,
+          "share": 0.0,
+          "wilson95": [
+            0.0,
+            0.1936
+          ]
+        },
+        {
+          "bucket": "lgd",
+          "n": 4,
+          "pass_bar": 60,
+          "passed": 4,
+          "share": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        }
+      ]
+    }
   },
   "rows": [
     {

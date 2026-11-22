@@ -61,6 +61,11 @@ jobs:
           python scripts/gen_site.py
           python tests/claim_audit.py
 
+      # 区间：Wilson 95% 必须落在已知数值上（k=0/n=10、k=10/n=10、k=5/n=10），
+      # 且线上榜单里的区间必须能被同一条命令重算出来。
+      - name: Published intervals must be reproducible
+        run: python tests/test_interval.py
+
       # 近重复：词面级去重必须能真的抓住「同一份 front matter」，
       # 同时必须承认它是词面方法（换词的同义技能抓不到）——这条限制写在页面里。
       - name: Lexical duplicates must be caught and non-duplicates left alone

@@ -84,6 +84,10 @@ that it fires</td></tr>
 <td>pattern-based secret leakage only</td></tr>
 <tr><td>Paired statistical reporting on live runs (95% Wilson intervals, McNemar diagnostic)</td>
 <td>NVIDIA SkillEvaluator v1.0.1 Tier 3</td><td>not implemented; we publish point scores, not intervals</td></tr>
+<tr><td>Uncertainty on a published share (binomial interval)</td><td>NVIDIA Tier 3 uses 95% Wilson intervals on
+live pass@k</td><td><b>added 2026-11-22</b>: <code>bench/interval.py</code> puts a Wilson 95% interval on
+our <i>static</i> sample (0 of 16 third-party targets pass a bar of 60 → share 0.000, CI [0.000, 0.194]).
+Static-sample interval only; live-run intervals are still not implemented.</td></tr>
 <tr><td>GitHub / GitLab CI templates for adopters</td><td>NVIDIA SkillEvaluator</td>
 <td>we publish our own workflow, not a drop-in template</td></tr>
 <tr><td>Loadability check (will a host load the package?)</td><td>NVIDIA Tier 1 Harness Check</td>

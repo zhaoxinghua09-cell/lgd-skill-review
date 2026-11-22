@@ -318,6 +318,19 @@ def main():
         json.dump({"schema": "lgd-parity-feed-v1", "items": parity_items},
                   open(os.path.join(DOCS, "parity.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
+    tp_stat = next((b for b in (s.get("stats") or {}).get("buckets", [])
+                    if b.get("bucket") == "third-party"), None)
+    if tp_stat:
+        ci_low, ci_high = tp_stat["wilson95"]
+        stats_note = (
+            "<p style=\"margin-top:12px;font-size:13px\"><b>How sure is that 0-of-16?</b> "
+            "At a pass bar of %d, %d of %d third-party targets clear it (share %.3f); "
+            "Wilson 95%% interval <b>[%.3f, %.3f]</b>. Method: Wilson score interval on our "
+            "static sample — <b>not</b> a live-run interval. It says the share is small, not "
+            "that it is exactly zero.</p>"
+            % (tp_stat["pass_bar"], tp_stat["passed"], tp_stat["n"], tp_stat["share"], ci_low, ci_high))
+    else:
+        stats_note = ""
     html += f"""
 <div class="kick">verifiability, measured — not claimed</div>
 <h1>We measure whether a stranger can check your skill.</h1>
@@ -336,6 +349,7 @@ quality — it is <b>whether the evidence is checkable</b>.</p>
 <tr><td>LGD top score</td><td class="num good">{s['lgd_top']}</td></tr>
 <tr><td>Gap</td><td class="num good">{s['gap']}</td></tr>
 </table>
+{stats_note}
 <p style="margin-top:12px;font-size:13px">Generated {data['generated_at_utc']} · engine: static mode, never executes the target's code</p>
 </div>
 
@@ -1069,6 +1083,10 @@ that it fires</td></tr>
 <td>pattern-based secret leakage only</td></tr>
 <tr><td>Paired statistical reporting on live runs (95% Wilson intervals, McNemar diagnostic)</td>
 <td>NVIDIA SkillEvaluator v1.0.1 Tier 3</td><td>not implemented; we publish point scores, not intervals</td></tr>
+<tr><td>Uncertainty on a published share (binomial interval)</td><td>NVIDIA Tier 3 uses 95% Wilson intervals on
+live pass@k</td><td><b>added 2026-11-22</b>: <code>bench/interval.py</code> puts a Wilson 95% interval on
+our <i>static</i> sample (0 of 16 third-party targets pass a bar of 60 → share 0.000, CI [0.000, 0.194]).
+Static-sample interval only; live-run intervals are still not implemented.</td></tr>
 <tr><td>GitHub / GitLab CI templates for adopters</td><td>NVIDIA SkillEvaluator</td>
 <td>we publish our own workflow, not a drop-in template</td></tr>
 <tr><td>Loadability check (will a host load the package?)</td><td>NVIDIA Tier 1 Harness Check</td>
