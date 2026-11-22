@@ -80,3 +80,14 @@ jobs:
       # 不一致而直接 startup_failure——本地 YAML 合法也照样连 job 都不排。
       - name: Action refs must match the lockfile
         run: python tests/workflow_lock_audit.py
+
+      # 跨端点一致性：每个 JSON 由不同脚本生成，单独重生成一次就可能出现两个互相矛盾的数字。
+      # 这里只校验"关系"（summary 能否从 rows 重算、漂移结果能否从 rows 重算、样本集合是否覆盖），
+      # 不钉死任何字面值——钉死就等于把过期数字藏进测试里。
+      - name: Published endpoints must not contradict each other
+        run: python tests/test_endpoint_consistency.py
+
+      # 反向验证：给副本注入 7 种"两个端点矛盾"的坏值，检查器必须真的返回非零。
+      # 一个永远 PASS 的检查等于没有检查。
+      - name: The consistency check must fail on bad data
+        run: python tests/selftest_endpoint_consistency.py

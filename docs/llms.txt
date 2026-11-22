@@ -74,6 +74,15 @@ https://zhaoxinghua09-cell.github.io/lgd-skill-review/drift-check.json — every
 today's HEAD. On 2026-11-22 that was 16 checked, 0 drifted: the published numbers still hold. It checks our
 own sample, not those projects' quality.
 
+## cross-endpoint consistency (machine-checkable, no number pinned)
+https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/tests/test_endpoint_consistency.py — `python tests/test_endpoint_consistency.py`.
+The JSON files here are produced by different scripts, so a single regeneration can leave two published
+numbers contradicting each other. This check verifies only *relationships* (summary recomputes from rows,
+drift result recomputes from rows, drift sample covers exactly the third-party sample, run-proof dimensions
+sum to score, rubric weights sum to 100) and pins no literal value, because a pinned literal is where a
+stale number hides. `tests/selftest_endpoint_consistency.py` injects seven contradictory mutations into a
+copy and asserts the checker exits non-zero — a check that always passes is no check.
+
 ## duplicate check (lexical, deterministic)
 https://github.com/zhaoxinghua09-cell/lgd-skill-review/blob/main/scripts/dedup_check.py — `python scripts/dedup_check.py a/SKILL.md b/SKILL.md`.
 Character 3-gram Jaccard over name + description + when-to-use; exit 1 on NEAR (>=0.65) or SAME
