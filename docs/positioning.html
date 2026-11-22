@@ -31,15 +31,15 @@
 
 <div class="kick">positioning</div>
 <h1>Name what already exists, then claim only the narrow layer.</h1>
-<p class="lead">Anyone can say "benchmark". Three pieces of work already occupy this field, so we cite them
-directly instead of implying the space was empty.</p>
+<p class="lead">Anyone can say "benchmark". The three closest pieces of work are cited below with their own
+words, and a live scan of the wider field follows — because implying the space was empty would be false.</p>
 <div class="card"><table>
 <tr><th>work</th><th>what it occupies</th><th>our relation (narrow claim)</th></tr>
 <tr><td><b>arXiv SkillsBench</b> (2602.12670, v4)</td><td>87 tasks across 8 domains, deterministic
 verifiers, 18 model-harness configurations, paired with-skills / no-skills evaluation (+16.6 pp)</td>
 <td>We do not measure task efficacy and publish no paired runs. Our ruler asks only whether checkable
 evidence exists, and every check has a probe.</td></tr>
-<tr><td><b>NVIDIA SkillEvaluator</b> (0.6.0, 2026-10-20; Apache-2.0, Experimental)</td><td>Part of the
+<tr><td><b>NVIDIA SkillEvaluator</b> (v1.0.1, 2026-11-18; Apache-2.0)</td><td>Part of the
 NVIDIA Verified Skills pipeline. Four tiers: a keyless composite quality score (correctness · discoverability
 · reliability · efficiency, <code>--min-score 70</code> plus a block on HIGH/CRITICAL findings), a host
 loadability check, dedup, and sandboxed live evaluation (Skill Lift from paired with-skill / baseline arms,
@@ -47,7 +47,8 @@ pass@k with 95% Wilson intervals and a paired McNemar diagnostic) run through Ha
 or OpenCode. A combined <code>doctor</code> / <code>validate</code> pipeline with autopilot, catalog validation
 (<code>--workers N</code>, <code>catalog-summary.json</code>), synthetic trigger cases (explicit · implicit ·
 contextual-positive · negative), SkillSpector security scanning and CI templates. Its changelog records
-0.2.1 (08-24), 0.3.0 (09-17), 0.4.0 (09-30) and 0.6.0 (10-20).</td><td>We overlap on the static shape. The
+0.2.1 (08-24), 0.3.0 (09-17), 0.4.0 (09-30), 0.6.0 (10-20), 0.9.0 (11-13), v1.0.0 (11-17) and v1.0.1
+(11-18) — it moved from experimental to a tagged 1.x line while this page was being written.</td><td>We overlap on the static shape. The
 difference is 23 checks that each get a deliberate-violation probe, plus one-command outsider recomputation
 with no token and no dependency beyond the standard library.</td></tr>
 <tr><td><b>huajielong/skill-evaluator</b></td><td>Community 100-point scheme (trigger 25 + execution 35 +
@@ -79,13 +80,47 @@ that it fires</td></tr>
 <tr><td>Security scanning via a dedicated engine</td><td>NVIDIA Tier 1 (SkillSpector)</td>
 <td>pattern-based secret leakage only</td></tr>
 <tr><td>Paired statistical reporting on live runs (95% Wilson intervals, McNemar diagnostic)</td>
-<td>NVIDIA SkillEvaluator 0.6.0 Tier 3</td><td>not implemented; we publish point scores, not intervals</td></tr>
+<td>NVIDIA SkillEvaluator v1.0.1 Tier 3</td><td>not implemented; we publish point scores, not intervals</td></tr>
 <tr><td>GitHub / GitLab CI templates for adopters</td><td>NVIDIA SkillEvaluator</td>
 <td>we publish our own workflow, not a drop-in template</td></tr>
 <tr><td>Loadability check (will a host load the package?)</td><td>NVIDIA Tier 1 Harness Check</td>
 <td><b>added 2026-11-21</b>: <code>tools/harness_check.py</code>; it immediately found our own
 description field at 1,644–1,806 characters, above the 1,024 host limit, and all four packages now pass</td></tr>
 </table></div>
+
+<h2>The field we are actually in (live scan, 2026-11-22)</h2>
+<p class="lead">The three works above are not the whole field. A live scan of GitHub on 2026-11-22 found at
+least eight projects with an explicit skill-evaluation surface and more than a thousand stars. We list them
+because leaving them out would make our "gap" look bigger than it is. Stars and versions are as read from
+the GitHub API at that timestamp; none of them is scored by our ruler, so this table is context, not a
+ranking.</p>
+<div class="card"><table>
+<tr><th>project</th><th>stars</th><th>latest release</th><th>what it occupies</th></tr>
+<tr><td><b>Tencent/AI-Infra-Guard</b></td><td>7,610</td><td>v4.6.11 (11-19)</td><td>Full-stack AI red
+teaming, including a <i>Skills Scan</i> surface, MCP scan, agent scan and jailbreak evaluation</td></tr>
+<tr><td><b>alchaincyf/darwin-skill</b></td><td>7,028</td><td>v3.0.2 (11-18)</td><td>Autonomous skill
+optimisation loop: evaluate → improve → test → keep or revert</td></tr>
+<tr><td><b>NVIDIA/SkillEvaluator</b></td><td>4,359</td><td>v1.0.1 (11-18)</td><td>Four-tier quality,
+loadability, dedup and sandboxed live evaluation with CI templates</td></tr>
+<tr><td><b>rpamis/comet</b></td><td>3,308</td><td>—</td><td>Skill harness that turns ideas into evaluated
+workflows</td></tr>
+<tr><td><b>yaojingang/yao-meta-skill</b></td><td>2,740</td><td>—</td><td>Engineering, evaluation,
+governance and portability system for reusable skills</td></tr>
+<tr><td><b>benchflow-ai/skillsbench</b></td><td>1,934</td><td>v1.1 (06-14)</td><td>How well skills work and
+how well agents use them</td></tr>
+<tr><td><b>microsoft/waza</b></td><td>1,518</td><td>v0.42.0 (11-22)</td><td>CLI for repeatable scenarios,
+graders, evidence and CI on skills and workflows</td></tr>
+<tr><td><b>alibaba/skill-up</b></td><td>1,510</td><td>v0.16.0 (11-17)</td><td>Evaluating agent skills and
+environments, evolving them with evidence</td></tr>
+<tr><td><b>huajielong/skill-evaluator</b></td><td>7</td><td>—</td><td>Community 100-point scheme (the
+closest thing to our weighting)</td></tr>
+</table></div>
+<div class="card"><p><b>What this costs us in honesty.</b> On execution efficacy, statistical reporting,
+security scanning and autonomous improvement, the field above is far ahead of us, not behind. Our only
+defensible position is the one layer none of them appear to ship: a published rubric whose 23 checks each
+carry a deliberate-violation probe, a drift gate between rubric text and engine weights, and an outsider
+recomputation path that needs no token and no install. We claim that layer. We do not claim a leading
+position in skill evaluation as a field.</p></div>
 
 <h2>The claim we will defend in public</h2>
 <div class="card"><p><b>In these layers we are stricter, and you can run the check yourself:</b> 23 checks each
