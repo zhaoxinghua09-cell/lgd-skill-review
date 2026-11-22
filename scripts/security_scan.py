@@ -159,13 +159,22 @@ def main():
 
     if args.check:
         old = json.load(open(args.check, encoding="utf-8"))
-        a = {k: v for k, v in old.items() if k != "checked_at"}
-        b = dict(result)
+
+        def canon(d):
+            # 文件遍历顺序因机器而异，findings 的顺序不是语义；按 (file,line,rule) 归一后再比
+            d = {k: v for k, v in d.items() if k != "checked_at"}
+            d["findings"] = sorted(d.get("findings", []),
+                                   key=lambda f: (f["file"], f["line"], f["rule"], f.get("excerpt", "")))
+            return d
+
+        a, b = canon(old), canon(result)
         if a != b:
             diff = [k for k in set(a) | set(b) if a.get(k) != b.get(k)]
             print("SECURITY-SCAN-CHECK: FAIL (drifted fields: %s)" % sorted(diff))
+            for k in diff:
+                print("  %s: committed=%r fresh=%r" % (k, a.get(k), b.get(k)))
             return 1
-        print("SECURITY-SCAN-CHECK: PASS (committed JSON matches a fresh scan)")
+        print("SECURITY-SCAN-CHECK: PASS (committed JSON matches a fresh scan, findings normalized)")
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
