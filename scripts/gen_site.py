@@ -1227,6 +1227,11 @@ claim and the live value it contradicts.
 ## all pages (every human-readable page on this site)
 {pages_txt}
 
+## drift check on the published sample (machine-readable)
+{SITE}/drift-check.json — every one of the 16 third-party targets in the bench re-cloned and re-scored at
+today's HEAD. On 2026-11-22 that was 16 checked, 0 drifted: the published numbers still hold. It checks our
+own sample, not those projects' quality.
+
 ## duplicate check (lexical, deterministic)
 {REPO}/blob/main/scripts/dedup_check.py — `python scripts/dedup_check.py a/SKILL.md b/SKILL.md`.
 Character 3-gram Jaccard over name + description + when-to-use; exit 1 on NEAR (>=0.65) or SAME

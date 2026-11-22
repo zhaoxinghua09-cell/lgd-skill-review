@@ -1,0 +1,126 @@
+{
+ "schema": "lgd-drift-check-v1",
+ "checked_at": "2026-11-22T21:13:34+08:00",
+ "engine": "scripts/review.py, static mode, cloned at --depth 1 from public GitHub",
+ "scope": "all 16 third-party targets in bench/bench.json; LGD rows excluded",
+ "result": {
+  "checked": 16,
+  "drifted": 0,
+  "max_abs_drift": 0
+ },
+ "statement": "Re-scoring the published sample at today's HEAD found no drift: the published third-party scores still hold. This checks our own numbers, it is not a review of those projects' quality.",
+ "rows": [
+  {
+   "target": "addyosmani/agent-skills@skills/code-review-and-quality",
+   "old": 18,
+   "new": 18,
+   "drift": 0,
+   "head": "8c99fa3"
+  },
+  {
+   "target": "anthropics/skills@skills/docx",
+   "old": 31,
+   "new": 31,
+   "drift": 0,
+   "head": "e4bb5d9"
+  },
+  {
+   "target": "anthropics/skills@skills/frontend-design",
+   "old": 25,
+   "new": 25,
+   "drift": 0,
+   "head": "e4bb5d9"
+  },
+  {
+   "target": "anthropics/skills@skills/pdf",
+   "old": 21,
+   "new": 21,
+   "drift": 0,
+   "head": "e4bb5d9"
+  },
+  {
+   "target": "anthropics/skills@skills/pptx",
+   "old": 31,
+   "new": 31,
+   "drift": 0,
+   "head": "e4bb5d9"
+  },
+  {
+   "target": "anthropics/skills@skills/skill-creator",
+   "old": 38,
+   "new": 38,
+   "drift": 0,
+   "head": "e4bb5d9"
+  },
+  {
+   "target": "emilkowalski/skills@skills/apple-design",
+   "old": 22,
+   "new": 22,
+   "drift": 0,
+   "head": "64eb3de"
+  },
+  {
+   "target": "google/agents-cli@skills/google-agents-cli-adk-code",
+   "old": 22,
+   "new": 22,
+   "drift": 0,
+   "head": "2fa159a"
+  },
+  {
+   "target": "juliusbrussee/caveman@skills/caveman",
+   "old": 18,
+   "new": 18,
+   "drift": 0,
+   "head": "70f4f34"
+  },
+  {
+   "target": "leonxlnx/taste-skill@skills/taste-skill",
+   "old": 10,
+   "new": 10,
+   "drift": 0,
+   "head": "f6b7657"
+  },
+  {
+   "target": "mattpocock/skills@skills/engineering/code-review",
+   "old": 18,
+   "new": 18,
+   "drift": 0,
+   "head": "abeeaf9"
+  },
+  {
+   "target": "microsoft/azure-skills@skills/azure-deploy",
+   "old": 20,
+   "new": 20,
+   "drift": 0,
+   "head": "7847020"
+  },
+  {
+   "target": "obra/superpowers@skills/brainstorming",
+   "old": 18,
+   "new": 18,
+   "drift": 0,
+   "head": "22f0b46"
+  },
+  {
+   "target": "prisma/skills@prisma-cli",
+   "old": 20,
+   "new": 20,
+   "drift": 0,
+   "head": "a6f1929"
+  },
+  {
+   "target": "vercel-labs/agent-browser@skill-data/core",
+   "old": 10,
+   "new": 10,
+   "drift": 0,
+   "head": "d2dfc78"
+  },
+  {
+   "target": "vercel-labs/agent-skills@skills/react-best-practices",
+   "old": 24,
+   "new": 24,
+   "drift": 0,
+   "head": "5a37a63"
+  }
+ ]
+}
