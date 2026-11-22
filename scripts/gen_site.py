@@ -1206,6 +1206,12 @@ claim and the live value it contradicts.
 ## all pages (every human-readable page on this site)
 {pages_txt}
 
+## competitive landscape, machine-readable
+{SITE}/landscape.json — nine projects with an explicit skill-evaluation surface, their star counts and
+latest releases as read from the GitHub API on 2026-11-22, plus a plain statement that none of them is
+scored by this ruler. Background, not a ranking. On execution efficacy, statistics and security scanning
+the field is ahead of us.
+
 ## limits
 - measures verifiability, not usefulness or popularity
 - static mode caps at 96 of 100; 100 needs the target's own tests to run
@@ -1219,6 +1225,49 @@ third-party top: {s['third_party_top']} | lgd top: {s['lgd_top']} | gap: {s['gap
         raise SystemExit("llms.txt: %d URL(s) missing the slash after the site root: %s"
                          % (len(broken), broken[:3]))
     open(os.path.join(DOCS, "llms.txt"), "w", encoding="utf-8").write(llms)
+
+    # landscape.json — 竞争格局的机器可读出口（2026-11-22 GitHub API 现查），供 agent 直接消费
+    landscape = {
+        "schema": "lgd-landscape-v1",
+        "checked_at": "2026-11-22T19:20+08:00",
+        "source": "GitHub REST API (/search/repositories sorted by stars; /releases; /commits)",
+        "statement": ("Context, not a ranking. None of these projects is scored by this site's ruler. "
+                      "On execution efficacy, statistical reporting, security scanning and autonomous "
+                      "improvement the field is ahead of us; our only defensible claim is the probe-backed "
+                      "static rubric plus the outsider recomputation path."),
+        "projects": [
+            {"repo": "Tencent/AI-Infra-Guard", "stars": 7610, "release": "v4.6.11", "released": "2026-11-19",
+             "surface": "AI red teaming incl. Skills Scan, MCP scan, agent scan, jailbreak evaluation",
+             "url": "https://github.com/Tencent/AI-Infra-Guard"},
+            {"repo": "alchaincyf/darwin-skill", "stars": 7028, "release": "v3.0.2", "released": "2026-11-18",
+             "surface": "autonomous skill optimisation: evaluate, improve, test, keep or revert",
+             "url": "https://github.com/alchaincyf/darwin-skill"},
+            {"repo": "NVIDIA/SkillEvaluator", "stars": 4359, "release": "v1.0.1", "released": "2026-11-18",
+             "surface": "four tiers: composite quality, loadability, dedup, sandboxed live evaluation with CI templates",
+             "url": "https://github.com/NVIDIA/SkillEvaluator"},
+            {"repo": "rpamis/comet", "stars": 3308, "release": "", "released": "",
+             "surface": "skill harness turning ideas into evaluated workflows",
+             "url": "https://github.com/rpamis/comet"},
+            {"repo": "yaojingang/yao-meta-skill", "stars": 2740, "release": "", "released": "",
+             "surface": "engineering, evaluation, governance and portability for reusable skills",
+             "url": "https://github.com/yaojingang/yao-meta-skill"},
+            {"repo": "benchflow-ai/skillsbench", "stars": 1934, "release": "v1.1", "released": "2026-06-14",
+             "surface": "benchmark of whether skills work and whether agents use them",
+             "url": "https://github.com/benchflow-ai/skillsbench"},
+            {"repo": "microsoft/waza", "stars": 1518, "release": "v0.42.0", "released": "2026-11-22",
+             "surface": "CLI for repeatable scenarios, graders, evidence and CI on skills",
+             "url": "https://github.com/microsoft/waza"},
+            {"repo": "alibaba/skill-up", "stars": 1510, "release": "v0.16.0", "released": "2026-11-17",
+             "surface": "evaluating agent skills and environments, evolving them with evidence",
+             "url": "https://github.com/alibaba/skill-up"},
+            {"repo": "huajielong/skill-evaluator", "stars": 7, "release": "", "released": "",
+             "surface": "community 100-point scheme (closest to this site's weighting)",
+             "url": "https://github.com/huajielong/skill-evaluator"},
+        ],
+    }
+    open(os.path.join(DOCS, "landscape.json"), "w", encoding="utf-8").write(
+        json.dumps(landscape, ensure_ascii=False, indent=1) + "\n")
+
 
     # llms-full.txt — 一次抓取拿全量语料，供 RAG / 训练式检索直接消费
     lines = []

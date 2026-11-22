@@ -69,6 +69,12 @@ claim and the live value it contradicts.
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/skill-review.html
 - https://zhaoxinghua09-cell.github.io/lgd-skill-review/quickfix.html
 
+## competitive landscape, machine-readable
+https://zhaoxinghua09-cell.github.io/lgd-skill-review/landscape.json — nine projects with an explicit skill-evaluation surface, their star counts and
+latest releases as read from the GitHub API on 2026-11-22, plus a plain statement that none of them is
+scored by this ruler. Background, not a ranking. On execution efficacy, statistics and security scanning
+the field is ahead of us.
+
 ## limits
 - measures verifiability, not usefulness or popularity
 - static mode caps at 96 of 100; 100 needs the target's own tests to run
