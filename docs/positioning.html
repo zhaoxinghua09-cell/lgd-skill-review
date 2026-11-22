@@ -39,12 +39,15 @@ directly instead of implying the space was empty.</p>
 verifiers, 18 model-harness configurations, paired with-skills / no-skills evaluation (+16.6 pp)</td>
 <td>We do not measure task efficacy and publish no paired runs. Our ruler asks only whether checkable
 evidence exists, and every check has a probe.</td></tr>
-<tr><td><b>NVIDIA SkillEvaluator</b> (0.2.0, Apache-2.0, Experimental)</td><td>Four tiers: a keyless
-composite quality score (correctness · discoverability · reliability · efficiency, <code>--min-score 70</code>
-plus a block on HIGH/CRITICAL findings), a host loadability check, dedup, and sandboxed live evaluation
-(Skill Lift from paired with-skill / baseline arms, pass@k) run through Harbor with Codex, Claude Code or
-OpenCode. It also generates synthetic trigger cases (explicit · implicit · contextual-positive · negative)
-and ships SkillSpector security scanning plus CI templates.</td><td>We overlap on the static shape. The
+<tr><td><b>NVIDIA SkillEvaluator</b> (0.6.0, 2026-10-20; Apache-2.0, Experimental)</td><td>Part of the
+NVIDIA Verified Skills pipeline. Four tiers: a keyless composite quality score (correctness · discoverability
+· reliability · efficiency, <code>--min-score 70</code> plus a block on HIGH/CRITICAL findings), a host
+loadability check, dedup, and sandboxed live evaluation (Skill Lift from paired with-skill / baseline arms,
+pass@k with 95% Wilson intervals and a paired McNemar diagnostic) run through Harbor with Codex, Claude Code
+or OpenCode. A combined <code>doctor</code> / <code>validate</code> pipeline with autopilot, catalog validation
+(<code>--workers N</code>, <code>catalog-summary.json</code>), synthetic trigger cases (explicit · implicit ·
+contextual-positive · negative), SkillSpector security scanning and CI templates. Its changelog records
+0.2.1 (08-24), 0.3.0 (09-17), 0.4.0 (09-30) and 0.6.0 (10-20).</td><td>We overlap on the static shape. The
 difference is 23 checks that each get a deliberate-violation probe, plus one-command outsider recomputation
 with no token and no dependency beyond the standard library.</td></tr>
 <tr><td><b>huajielong/skill-evaluator</b></td><td>Community 100-point scheme (trigger 25 + execution 35 +
@@ -75,6 +78,8 @@ that it fires</td></tr>
 <td>not implemented; we only run the package's own tests</td></tr>
 <tr><td>Security scanning via a dedicated engine</td><td>NVIDIA Tier 1 (SkillSpector)</td>
 <td>pattern-based secret leakage only</td></tr>
+<tr><td>Paired statistical reporting on live runs (95% Wilson intervals, McNemar diagnostic)</td>
+<td>NVIDIA SkillEvaluator 0.6.0 Tier 3</td><td>not implemented; we publish point scores, not intervals</td></tr>
 <tr><td>GitHub / GitLab CI templates for adopters</td><td>NVIDIA SkillEvaluator</td>
 <td>we publish our own workflow, not a drop-in template</td></tr>
 <tr><td>Loadability check (will a host load the package?)</td><td>NVIDIA Tier 1 Harness Check</td>
