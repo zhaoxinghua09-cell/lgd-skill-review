@@ -18,6 +18,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BENCH = os.path.join(HERE, "bench", "leaderboard.json")
 DOCS = os.path.join(HERE, "docs")
+CSS_HREF = "assets/site.css"  # 共享样式表，页面只引用不内联（12 页各内联一份会让静态扫描判重复）
 SITE = "https://zhaoxinghua09-cell.github.io/lgd-skill-review"
 REPO = "https://github.com/zhaoxinghua09-cell/lgd-skill-review"
 
@@ -160,7 +161,7 @@ def head(title, desc, path, extra_jsonld=""):
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:type" content="website">
-<style>{CSS}</style>
+<link rel="stylesheet" href="assets/site.css">
 <script type="application/ld+json">{{
   "@context":"https://schema.org",
   "@type":"SoftwareApplication",
@@ -315,6 +316,12 @@ def main():
     data = json.load(open(BENCH, encoding="utf-8"))
     s = data["summary"]
     os.makedirs(DOCS, exist_ok=True)
+
+    # 共享样式表：所有页面共用一份，样式只在这里写一次
+    assets = os.path.join(DOCS, "assets")
+    os.makedirs(assets, exist_ok=True)
+    with open(os.path.join(assets, "site.css"), "w", encoding="utf-8") as fh:
+        fh.write(CSS.strip() + "\n")
 
     # index
     html = head("LGD SkillBench — verifiability, measured",
