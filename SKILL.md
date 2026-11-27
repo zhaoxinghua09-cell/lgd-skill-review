@@ -7,7 +7,7 @@ display_name_en: Skill Reviewer
 slug: lgd-skill-review
 author: 诺声(Logos)@SynomosAI
 copyright: SynomosAI
-version: 1.1.7
+version: 1.1.8
 license: MIT
 description: >-
   Dual-ruler reviewer for any AI skill package: reports a structure score (out of 100) and a semantics score (out of 120) as two orthogonal verdicts instead of merging them, and flags the case when the two disagree by 20 points or more. · Structure asks whether the package can be used at all (tests, declared-vs-implemented consistency, reproducibility, hygiene, discovery, licensing); semantics asks whether it is worth using (knowledge delta, procedures, anti-patterns with reasons, specification, progressive disclosure, freedom calibration, pattern fit, usability). · Every finding carries a stable ID and is traceable to a specific file. · Accepts evidence-based appeals: the appellant supplies a path and a check, the engine opens it and rules OVERTURNED / UPHELD, records the ruling in appeal_log.json, and never silently changes a score.
