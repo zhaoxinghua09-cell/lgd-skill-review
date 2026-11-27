@@ -1,5 +1,22 @@
 # lgd-skill-review · 技能审计官
 
+[![skills.sh](https://skills.sh/b/zhaoxinghua09-cell/lgd-skill-review)](https://skills.sh/zhaoxinghua09-cell/lgd-skill-review) [![LobeHub](https://img.shields.io/badge/LobeHub-Skills%20Market-6f42c1)](https://lobehub.com/skills/zhaoxinghua09-cell-lgd-skill-review)
+
+## Install
+
+```bash
+npx skills add zhaoxinghua09-cell/lgd-skill-review
+```
+
+One command, no sign-in. Works with Claude Code, Codex, Cursor, Windsurf, Gemini CLI, VS Code, Zed and any agent that reads `SKILL.md`.
+
+**Use when**
+- you want a second opinion on an AI skill package before publishing it
+- you need structure (can it be used) and semantics (is it worth using) scored separately
+- you want every deduction traced to a specific file and line
+- a rejection needs a reason you can appeal with evidence
+- you are comparing your skill against a public benchmark
+
 <!-- LGD-ECOSYSTEM -->
 [![verifiability](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzhaoxinghua09-cell%2Flgd-skill-review%2Fmain%2Fbench%2Fbadge.json)](https://zhaoxinghua09-cell.github.io/lgd-skill-review/benchmark.html)
 
