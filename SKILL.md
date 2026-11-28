@@ -29,14 +29,13 @@ display_name_zh: 技能评测官
 
 
 
-# lgd-skill-review · 精简版（v1.2.0-slim）
+# lgd-skill-review
 
+**Iron law:** structure and semantics are scored separately and never merged into one number; every deduction points to a file; appeals need evidence and never move a score silently.
 
+**Use when:** second opinion before publishing a skill, structure vs semantics scoring, deduction traceability, evidence-based appeal, benchmark comparison.
 
-原 175 行 / 14 个 H2 / 5 份 references → 本页 58 行 / 2 模块 / 1 份 `references/details.md`。
-
-依据 SkillsBench（arXiv 2602.12670）：聚焦型胜全面型。
-
+> Slim body by design. Reproduction proof: `python demo/prove_score.py` (exit code 0 = pass). Full procedures live in `references/details.md`.
 
 
 ## 1 用法：只决定一件事——评谁、按哪套口径
