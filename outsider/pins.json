@@ -18,7 +18,8 @@
           "sha256": "82560b336c1a2131591ee21393eef724dd699a351557c348ce708e4cb1cea9e2"
         }
       ],
-      "demo": "demo/tamper_test.py"
+      "demo": "demo/tamper_test.py",
+      "pin": "commit"
     },
     {
       "repo": "zhaoxinghua09-cell/debug-pro",
@@ -35,7 +36,8 @@
           "sha256": "9f6431c320253f7acfd93f6b9bf76187df386464944d2a661be7464186d1ce33"
         }
       ],
-      "demo": "demo/prove_evidence.py"
+      "demo": "demo/prove_evidence.py",
+      "pin": "commit"
     },
     {
       "repo": "zhaoxinghua09-cell/wechat-viral-topic",
@@ -52,11 +54,12 @@
           "sha256": "af279636200255e545e8e0aa8fc80e38d42b25c419540b5393d0fe5ad422cf1b"
         }
       ],
-      "demo": "demo/prove_hits.py"
+      "demo": "demo/prove_hits.py",
+      "pin": "commit"
     },
     {
       "repo": "zhaoxinghua09-cell/lgd-skill-review",
-      "commit": "12233dcba033e33984636cd30429409a9ba41c2f",
+      "commit": "",
       "files": [
         {
           "path": "SKILL.md",
@@ -69,7 +72,9 @@
           "sha256": "44ef14460dcba7b976785b18321068b303c45070284a955fc6545569b4d72185"
         }
       ],
-      "demo": "demo/prove_score.py"
+      "demo": "demo/prove_score.py",
+      "pin": "content-hash"
     }
-  ]
+  ],
+  "pin_note": "lgd-skill-review 是复跑件宿主仓库，自指 commit 会无限漂移，故只钉 SKILL.md/README.md 的内容哈希"
 }

@@ -30,10 +30,13 @@ OWNER = "zhaoxinghua09-cell"
 
 # 钉版本：2026-11-28 实测 HEAD。改这里等于改复跑对象，须同步更新 README 与台账。
 ITEMS = [
-    {"repo": "summarize-pro",        "commit": "eb106824ae6ba4bdbfeaf19228d16c88be6ad941", "demo": "demo/tamper_test.py"},
-    {"repo": "debug-pro",            "commit": "8753201365777643f066451b082f4c4eaffac9bc", "demo": "demo/prove_evidence.py"},
-    {"repo": "wechat-viral-topic",   "commit": "360b328eb3b71e11c8b39a27fadfd78aacc86ccf", "demo": "demo/prove_hits.py"},
-    {"repo": "lgd-skill-review",     "commit": "ee0000638f7cf64607702a426419820d22d20a17", "demo": "demo/prove_score.py"},
+    {"repo": "summarize-pro",      "pin": "commit", "commit": "eb106824ae6ba4bdbfeaf19228d16c88be6ad941", "demo": "demo/tamper_test.py"},
+    {"repo": "debug-pro",          "pin": "commit", "commit": "8753201365777643f066451b082f4c4eaffac9bc", "demo": "demo/prove_evidence.py"},
+    {"repo": "wechat-viral-topic", "pin": "commit", "commit": "360b328eb3b71e11c8b39a27fadfd78aacc86ccf", "demo": "demo/prove_hits.py"},
+    # 本包是复跑件的宿主仓库：自己改自己的 commit 会无限漂移，所以钉内容哈希而不是 commit
+    {"repo": "lgd-skill-review",   "pin": "hash", "commit": "", "demo": "demo/prove_score.py",
+     "files_expected": {"SKILL.md": "9074db6d592e8d4fe2ff2ebeaa74013beadda59a7443323c8798722c4d224d68",
+                        "README.md": "44ef14460dcba7b976785b18321068b303c45070284a955fc6545569b4d72185"}},
 ]
 FILES = ("SKILL.md", "README.md")
 UA = {"User-Agent": "s7-outsider-run/1.0 (+independent review)"}
@@ -52,14 +55,31 @@ def sha256(path):
     return h.hexdigest()
 
 
-def pin_clone(repo, commit, work):
-    """按 commit 拉取：先浅克隆默认分支，再按 sha 深挖一次。失败退回全量克隆。"""
+def pin_clone(repo, commit, work, files_expected=None):
+    """按 commit 拉取：先浅克隆默认分支，再按 sha 深挖一次。失败退回全量克隆。
+    files_expected 非空时改走「内容哈希钉版本」：不 checkout 指定 commit，只核对文件哈希。"""
     dest = os.path.join(work, repo)
     src = "https://github.com/%s/%s" % (OWNER, repo)
+    steps = []
+    if files_expected:
+        rc1, out1 = sh(["git", "clone", "--quiet", "--depth", "1", src, dest], timeout=300)
+        if rc1 != 0:
+            return dest, rc1, [out1], {}
+        head_rc, head = sh(["git", "-C", dest, "rev-parse", "HEAD"])
+        ok = True
+        for f, exp in files_expected.items():
+            p = os.path.join(dest, f)
+            got = sha256(p) if os.path.exists(p) else ""
+            if got != exp:
+                ok = False
+                steps.append("hash mismatch %s: expected %s got %s" % (f, exp[:12], got[:12] or "(missing)"))
+        meta = {"clone_source": src, "pin_mode": "content-hash", "pinned_commit": "",
+                "head": head.strip() if head_rc == 0 else "", "head_matches": ok,
+                "clone_steps": steps, "files_expected": files_expected}
+        return dest, 0 if ok else 3, steps, meta
     rc1, out1 = sh(["git", "clone", "--quiet", "--no-checkout", src, dest], timeout=300)
     if rc1 != 0:
         return dest, rc1, [out1], {}
-    steps = []
     rc2, out2 = sh(["git", "-C", dest, "fetch", "--quiet", "--depth", "1", "origin", commit], timeout=300)
     steps.append("git fetch --depth 1 origin %s -> rc=%d %s" % (commit, rc2, out2.splitlines()[-1] if out2 else ""))
     if rc2 == 0:
@@ -114,9 +134,10 @@ def main():
     items, all_links = [], []
     for it in ITEMS:
         t0 = time.time()
-        dest, rc, steps, meta = pin_clone(it["repo"], it["commit"], work)
+        dest, rc, steps, meta = pin_clone(it["repo"], it.get("commit", ""), work, it.get("files_expected"))
         rec = {"repo": "%s/%s" % (OWNER, it["repo"]), "artifact_id": "S7-%s" % it["repo"],
-               "commit": it["commit"], "clone_rc": rc, **meta}
+               "commit": it.get("commit") or (meta.get("head") or "")[:40],
+               "pin_mode": meta.get("pin_mode", "commit"), "clone_rc": rc, **meta}
         files = []
         for f in FILES:
             p = os.path.join(dest, f)
