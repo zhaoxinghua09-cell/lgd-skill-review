@@ -99,24 +99,28 @@ def pin_clone(repo, commit, work, files_expected=None):
     return dest, rc3, steps, meta
 
 
-def probe(url, tries=2, timeout=25):
+def probe(url, timeouts=(20, 35, 50)):
+    """三次递进超时。GitHub 对短超时经常直接 reset，单次 15s 判死链会误伤（本项目已踩过）。"""
     last = None
-    for i in range(tries):
+    for i, tmo in enumerate(timeouts):
         try:
             req = urllib.request.Request(url, headers=UA, method="GET")
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+            with urllib.request.urlopen(req, timeout=tmo) as r:
                 body = r.read(3000).decode("utf-8", "ignore")
                 return {"url": url, "status": int(getattr(r, "status", 200) or 200),
-                        "content_matched": len(body.strip()) > 0, "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        "content_matched": len(body.strip()) > 0,
+                        "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                         "attempts": i + 1}
         except urllib.error.HTTPError as e:
             return {"url": url, "status": int(e.code), "content_matched": False,
-                    "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "attempts": i + 1,
-                    "class": "http"}
+                    "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "attempts": i + 1, "class": "http"}
         except Exception as e:
             last = type(e).__name__
+            time.sleep(2)
     return {"url": url, "status": 0, "content_matched": False,
-            "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "attempts": tries, "class": last}
+            "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "attempts": len(timeouts), "class": last}
 
 
 def main():
