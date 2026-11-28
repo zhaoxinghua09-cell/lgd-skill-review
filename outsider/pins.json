@@ -56,7 +56,7 @@
     },
     {
       "repo": "zhaoxinghua09-cell/lgd-skill-review",
-      "commit": "ee0000638f7cf64607702a426419820d22d20a17",
+      "commit": "12233dcba033e33984636cd30429409a9ba41c2f",
       "files": [
         {
           "path": "SKILL.md",
@@ -65,8 +65,8 @@
         },
         {
           "path": "README.md",
-          "bytes": 6630,
-          "sha256": "9bbed74f1ce074293b5140a96b9a02751bae26bccb1fa2378df37e9b86b5ce01"
+          "bytes": 6877,
+          "sha256": "44ef14460dcba7b976785b18321068b303c45070284a955fc6545569b4d72185"
         }
       ],
       "demo": "demo/prove_score.py"
