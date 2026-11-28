@@ -99,22 +99,40 @@ def pin_clone(repo, commit, work, files_expected=None):
     return dest, rc3, steps, meta
 
 
+class _Redirect308(urllib.request.HTTPRedirectHandler):
+    """urllib 默认不跟 308，但 skills.sh 的徽章入口就是 308 永久跳转。"""
+    def http_error_308(self, req, fp, code, msg, headers):
+        return self.http_error_301(req, fp, 301, msg, headers)
+
+
+_OPENER = urllib.request.build_opener(_Redirect308())
+RETRY_CODES = {429, 500, 502, 503, 504}
+
+
 def probe(url, timeouts=(20, 35, 50)):
-    """三次递进超时。GitHub 对短超时经常直接 reset，单次 15s 判死链会误伤（本项目已踩过）。"""
+    """三次递进超时 + 5xx/429 重试 + 跟 308。
+
+    两个真踩过的坑：①单次短超时把 GitHub 的 reset 判成死链；
+    ②shields.io 返回 503（限流而非死链）、skills.sh 的 /b/ 入口返回 308——都不能记成"链接失效"。
+    """
     last = None
     for i, tmo in enumerate(timeouts):
         try:
             req = urllib.request.Request(url, headers=UA, method="GET")
-            with urllib.request.urlopen(req, timeout=tmo) as r:
+            with _OPENER.open(req, timeout=tmo) as r:
                 body = r.read(3000).decode("utf-8", "ignore")
                 return {"url": url, "status": int(getattr(r, "status", 200) or 200),
                         "content_matched": len(body.strip()) > 0,
                         "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                         "attempts": i + 1}
         except urllib.error.HTTPError as e:
+            last = "HTTP%d" % e.code
+            if e.code in RETRY_CODES and i + 1 < len(timeouts):
+                time.sleep(3 * (i + 1))
+                continue
             return {"url": url, "status": int(e.code), "content_matched": False,
                     "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    "attempts": i + 1, "class": "http"}
+                    "attempts": i + 1, "class": "http:transient" if e.code in RETRY_CODES else "http"}
         except Exception as e:
             last = type(e).__name__
             time.sleep(2)
@@ -204,3 +222,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
