@@ -1,0 +1,75 @@
+{
+  "owner": "zhaoxinghua09-cell",
+  "note": "四个包钉死 commit 与关键文件哈希；改这里等于改复跑对象，须同步 S7_PACK.md 与台账",
+  "as_of": "2026-11-28",
+  "items": [
+    {
+      "repo": "zhaoxinghua09-cell/summarize-pro",
+      "commit": "eb106824ae6ba4bdbfeaf19228d16c88be6ad941",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "bytes": 7452,
+          "sha256": "762d15803a26c8dffc84240841597104641cc61d0033028a5bc06c387b0dd641"
+        },
+        {
+          "path": "README.md",
+          "bytes": 5910,
+          "sha256": "82560b336c1a2131591ee21393eef724dd699a351557c348ce708e4cb1cea9e2"
+        }
+      ],
+      "demo": "demo/tamper_test.py"
+    },
+    {
+      "repo": "zhaoxinghua09-cell/debug-pro",
+      "commit": "8753201365777643f066451b082f4c4eaffac9bc",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "bytes": 6811,
+          "sha256": "23f54cb5e123f0b77a2638990122dcd8857ec93650227b5918f36cc1c53f609b"
+        },
+        {
+          "path": "README.md",
+          "bytes": 5522,
+          "sha256": "9f6431c320253f7acfd93f6b9bf76187df386464944d2a661be7464186d1ce33"
+        }
+      ],
+      "demo": "demo/prove_evidence.py"
+    },
+    {
+      "repo": "zhaoxinghua09-cell/wechat-viral-topic",
+      "commit": "360b328eb3b71e11c8b39a27fadfd78aacc86ccf",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "bytes": 6828,
+          "sha256": "840bb3acb81b3d7841fbf7e7c88c44d83345794d69d19759baa465e6494f3126"
+        },
+        {
+          "path": "README.md",
+          "bytes": 5456,
+          "sha256": "af279636200255e545e8e0aa8fc80e38d42b25c419540b5393d0fe5ad422cf1b"
+        }
+      ],
+      "demo": "demo/prove_hits.py"
+    },
+    {
+      "repo": "zhaoxinghua09-cell/lgd-skill-review",
+      "commit": "ee0000638f7cf64607702a426419820d22d20a17",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "bytes": 8282,
+          "sha256": "9074db6d592e8d4fe2ff2ebeaa74013beadda59a7443323c8798722c4d224d68"
+        },
+        {
+          "path": "README.md",
+          "bytes": 6630,
+          "sha256": "9bbed74f1ce074293b5140a96b9a02751bae26bccb1fa2378df37e9b86b5ce01"
+        }
+      ],
+      "demo": "demo/prove_score.py"
+    }
+  ]
+}

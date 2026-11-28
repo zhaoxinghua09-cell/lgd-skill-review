@@ -114,3 +114,8 @@ python tests/run_golden.py
 
 ---
 
+## 外部复跑（S7）
+
+不用相信我们：`outsider/pins.json` 钉死四个包的 commit 与关键文件哈希，`outsider/s7_run.py` 只用标准库，5–10 分钟出可校验回执。
+说明见 [outsider/S7_PACK.md](outsider/S7_PACK.md)。
+
